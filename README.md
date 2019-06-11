@@ -2,6 +2,10 @@
 
 > GitHub App authentication for JavaScript
 
+[![@latest](https://img.shields.io/npm/v/@octokit/auth-app.svg)](https://www.npmjs.com/package/@octokit/auth-app)
+[![Build Status](https://travis-ci.com/octokit/auth-app.js.svg?branch=master)](https://travis-ci.com/octokit/auth-app.js)
+[![Greenkeeper](https://badges.greenkeeper.io/octokit/auth-app.js.svg)](https://greenkeeper.io/)
+
 ### Usage
 
 ```js
