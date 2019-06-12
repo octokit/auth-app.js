@@ -89,7 +89,7 @@ const auth = createAppAuth({
         <strong>Required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed.
       </td>
     </tr>
-        <tr>
+    <tr>
       <th>
         <code>options.request</code>
       </th>
@@ -97,7 +97,7 @@ const auth = createAppAuth({
         <code>function</code>
       </th>
       <td>
-        You can pass in your own <a href="https://github.com/octokit/request.js"><code>@octokit/request</code></a> instance. For usage with enterprise, set <code>baseUrl</code> to the hostname. Example:
+        You can pass in your own <a href="https://github.com/octokit/request.js"><code>@octokit/request</code></a> instance. For usage with enterprise, set <code>baseUrl</code> to the hostname + <code>/api/v3</code>. Example:
 
 ```js
 const { request } = require("@octokit/request");
@@ -107,6 +107,33 @@ createAppAuth({
   request: request.defaults({
     baseUrl: "https://ghe.my-company.com/api/v3"
   })
+});
+```
+
+</td></tr>
+    <tr>
+      <th>
+        <code>options.cache</code>
+      </th>
+      <th>
+        <code>object</code>
+      </th>
+      <td>
+        Installation tokens expire after an hour. By default, <code>@octokit/auth-app</code> is caching up to 15000 tokens simultaneously using <a href="https://github.com/isaacs/node-lru-cache">lru-cache</a>. You can pass your own cache implementation by passing <code>options.cache.{get,set}</code> to the constructor. Example:
+
+```js
+const CACHE = {};
+createAppAuth({
+  clientId: 123,
+  clientSecret: "secret",
+  cache: {
+    get(key) {
+      return CACHE[key];
+    },
+    set(key, value) {
+      CACHE[key] = value;
+    }
+  }
 });
 ```
 
