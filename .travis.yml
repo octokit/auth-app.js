@@ -30,7 +30,7 @@ jobs:
       script:
         - npm run build
         - npx terser pkg/dist-web/index.bundled.js --output pkg/dist-web/index.bundled.min.js --compress --mangle
-        - npx bundlesize --files pkg/dist-web/index.bundled.min.js --max-size 18KB
+        - npx bundlesize --files pkg/dist-web/index.bundled.min.js --max-size 20KB
 
     # release stage: run semantic release & update the docs
     - stage: release
