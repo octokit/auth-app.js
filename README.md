@@ -23,18 +23,18 @@ const auth = createAppAuth({
 
 (async () => {
   // Retrieve JSON Web Token (JWT) to authenticate as app
-  const authentication = await auth();
+  const appAuthentication = await auth();
   const { data: appDetails } = await request("GET /app", {
-    headers: authentication.headers,
+    headers: appAuthentication.headers,
     previews: ["machine-man"]
   });
 
   // Retrieve installation access token
-  const authentication = await auth({ installationId: 123 });
+  const installationAuthentication = await auth({ installationId: 123 });
   const { data: repositories } = await request(
     "GET /installation/repositories",
     {
-      headers: authentication.headers,
+      headers: installationAuthentication.headers,
       previews: ["machine-man"]
     }
   );
