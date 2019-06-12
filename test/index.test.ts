@@ -169,3 +169,197 @@ test("app auth based on URL", async () => {
     query: {}
   });
 });
+
+test("installation auth from cache", async () => {
+  const request = jest.fn().mockResolvedValue({
+    data: {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z"
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request
+  });
+
+  const EXPECTED = {
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  };
+
+  const authentication1 = await auth({
+    installationId: 123
+  });
+  const authentication2 = await auth({
+    installationId: 123
+  });
+
+  expect(authentication1).toEqual(EXPECTED);
+  expect(authentication2).toEqual(EXPECTED);
+
+  expect(request.mock.calls.length).toEqual(1);
+});
+
+test("caches based on installation id", async () => {
+  const request = jest.fn().mockResolvedValue({
+    data: {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z"
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request
+  });
+
+  const authentication1 = await auth({
+    installationId: 123
+  });
+  const authentication2 = await auth({
+    installationId: 456
+  });
+
+  expect(authentication1).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  });
+  expect(authentication2).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 456,
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  });
+
+  expect(request.mock.calls.length).toEqual(2);
+  expect(request).toBeCalledWith(
+    "POST /app/installations/:installation_id/access_tokens",
+    {
+      installation_id: 123,
+      previews: ["machine-man"],
+      headers: {
+        authorization: `bearer ${BEARER}`
+      }
+    }
+  );
+  expect(request).toBeCalledWith(
+    "POST /app/installations/:installation_id/access_tokens",
+    {
+      installation_id: 456,
+      previews: ["machine-man"],
+      headers: {
+        authorization: `bearer ${BEARER}`
+      }
+    }
+  );
+});
+
+const ONE_HOUR_IN_MS = 1000 * 60 * 60;
+it("request installation again after timeout", async () => {
+  const request = jest.fn().mockResolvedValue({
+    data: {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z"
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request
+  });
+
+  const EXPECTED = {
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  };
+
+  const authentication1 = await auth({
+    installationId: 123
+  });
+
+  await new Promise(resolve => {
+    setTimeout(resolve, ONE_HOUR_IN_MS);
+    clock.tick(ONE_HOUR_IN_MS);
+  });
+
+  const authentication2 = await auth({
+    installationId: 123
+  });
+
+  expect(authentication1).toEqual(EXPECTED);
+  expect(authentication2).toEqual(EXPECTED);
+
+  expect(request.mock.calls.length).toEqual(2);
+});
+
+test("supports custom cache", async () => {
+  const options = {
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    cache: {
+      get: jest.fn(),
+      set: jest.fn()
+    }
+  };
+
+  const request = jest.fn().mockResolvedValue({
+    data: {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z"
+    }
+  });
+
+  const get = jest.fn();
+  const set = jest.fn();
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request,
+    cache: {
+      get,
+      set
+    }
+  });
+
+  const authentication = await auth({
+    installationId: 123
+  });
+
+  expect(get).toBeCalledWith(123);
+  expect(set).toBeCalledWith(123, "secret123|1970-01-01T01:00:00.000Z");
+});
