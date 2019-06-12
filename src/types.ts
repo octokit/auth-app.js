@@ -1,16 +1,26 @@
+import LRUCache from "lru-cache";
 import { request } from "@octokit/request";
+
+type Cache =
+  | LRUCache<number, string>
+  | {
+      get: (key: number) => string;
+      set: (key: number, value: string) => any;
+    };
 
 export type StrategyOptions = {
   id: number;
   privateKey: string;
   request?: typeof request;
+  cache?: Cache;
 };
 
-export type StrategyOptionsWithRequest = StrategyOptions & {
+export type StrategyOptionsWithDefaults = StrategyOptions & {
   request: typeof request;
+  cache: Cache;
 };
 
 export type AuthOptions = {
+  installationId: number;
   url?: string;
-  installationId?: number;
 };
