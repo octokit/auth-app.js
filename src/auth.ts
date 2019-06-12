@@ -1,35 +1,23 @@
-import jsonwebtoken from "jsonwebtoken";
 import { request } from "@octokit/request";
 
-import { StrategyOptionsWithRequest, AuthOptions } from "./types";
+import { StrategyOptionsWithDefaults, AuthOptions } from "./types";
 import { isAppRoute } from "./is-app-route";
+import { toTokenAuthentication } from "./to-token-authentication";
+import { toAppAuthentication } from "./to-app-authentication";
 
 export async function auth(
-  state: StrategyOptionsWithRequest,
+  state: StrategyOptionsWithDefaults,
   options?: AuthOptions
 ) {
-  const now = Math.floor(Date.now() / 1000);
-  const expiration = now + 60 * 10; // JWT expiration time (10 minute maximum)
-  const payload = {
-    iat: now, // Issued at time
-    exp: expiration,
-    iss: state.id
-  };
+  if (options) {
+    const result = state.cache.get(options.installationId);
+    if (result) {
+      const [token, expiresAt] = result.split("|");
+      return toTokenAuthentication(options.installationId, token, expiresAt);
+    }
+  }
 
-  const JWT = jsonwebtoken.sign(payload, state.privateKey, {
-    algorithm: "RS256"
-  });
-
-  const appAuthentication = {
-    type: "app",
-    token: JWT,
-    appId: state.id,
-    expiration,
-    headers: {
-      authorization: `bearer ${JWT}`
-    },
-    query: {}
-  };
+  const appAuthentication = toAppAuthentication(state.id, state.privateKey);
 
   if (!options || isAppRoute(options.url)) {
     return appAuthentication;
@@ -46,15 +34,6 @@ export async function auth(
     }
   );
 
-  return {
-    type: "token",
-    token: token,
-    tokenType: "installation",
-    installationId: options.installationId,
-    expiresAt: expires_at,
-    headers: {
-      authorization: `token ${token}`
-    },
-    query: {}
-  };
+  state.cache.set(options.installationId, [token, expires_at].join("|"));
+  return toTokenAuthentication(options.installationId, token, expires_at);
 }
