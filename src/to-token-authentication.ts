@@ -2,17 +2,24 @@ export function toTokenAuthentication(
   installationId: number,
   token: string,
   expiresAt: string,
-  repositoryIds?: number[]
+  permissions: { [name: string]: string },
+  repositoryIds?: number[],
+  singleFileName?: string
 ) {
-  return Object.assign({
-    type: "token",
-    token: token,
-    tokenType: "installation",
-    installationId,
-    expiresAt,
-    headers: {
-      authorization: `token ${token}`
+  return Object.assign(
+    {
+      type: "token",
+      token: token,
+      tokenType: "installation",
+      installationId,
+      permissions,
+      expiresAt,
+      headers: {
+        authorization: `token ${token}`
+      },
+      query: {}
     },
-    query: {}
-  }, repositoryIds ? {repositoryIds} : null)
+    repositoryIds ? { repositoryIds } : null,
+    singleFileName ? { singleFileName } : null
+  );
 }
