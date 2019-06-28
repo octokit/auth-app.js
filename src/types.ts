@@ -2,10 +2,10 @@ import LRUCache from "lru-cache";
 import { request } from "@octokit/request";
 
 type Cache =
-  | LRUCache<number, string>
+  | LRUCache<string, string>
   | {
-      get: (key: number) => string;
-      set: (key: number, value: string) => any;
+      get: (key: string) => string;
+      set: (key: string, value: string) => any;
     };
 
 export type StrategyOptions = {

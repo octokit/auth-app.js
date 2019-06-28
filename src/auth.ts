@@ -4,13 +4,15 @@ import { StrategyOptionsWithDefaults, AuthOptions, Permissions } from "./types";
 import { isAppRoute } from "./is-app-route";
 import { toTokenAuthentication } from "./to-token-authentication";
 import { toAppAuthentication } from "./to-app-authentication";
+import { optionsToCacheKey } from "./cache-key";
 
 export async function auth(
   state: StrategyOptionsWithDefaults,
   options?: AuthOptions
 ) {
   if (options) {
-    const result = state.cache.get(options.installationId);
+    const cacheKey = optionsToCacheKey(options);
+    const result = state.cache.get(cacheKey);
     if (result) {
       const [
         token,
@@ -81,8 +83,10 @@ export async function auth(
     ? repositoryIds.join(",")
     : undefined;
 
+  const cacheKey = optionsToCacheKey(options);
+
   state.cache.set(
-    options.installationId,
+    cacheKey,
     [token, expires_at, permissionsString, repositoryIdsString, singleFileName]
       .join("|")
       .replace(/\|+$/, "")
