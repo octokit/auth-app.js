@@ -189,6 +189,86 @@ test("repositoryIds auth option", async () => {
   );
 });
 
+test.only("permissions auth option", async () => {
+  const request = jest
+    .fn()
+
+    .mockImplementation(async route => {
+      if (route === "POST /app/installations/:installation_id/access_tokens") {
+        return {
+          data: {
+            token: "secret123",
+            expires_at: "1970-01-01T01:00:00.000Z",
+            permissions: {
+              single_file: "read"
+            }
+          }
+        };
+      }
+
+      return {
+        data: {
+          permissions: {
+            single_file: "read"
+          },
+          single_file_name: ".github/myapp.yml"
+        }
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request
+  });
+
+  const authentication = await auth({
+    installationId: 123,
+    permissions: {
+      single_file: "read"
+    },
+    url: "/installation/repositories"
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      single_file: "read"
+    },
+    singleFileName: ".github/myapp.yml",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  });
+
+  expect(request).toBeCalledWith(
+    "POST /app/installations/:installation_id/access_tokens",
+    {
+      installation_id: 123,
+      permissions: {
+        single_file: "read"
+      },
+      previews: ["machine-man"],
+      headers: {
+        authorization: `bearer ${BEARER}`
+      }
+    }
+  );
+  expect(request).toBeCalledWith("GET /app/installations/:installation_id", {
+    installation_id: 123,
+    previews: ["machine-man"],
+    headers: {
+      authorization: `bearer ${BEARER}`
+    }
+  });
+});
+
 test("app auth based on URL", async () => {
   const request = jest.fn().mockImplementation(() => {
     throw new Error("Should not create installation token");
