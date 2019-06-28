@@ -192,7 +192,7 @@ createAppAuth({
         <code>object</code>
       </th>
       <td>
-        The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see "[GitHub App permissions](https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions)."
+        The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions">GitHub App permissions</a>.
       </td>
     </tr>
     <tr>
