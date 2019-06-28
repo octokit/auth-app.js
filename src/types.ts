@@ -20,8 +20,13 @@ export type StrategyOptionsWithDefaults = StrategyOptions & {
   cache: Cache;
 };
 
+export type Permissions = {
+  [name: string]: string;
+};
+
 export type AuthOptions = {
   installationId: number;
   repositoryIds?: number[];
+  permissions?: Permissions;
   url?: string;
 };
