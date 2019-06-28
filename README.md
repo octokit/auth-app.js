@@ -399,6 +399,17 @@ There are two possible results
     </tr>
     <tr>
       <th>
+        <code>repositoryIds</code>
+      </th>
+      <th>
+        <code>array of numbers</code>
+      </th>
+      <td>
+        Only present if <code>repositoryIds</code> option passed to <code>auth(options)</code>. 
+      </td>
+    </tr>
+    <tr>
+      <th>
         <code>headers</code>
       </th>
       <th>
