@@ -141,6 +141,54 @@ test("README example for installation auth based on URL", async () => {
   );
 });
 
+test("repositoryIds auth option", async () => {
+  const request = jest.fn().mockResolvedValue({
+    data: {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      repositories: [{ id: 1 }, { id: 2 }, { id: 3 }]
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request
+  });
+
+  const authentication = await auth({
+    installationId: 123,
+    repositoryIds: [1, 2, 3],
+    url: "/installation/repositories"
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositoryIds: [1, 2, 3],
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  });
+
+  expect(request).toBeCalledWith(
+    "POST /app/installations/:installation_id/access_tokens",
+    {
+      installation_id: 123,
+      repository_ids: [1, 2, 3],
+      previews: ["machine-man"],
+      headers: {
+        authorization: `bearer ${BEARER}`
+      }
+    }
+  );
+});
+
 test("app auth based on URL", async () => {
   const request = jest.fn().mockImplementation(() => {
     throw new Error("Should not create installation token");
