@@ -24,16 +24,28 @@ export async function auth(
   }
 
   const {
-    data: { token, expires_at }
+    data: { token, expires_at, repositories }
   } = await state.request(
     "POST /app/installations/:installation_id/access_tokens",
     {
       installation_id: options.installationId,
+      repository_ids: options.repositoryIds,
       previews: ["machine-man"],
       headers: appAuthentication.headers
     }
   );
 
-  state.cache.set(options.installationId, [token, expires_at].join("|"));
-  return toTokenAuthentication(options.installationId, token, expires_at);
+  // @ts-ignore
+  const repositoryIds = repositories ? repositories.map(r => r.id) : undefined;
+
+  state.cache.set(
+    options.installationId,
+    [token, expires_at, repositoryIds].filter(Boolean).join("|")
+  );
+  return toTokenAuthentication(
+    options.installationId,
+    token,
+    expires_at,
+    repositoryIds
+  );
 }

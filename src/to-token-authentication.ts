@@ -1,17 +1,18 @@
 export function toTokenAuthentication(
   installationId: number,
   token: string,
-  expiresAt: string
+  expiresAt: string,
+  repositoryIds?: number[]
 ) {
-  return {
+  return Object.assign({
     type: "token",
     token: token,
     tokenType: "installation",
-    installationId: installationId,
+    installationId,
     expiresAt,
     headers: {
       authorization: `token ${token}`
     },
     query: {}
-  };
+  }, repositoryIds ? {repositoryIds} : null)
 }

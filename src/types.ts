@@ -22,5 +22,6 @@ export type StrategyOptionsWithDefaults = StrategyOptions & {
 
 export type AuthOptions = {
   installationId: number;
+  repositoryIds?: number[];
   url?: string;
 };
