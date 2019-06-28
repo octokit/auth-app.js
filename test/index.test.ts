@@ -57,12 +57,28 @@ test("README example for app auth", async () => {
 });
 
 test("README example for installation auth", async () => {
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z"
-    }
-  });
+  const request = jest
+    .fn()
+
+    .mockImplementation(async route => {
+      if (route === "POST /app/installations/:installation_id/access_tokens") {
+        return {
+          data: {
+            token: "secret123",
+            expires_at: "1970-01-01T01:00:00.000Z"
+          }
+        };
+      }
+
+      return {
+        data: {
+          permissions: {
+            metadata: "read"
+          },
+          single_file_name: null
+        }
+      };
+    });
 
   const auth = createAppAuth({
     id: APP_ID,
@@ -78,6 +94,9 @@ test("README example for installation auth", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
     expiresAt: "1970-01-01T01:00:00.000Z",
     headers: {
       authorization: "token secret123"
@@ -98,11 +117,24 @@ test("README example for installation auth", async () => {
 });
 
 test("README example for installation auth based on URL", async () => {
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z"
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z"
+        }
+      };
     }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read"
+        },
+        single_file_name: null
+      }
+    };
   });
 
   const auth = createAppAuth({
@@ -122,6 +154,7 @@ test("README example for installation auth based on URL", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
     headers: {
       authorization: "token secret123"
@@ -142,12 +175,25 @@ test("README example for installation auth based on URL", async () => {
 });
 
 test("repositoryIds auth option", async () => {
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z",
-      repositories: [{ id: 1 }, { id: 2 }, { id: 3 }]
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z",
+          repositories: [{ id: 1 }, { id: 2 }, { id: 3 }]
+        }
+      };
     }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read"
+        },
+        single_file_name: null
+      }
+    };
   });
 
   const auth = createAppAuth({
@@ -168,6 +214,9 @@ test("repositoryIds auth option", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositoryIds: [1, 2, 3],
     headers: {
@@ -189,7 +238,7 @@ test("repositoryIds auth option", async () => {
   );
 });
 
-test.only("permissions auth option", async () => {
+test("permissions auth option", async () => {
   const request = jest
     .fn()
 
@@ -299,11 +348,25 @@ test("app auth based on URL", async () => {
 });
 
 test("installation auth from cache", async () => {
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z"
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z"
+        }
+      };
     }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read",
+          issues: "write"
+        },
+        single_file_name: null
+      }
+    };
   });
 
   const auth = createAppAuth({
@@ -318,6 +381,10 @@ test("installation auth from cache", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    permissions: {
+      metadata: "read",
+      issues: "write"
+    },
     expiresAt: "1970-01-01T01:00:00.000Z",
     headers: {
       authorization: "token secret123"
@@ -335,15 +402,27 @@ test("installation auth from cache", async () => {
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
 
-  expect(request.mock.calls.length).toEqual(1);
+  expect(request.mock.calls.length).toEqual(2);
 });
 
 test("caches based on installation id", async () => {
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z"
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z"
+        }
+      };
     }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read"
+        }
+      }
+    };
   });
 
   const auth = createAppAuth({
@@ -365,6 +444,7 @@ test("caches based on installation id", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
     headers: {
       authorization: "token secret123"
@@ -376,6 +456,7 @@ test("caches based on installation id", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 456,
+    permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
     headers: {
       authorization: "token secret123"
@@ -383,7 +464,7 @@ test("caches based on installation id", async () => {
     query: {}
   });
 
-  expect(request.mock.calls.length).toEqual(2);
+  expect(request.mock.calls.length).toEqual(4);
   expect(request).toBeCalledWith(
     "POST /app/installations/:installation_id/access_tokens",
     {
@@ -407,12 +488,24 @@ test("caches based on installation id", async () => {
 });
 
 const ONE_HOUR_IN_MS = 1000 * 60 * 60;
-it("request installation again after timeout", async () => {
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z"
+test("request installation again after timeout", async () => {
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z"
+        }
+      };
     }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read"
+        }
+      }
+    };
   });
 
   const auth = createAppAuth({
@@ -427,6 +520,9 @@ it("request installation again after timeout", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
     expiresAt: "1970-01-01T01:00:00.000Z",
     headers: {
       authorization: "token secret123"
@@ -450,7 +546,7 @@ it("request installation again after timeout", async () => {
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
 
-  expect(request.mock.calls.length).toEqual(2);
+  expect(request.mock.calls.length).toEqual(4);
 });
 
 test("supports custom cache", async () => {
@@ -463,11 +559,23 @@ test("supports custom cache", async () => {
     }
   };
 
-  const request = jest.fn().mockResolvedValue({
-    data: {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z"
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z"
+        }
+      };
     }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read"
+        }
+      }
+    };
   });
 
   const get = jest.fn();
@@ -489,5 +597,8 @@ test("supports custom cache", async () => {
   });
 
   expect(get).toBeCalledWith(123);
-  expect(set).toBeCalledWith(123, "secret123|1970-01-01T01:00:00.000Z");
+  expect(set).toBeCalledWith(
+    123,
+    "secret123|1970-01-01T01:00:00.000Z|metadata"
+  );
 });
