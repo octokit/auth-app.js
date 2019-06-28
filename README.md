@@ -410,6 +410,28 @@ There are two possible results
     </tr>
     <tr>
       <th>
+        <code>permissions</code>
+      </th>
+      <th>
+        <code>object</code>
+      </th>
+      <td>
+        An object where keys are the permission name and the value is either <code>"read"</code> or <code>"write"</code>. See the list of all <a href="https://developer.github.com/v3/apps/permissions/">GitHub App Permissions</a>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>singleFileName</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        If the <a herf="https://developer.github.com/v3/apps/permissions/#permission-on-single-file">single file permission</a> is enabled, the <code>singleFileName</code> property is set to the path of the accessible file.
+      </td>
+    </tr>
+    <tr>
+      <th>
         <code>headers</code>
       </th>
       <th>
