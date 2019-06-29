@@ -4,44 +4,29 @@ import { StrategyOptionsWithDefaults, AuthOptions, Permissions } from "./types";
 import { isAppRoute } from "./is-app-route";
 import { toTokenAuthentication } from "./to-token-authentication";
 import { toAppAuthentication } from "./to-app-authentication";
-import { optionsToCacheKey } from "./cache-key";
+import { get, set } from "./cache";
 
 export async function auth(
   state: StrategyOptionsWithDefaults,
   options?: AuthOptions
 ) {
   if (options) {
-    const cacheKey = optionsToCacheKey(options);
-    const result = state.cache.get(cacheKey);
+    const result = get(state.cache, options);
     if (result) {
-      const [
+      const {
         token,
         expiresAt,
-        permissionsString,
-        repositoryIdsString,
+        permissions,
+        repositoryIds,
         singleFileName
-      ] = result.split("|");
-
-      const permissions = permissionsString
-        .split(/,/)
-        .reduce((permissions: Permissions, string) => {
-          if (/!$/.test(string)) {
-            permissions[string.slice(0, -1)] = "write";
-          } else {
-            permissions[string] = "read";
-          }
-
-          return permissions;
-        }, {});
+      } = result;
 
       return toTokenAuthentication(
         options.installationId,
         token,
         expiresAt,
         permissions,
-        repositoryIdsString
-          ? repositoryIdsString.split(",").map(id => parseInt(id, 10))
-          : undefined,
+        repositoryIds,
         singleFileName
       );
     }
@@ -66,6 +51,10 @@ export async function auth(
     }
   );
 
+  const repositoryIds = repositories
+    ? repositories.map((r: { id: number }) => r.id)
+    : void 0;
+
   const {
     data: { permissions, single_file_name: singleFileName }
   } = await state.request("GET /app/installations/:installation_id", {
@@ -74,23 +63,13 @@ export async function auth(
     headers: appAuthentication.headers
   });
 
-  const permissionsString = Object.keys(permissions)
-    .map(name => `${name}${permissions[name] === "write" ? "!" : ""}`)
-    .join(",");
-  // @ts-ignore
-  const repositoryIds = repositories ? repositories.map(r => r.id) : undefined;
-  const repositoryIdsString = repositories
-    ? repositoryIds.join(",")
-    : undefined;
-
-  const cacheKey = optionsToCacheKey(options);
-
-  state.cache.set(
-    cacheKey,
-    [token, expires_at, permissionsString, repositoryIdsString, singleFileName]
-      .join("|")
-      .replace(/\|+$/, "")
-  );
+  set(state.cache, options, {
+    token,
+    expires_at,
+    permissions,
+    repositoryIds,
+    singleFileName
+  });
 
   return toTokenAuthentication(
     options.installationId,

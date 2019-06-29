@@ -1,7 +1,7 @@
 import LRUCache from "lru-cache";
 import { request } from "@octokit/request";
 
-type Cache =
+export type Cache =
   | LRUCache<string, string>
   | {
       get: (key: string) => string;
@@ -29,4 +29,12 @@ export type AuthOptions = {
   repositoryIds?: number[];
   permissions?: Permissions;
   url?: string;
+};
+
+export type CacheData = {
+  token: string;
+  expires_at: string;
+  permissions: Permissions;
+  repositoryIds?: number[];
+  singleFileName?: string;
 };

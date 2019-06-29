@@ -2,7 +2,7 @@ import getUserAgent from "universal-user-agent";
 import { request } from "@octokit/request";
 
 import { auth } from "./auth";
-import { getCache } from "./get-cache";
+import { getCache } from "./cache";
 import { StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
