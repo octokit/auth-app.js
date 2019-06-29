@@ -525,6 +525,66 @@ test("installation cache with different options", async () => {
   expect(request.mock.calls.length).toEqual(4);
 });
 
+test("refresh option", async () => {
+  const request = jest.fn().mockImplementation(async route => {
+    if (route === "POST /app/installations/:installation_id/access_tokens") {
+      return {
+        data: {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z"
+        }
+      };
+    }
+
+    return {
+      data: {
+        permissions: {
+          metadata: "read",
+          issues: "write"
+        },
+        single_file_name: null
+      }
+    };
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    // @ts-ignore
+    request
+  });
+
+  const EXPECTED = {
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read",
+      issues: "write"
+    },
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  };
+
+  const authentication1 = await auth({
+    installationId: 123,
+    refresh: true
+  });
+  const authentication2 = await auth({
+    installationId: 123,
+    refresh: true
+  });
+
+  expect(authentication1).toEqual(EXPECTED);
+  expect(authentication2).toEqual(EXPECTED);
+
+  expect(request.mock.calls.length).toEqual(4);
+});
+
 test("caches based on installation id", async () => {
   const request = jest.fn().mockImplementation(async route => {
     if (route === "POST /app/installations/:installation_id/access_tokens") {
