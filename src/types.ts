@@ -29,6 +29,7 @@ export type AuthOptions = {
   repositoryIds?: number[];
   permissions?: Permissions;
   url?: string;
+  refresh?: boolean;
 };
 
 export type CacheData = {

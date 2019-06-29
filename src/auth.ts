@@ -10,7 +10,7 @@ export async function auth(
   state: StrategyOptionsWithDefaults,
   options?: AuthOptions
 ) {
-  if (options) {
+  if (options && !options.refresh) {
     const result = get(state.cache, options);
     if (result) {
       const {
