@@ -93,7 +93,18 @@ const auth = createAppAuth({
     </tr>
     <tr>
       <th>
-        <code>options.request</code>
+        <code>installationId</code>
+      </th>
+      <th>
+        <code>number</code>
+      </th>
+      <td>
+        A default <code>installationId</code> to be used when calling <code>auth()</code>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>request</code>
       </th>
       <th>
         <code>function</code>
@@ -115,7 +126,7 @@ createAppAuth({
 </td></tr>
     <tr>
       <th>
-        <code>options.cache</code>
+        <code>cache</code>
       </th>
       <th>
         <code>object</code>
@@ -168,7 +179,7 @@ createAppAuth({
         <code>number</code>
       </th>
       <td>
-        <strong>Required if <code>url</code>, <code>repositoryIds</code> or <code>permissions</code> passed</strong>. ID of installation to retrieve authentication for.
+        <strong>Required if <code>url</code>, <code>repositoryIds</code> or <code>permissions</code> passed</strong>, unless a default <code>installationId</code> option was passed to <code>createAppAuth()</code>. ID of installation to retrieve authentication for.
       </td>
     </tr>
     <tr>
