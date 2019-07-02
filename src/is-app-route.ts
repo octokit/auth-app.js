@@ -47,6 +47,11 @@ function routeMatcher(paths: string[]) {
 
 const REGEX = routeMatcher(PATHS);
 
-export function isAppRoute(path?: string): Boolean {
-  return !!path && REGEX.test(path);
+type Options = {
+  url?: string;
+  [key: string]: any;
+};
+
+export function isAppRoute(options: Options): Boolean {
+  return !!options.url && REGEX.test(options.url);
 }

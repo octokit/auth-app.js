@@ -1,6 +1,12 @@
 import { request } from "@octokit/request";
 
-import { StrategyOptionsWithDefaults, AuthOptions, Permissions } from "./types";
+import {
+  Authentication,
+  AuthOptions,
+  Permissions,
+  StrategyOptionsWithDefaults,
+  WithInstallationId
+} from "./types";
 import { isAppRoute } from "./is-app-route";
 import { toTokenAuthentication } from "./to-token-authentication";
 import { toAppAuthentication } from "./to-app-authentication";
@@ -8,9 +14,13 @@ import { get, set } from "./cache";
 
 export async function auth(
   state: StrategyOptionsWithDefaults,
-  options?: AuthOptions
+  options: AuthOptions = {}
 ) {
-  if (options && !options.refresh) {
+  // installationId is never 0, so a simple check here is fine
+  const installationId = (options.installationId ||
+    state.installationId) as number;
+
+  if (installationId && !options.refresh) {
     const result = get(state.cache, options);
     if (result) {
       const {
@@ -22,7 +32,7 @@ export async function auth(
       } = result;
 
       return toTokenAuthentication(
-        options.installationId,
+        installationId,
         token,
         expiresAt,
         permissions,
@@ -34,7 +44,7 @@ export async function auth(
 
   const appAuthentication = toAppAuthentication(state.id, state.privateKey);
 
-  if (!options || isAppRoute(options.url)) {
+  if (isAppRoute(options) || !installationId) {
     return appAuthentication;
   }
 
@@ -43,7 +53,7 @@ export async function auth(
   } = await state.request(
     "POST /app/installations/:installation_id/access_tokens",
     {
-      installation_id: options.installationId,
+      installation_id: installationId,
       repository_ids: options.repositoryIds,
       permissions: options.permissions,
       previews: ["machine-man"],
@@ -58,7 +68,7 @@ export async function auth(
   const {
     data: { permissions, single_file_name: singleFileName }
   } = await state.request("GET /app/installations/:installation_id", {
-    installation_id: options.installationId,
+    installation_id: options.installationId || state.installationId,
     previews: ["machine-man"],
     headers: appAuthentication.headers
   });
@@ -72,7 +82,7 @@ export async function auth(
   });
 
   return toTokenAuthentication(
-    options.installationId,
+    installationId,
     token,
     expires_at,
     permissions,

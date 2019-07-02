@@ -8,9 +8,52 @@ export type Cache =
       set: (key: string, value: string) => any;
     };
 
+export interface AppAuthStrategy {
+  (options?: StrategyOptions): AppAuth;
+}
+
+export interface AppAuth {
+  (options: AuthOptions): Promise<Authentication>;
+}
+
+export type JWT = string;
+export type UTC_TIMESTAMP = string;
+
+type AppAuthentication = {
+  type: "app";
+  token: JWT;
+  appId: number;
+  exporation: number;
+  headers: {
+    authorization: string;
+  };
+  query: {};
+};
+
+type InstallationAccessTokenAuthentication = {
+  type: "token";
+  token: string;
+  tokenType: "installation";
+  expiresAt: UTC_TIMESTAMP;
+  permissions: {
+    [permission: string]: "read" | "write";
+  };
+  singleFileName?: string;
+  repositoryIds?: number[];
+  headers: {
+    authorization: string;
+  };
+  query: {};
+};
+
+export type Authentication =
+  | AppAuthentication
+  | InstallationAccessTokenAuthentication;
+
 export type StrategyOptions = {
   id: number;
   privateKey: string;
+  installationId?: number;
   request?: typeof request;
   cache?: Cache;
 };
@@ -25,7 +68,7 @@ export type Permissions = {
 };
 
 export type AuthOptions = {
-  installationId: number;
+  installationId?: number;
   repositoryIds?: number[];
   permissions?: Permissions;
   url?: string;
@@ -38,4 +81,8 @@ export type CacheData = {
   permissions: Permissions;
   repositoryIds?: number[];
   singleFileName?: string;
+};
+
+export type WithInstallationId = {
+  installationId: number;
 };
