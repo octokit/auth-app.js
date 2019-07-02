@@ -1,6 +1,7 @@
 // https://github.com/isaacs/node-lru-cache#readme
 import LRU from "lru-cache";
 
+/* istanbul ignore next */
 import { AuthOptions, Cache, CacheData, Permissions } from "./types";
 
 export function getCache() {
