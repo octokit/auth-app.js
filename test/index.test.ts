@@ -174,6 +174,67 @@ test("README example for installation auth based on URL", async () => {
   );
 });
 
+test("installationId strategy option", async () => {
+  const request = jest
+    .fn()
+
+    .mockImplementation(async route => {
+      if (route === "POST /app/installations/:installation_id/access_tokens") {
+        return {
+          data: {
+            token: "secret123",
+            expires_at: "1970-01-01T01:00:00.000Z"
+          }
+        };
+      }
+
+      return {
+        data: {
+          permissions: {
+            metadata: "read"
+          },
+          single_file_name: null
+        }
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+    // @ts-ignore
+    request
+  });
+
+  const authentication = await auth();
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    headers: {
+      authorization: "token secret123"
+    },
+    query: {}
+  });
+
+  expect(request).toBeCalledWith(
+    "POST /app/installations/:installation_id/access_tokens",
+    {
+      installation_id: 123,
+      previews: ["machine-man"],
+      headers: {
+        authorization: `bearer ${BEARER}`
+      }
+    }
+  );
+});
+
 test("repositoryIds auth option", async () => {
   const request = jest.fn().mockImplementation(async route => {
     if (route === "POST /app/installations/:installation_id/access_tokens") {
