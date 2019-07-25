@@ -26,7 +26,6 @@
   "dependencies": {
     "@octokit/request": "^5.0.0",
     "@types/jsonwebtoken": "^8.3.2",
-    "@types/lolex": "^3.1.1",
     "@types/lru-cache": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
     "lru-cache": "^5.1.1",
@@ -39,6 +38,7 @@
     "@pika/plugin-bundle-web": "^0.4.0",
     "@pika/plugin-ts-standard-pkg": "^0.4.0",
     "@types/jest": "^24.0.13",
+    "@types/lolex": "^3.1.1",
     "jest": "^24.8.0",
     "lolex": "^4.1.0",
     "pika-plugin-unpkg-field": "^1.1.0",
@@ -85,7 +85,12 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/github",
-      "@semantic-release/npm",
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "./pkg"
+        }
+      ],
       [
         "semantic-release-plugin-update-version-in-files",
         {
