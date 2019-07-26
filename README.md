@@ -10,49 +10,76 @@
 
 For other GitHub authentication strategies see [octokit/auth.js](https://github.com/octokit/auth.js).
 
-### Usage
+<!-- toc -->
+
+- [Usage](#usage)
+- [`createAppAuth(options)`](#createappauthoptions)
+- [`auth(options)`](#authoptions)
+- [Authentication object](#authentication-object)
+  - [JSON Web Token (JWT) authentication](#json-web-token-jwt-authentication)
+  - [Installation access token authentication](#installation-access-token-authentication)
+- [`auth.hook(request, route, parameters)` or `auth.hook(request, options)`](#authhookrequest-route-parameters-or-authhookrequest-options)
+- [Implementation details](#implementation-details)
+- [License](#license)
+
+<!-- tocstop -->
+
+## Usage
+
+<table>
+<tbody valign=top align=left>
+<tr><th>
+Browsers
+</th><td width=100%>
+
+Not yet supported, see [#6](https://github.com/octokit/auth-app.js/issues/6).
+
+</td></tr>
+<tr><th>
+Node
+</th><td>
+
+Install with <code>npm install @octokit/auth-oauth-app</code>
 
 ```js
-import { request } from "@octokit/request";
-import { createAppAuth } from "@octokit/auth-app";
-
-const auth = createAppAuth({
-  id: 1,
-  privateKey: "-----BEGIN RSA PRIVATE KEY-----\n..."
-});
-
-(async () => {
-  // Retrieve JSON Web Token (JWT) to authenticate as app
-  const appAuthentication = await auth();
-  const { data: appDetails } = await request("GET /app", {
-    headers: appAuthentication.headers,
-    previews: ["machine-man"]
-  });
-
-  // Retrieve installation access token
-  const installationAuthentication = await auth({ installationId: 123 });
-  const { data: repositories } = await request(
-    "GET /installation/repositories",
-    {
-      headers: installationAuthentication.headers,
-      previews: ["machine-man"]
-    }
-  );
-
-  // Retrieve JSON Web Token (JWT) or installation access token based on request url
-  const url = "/installation/repositories";
-  const authentication = await auth({
-    installationId: 123,
-    url
-  });
-  const { data: repositories } = await request(url, {
-    headers: authentication.headers,
-    previews: ["machine-man"]
-  });
-})();
+const { createOAuthAppAuth } = require("@octokit/auth-oauth-app");
+// or: import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 ```
 
-### Strategy options
+</td></tr>
+</tbody>
+</table>
+
+```js
+const auth = createAppAuth({
+  id: 1,
+  privateKey: "-----BEGIN RSA PRIVATE KEY-----\n...",
+  installationId: 123
+});
+
+// Retrieve JSON Web Token (JWT) to authenticate as app
+const appAuthentication = await auth({ type: "app" });
+// resolves with
+// {
+//   type: 'app',
+//   token: 'jsonwebtoken123',
+//   appId: 123,
+//   expiration: 1564115676
+// }
+
+// Retrieve installation access token
+const installationAuthentication = await auth({ type: "installation" });
+// resolves with
+// {
+//   type: 'token',
+//   tokenType: 'installation',
+//   token: 'token123',
+//   installationId: 123,
+//   expiresAt: '2019-06-11T22:22:34Z'
+// }
+```
+
+## `createAppAuth(options)`
 
 <table width="100%">
   <thead align=left>
@@ -99,7 +126,7 @@ const auth = createAppAuth({
         <code>number</code>
       </th>
       <td>
-        A default <code>installationId</code> to be used when calling <code>auth()</code>.
+        Default <code>installationId</code> to be used when calling <code>auth({ type: "installation" })</code>.
       </td>
     </tr>
     <tr>
@@ -140,10 +167,10 @@ createAppAuth({
   clientId: 123,
   clientSecret: "secret",
   cache: {
-    get(key) {
+    async get(key) {
       return CACHE[key];
     },
-    set(key, value) {
+    async set(key, value) {
       CACHE[key] = value;
     }
   }
@@ -154,7 +181,7 @@ createAppAuth({
   </tbody>
 </table>
 
-### Auth options
+## `auth(options)`
 
 <table width="100%">
   <thead align=left>
@@ -173,13 +200,24 @@ createAppAuth({
   <tbody align=left valign=top>
     <tr>
       <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <strong>Required</strong>. Must be either <code>"app"</code> or <code>"installation"</code>.
+      </td>
+    </tr>
+    <tr>
+      <th>
         <code>installationId</code>
       </th>
       <th>
         <code>number</code>
       </th>
       <td>
-        <strong>Required if <code>url</code>, <code>repositoryIds</code> or <code>permissions</code> passed</strong>, unless a default <code>installationId</code> option was passed to <code>createAppAuth()</code>. ID of installation to retrieve authentication for.
+        <strong>Required unless a default <code>installationId</code> was passed to <code>createAppAuth()</code></strong>. ID of installation to retrieve authentication for.
       </td>
     </tr>
     <tr>
@@ -206,23 +244,6 @@ createAppAuth({
     </tr>
     <tr>
       <th>
-        <code>url</code>
-      </th>
-      <th>
-        <code>string</code>
-      </th>
-      <td>
-        An absolute URL or endpoint route path. Examples:
-        <ul>
-          <li><code>"https://enterprise.github.com/api/v3/app"</code></li>
-          <li><code>"/app/installations/123"</code></li>
-          <li><code>"/app/installations/:installation_id"</code></li>
-        </ul>
-        Depending on the <code>url</code>, the resulting authentication object is either a JWT or an installation token.
-      </td>
-    </tr>
-    <tr>
-      <th>
         <code>refresh</code>
       </th>
       <th>
@@ -237,18 +258,14 @@ createAppAuth({
   </tbody>
 </table>
 
-### Authentication object
+## Authentication object
 
 There are two possible results
 
-1. **JSON Web Token (JWT) authentication**  
-   ❌ `installationId` was _not_ passed to `auth()`  
-   ✅ `url` passed to `auth()` matches an endpoint that requires JWT authentication.
-2. **Installation access token authentication**  
-   ✅ `installationId` passed to `auth()`  
-   ❌ `url` passed to `auth()` does not match an endpoint that requires JWT authentication.
+1. JSON Web Token (JWT) authentication
+2. Installation access token authentication
 
-#### JSON Web Token (JWT) authentication
+### JSON Web Token (JWT) authentication
 
 <table width="100%">
   <thead align=left>
@@ -300,41 +317,19 @@ There are two possible results
     </tr>
     <tr>
       <th>
-        <code>expiration</code>
+        <code>expiresAt</code>
       </th>
       <th>
-        <code>number</code>
+        <code>string</code>
       </th>
       <td>
-        Number of seconds from 1970-01-01T00:00:00Z UTC. A Date object can be created using <code>new Date(authentication.expiration * 1000)</code>.
-      </td>
-    </tr>
-    <tr>
-      <th>
-        <code>headers</code>
-      </th>
-      <th>
-        <code>object</code>
-      </th>
-      <td>
-        <code>{ authorization }</code> - value for the "Authorization" header.
-      </td>
-    </tr>
-    <tr>
-      <th>
-        <code>query</code>
-      </th>
-      <th>
-        <code>object</code>
-      </th>
-      <td>
-        <code>{}</code> - not used
+        Timestamp in UTC format, e.g. <code>"2019-06-11T22:22:34Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
       </td>
     </tr>
   </tbody>
 </table>
 
-#### Installation access token authentication
+### Installation access token authentication
 
 <table width="100%">
   <thead align=left>
@@ -403,7 +398,7 @@ There are two possible results
         <code>string</code>
       </th>
       <td>
-        Timestamp in UTC format, e.g. <code>2019-06-11T22:22:34Z</code>.
+        Timestamp in UTC format, e.g. <code>"2019-06-11T22:22:34Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
       </td>
     </tr>
     <tr>
@@ -439,30 +434,41 @@ There are two possible results
         If the <a herf="https://developer.github.com/v3/apps/permissions/#permission-on-single-file">single file permission</a> is enabled, the <code>singleFileName</code> property is set to the path of the accessible file.
       </td>
     </tr>
-    <tr>
-      <th>
-        <code>headers</code>
-      </th>
-      <th>
-        <code>object</code>
-      </th>
-      <td>
-        <code>{ authorization }</code> - value for the "Authorization" header.
-      </td>
-    </tr>
-    <tr>
-      <th>
-        <code>query</code>
-      </th>
-      <th>
-        <code>object</code>
-      </th>
-      <td>
-        <code>{}</code> - not used
-      </td>
-    </tr>
   </tbody>
 </table>
+
+## `auth.hook(request, route, parameters)` or `auth.hook(request, options)`
+
+`auth.hook()` hooks directly into the request life cycle. It amends the request to authenticate using the correct authentication method based on the request URL. It also automatically sets the `"machine-man"` preview which is currently required for all endpoints requiring JWT authentication.
+
+The `request` option is an instance of [`@octokit/request`](https://github.com/octokit/request.js#readme). The arguments are the same as for the [`request()` method](https://github.com/octokit/request.js#request).
+
+`auth.hook()` can be called directly to send an authenticated request
+
+```js
+const { data: installations } = await auth.hook(
+  request,
+  "GET /app/installations"
+);
+```
+
+Or it can be passed as option to [`request()`](https://github.com/octokit/request.js#request).
+
+```js
+const requestWithAuth = request.defaults({
+  request: {
+    hook: auth.hook
+  }
+});
+
+const { data: installations } = await requestWithAuth("GET /app/installations");
+```
+
+## Implementation details
+
+When creating a JSON Web Token, it sets the "issued at time" (iat) to 30s in the past as we have seen people running situations where the GitHub API claimed the iat would be in future. It turned out the clocks on the different machine were not in sync.
+
+Installation access tokens are valid for 60 minutes. This library invalidates them after 59 minutes to account for request delays.
 
 ## License
 
