@@ -195,7 +195,7 @@ createAppAuth({
     </tr>
     <tr>
       <th>
-        <code>premissions</code>
+        <code>permissions</code>
       </th>
       <th>
         <code>object</code>
