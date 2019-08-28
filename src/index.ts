@@ -2,24 +2,25 @@ import getUserAgent from "universal-user-agent";
 import { request } from "@octokit/request";
 
 import { auth } from "./auth";
+import { hook } from "./hook";
 import { getCache } from "./cache";
-import { StrategyOptions } from "./types";
+import { State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
 export function createAppAuth(options: StrategyOptions) {
-  return auth.bind(
-    null,
-    Object.assign(
-      {
-        request: request.defaults({
-          baseUrl: "https://github.com",
-          headers: {
-            "user-agent": `octokit-auth-oauth-app.js/${VERSION} ${getUserAgent()}`
-          }
-        }),
-        cache: getCache()
-      },
-      options
-    )
+  const state: State = Object.assign(
+    {
+      request: request.defaults({
+        headers: {
+          "user-agent": `octokit-auth-app.js/${VERSION} ${getUserAgent()}`
+        }
+      }),
+      cache: getCache()
+    },
+    options
   );
+
+  return Object.assign(auth.bind(null, state), {
+    hook: hook.bind(null, state)
+  });
 }

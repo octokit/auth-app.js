@@ -2,7 +2,14 @@
 import LRU from "lru-cache";
 
 /* istanbul ignore next */
-import { AuthOptions, Cache, CacheData, Permissions } from "./types";
+import {
+  InstallationAuthOptions,
+  Cache,
+  CacheData,
+  Permissions,
+  InstallationAccessTokenData,
+  REPOSITORY_SELECTION
+} from "./types";
 
 export function getCache() {
   return new LRU<number, string>({
@@ -13,17 +20,24 @@ export function getCache() {
   });
 }
 
-export function get(cache: Cache, options: AuthOptions) {
+export async function get(
+  cache: Cache,
+  options: InstallationAuthOptions
+): Promise<InstallationAccessTokenData | void> {
   const cacheKey = optionsToCacheKey(options);
-  const result = cache.get(cacheKey);
+  const result = await cache.get(cacheKey);
 
   if (!result) {
     return;
   }
 
-  const [token, expiresAt, permissionsString, singleFileName] = result.split(
-    "|"
-  );
+  const [
+    token,
+    expiresAt,
+    repositorySelection,
+    permissionsString,
+    singleFileName
+  ] = result.split("|");
 
   const permissions =
     options.permissions ||
@@ -45,10 +59,15 @@ export function get(cache: Cache, options: AuthOptions) {
     expiresAt,
     permissions,
     repositoryIds: options.repositoryIds,
-    singleFileName
+    singleFileName,
+    repositorySelection: repositorySelection as REPOSITORY_SELECTION
   };
 }
-export function set(cache: Cache, options: AuthOptions, data: CacheData) {
+export async function set(
+  cache: Cache,
+  options: InstallationAuthOptions,
+  data: CacheData
+): Promise<void> {
   const cacheKey = optionsToCacheKey(options);
 
   const permissionsString = options.permissions
@@ -57,9 +76,15 @@ export function set(cache: Cache, options: AuthOptions, data: CacheData) {
         .map(name => `${name}${data.permissions[name] === "write" ? "!" : ""}`)
         .join(",");
 
-  cache.set(
+  await cache.set(
     cacheKey,
-    [data.token, data.expires_at, permissionsString, data.singleFileName]
+    [
+      data.token,
+      data.expiresAt,
+      data.repositorySelection,
+      permissionsString,
+      data.singleFileName
+    ]
       .join("|")
       .replace(/\|+$/, "")
   );
@@ -69,7 +94,7 @@ function optionsToCacheKey({
   installationId,
   permissions = {},
   repositoryIds = []
-}: AuthOptions) {
+}: InstallationAuthOptions) {
   const permissionsString = Object.keys(permissions)
     .sort()
     .map(name => (permissions[name] === "read" ? name : `${name}!`))
