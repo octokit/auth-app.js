@@ -1,4 +1,6 @@
-import { install } from "lolex";
+import fetchMock, { MockMatcherFunction } from "fetch-mock";
+import { request } from "@octokit/request";
+import { install, Clock } from "lolex";
 
 import { createAppAuth } from "../src/index";
 
@@ -34,7 +36,10 @@ x//0u+zd/R/QRUzLOw4N72/Hu+UG6MNt5iDZFCtapRaKt6OvSBwy8w==
 const BEARER =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjAsImV4cCI6NjAwLCJpc3MiOjF9.UYfZtE742hkMV5cKMwp6-gVUvsWnUGoCQkl2UZZEkN8-lgvqzq5V8e5KtTrJxAAgcK7Yn1ViAlDUpwc9hZxrZ-gLaR10GR2hubte3OgkRDH-m_lCQ1Sgb9VQpZnagh_PMyRwphOw3uDXU3D7h2jL86UP3Ora8i9SRgXLq8X_2R9jtr2FDT1wtmcOLdyIc0Q7c_4X1uIPNjZS2UY04QBT7VWePk81EGdJAVQ_nEygXIuWOpMwZvtD0K1hzqQQM9GyV2QOwFSvFLtdbMVyld6Qvs8eEA5VS6Y4vTrGuyUF_lH5XlPdfAFAyrzsGP4inLq3tq6y4mjsx3YIF0P8DcMNPw";
 
-const clock = install({ now: 0, toFake: ["Date", "setTimeout"] });
+let clock: Clock;
+beforeEach(() => {
+  clock = install({ now: 0, toFake: ["Date", "setTimeout"] });
+});
 
 test("README example for app auth", async () => {
   const auth = createAppAuth({
@@ -42,52 +47,62 @@ test("README example for app auth", async () => {
     privateKey: PRIVATE_KEY
   });
 
-  const authentication = await auth();
+  const authentication = await auth({ type: "app" });
 
   expect(authentication).toEqual({
     type: "app",
     token: BEARER,
     appId: 1,
-    expiration: 600,
-    headers: {
-      authorization: `bearer ${BEARER}`
-    },
-    query: {}
+    expiresAt: "1970-01-01T00:00:00.600Z"
   });
 });
 
 test("README example for installation auth", async () => {
-  const request = jest
-    .fn()
-
-    .mockImplementation(async route => {
-      if (route === "POST /app/installations/:installation_id/access_tokens") {
-        return {
-          data: {
-            token: "secret123",
-            expires_at: "1970-01-01T01:00:00.000Z"
-          }
-        };
-      }
-
-      return {
-        data: {
-          permissions: {
-            metadata: "read"
-          },
-          single_file_name: null
-        }
-      };
+  const matchCreateAccessToken: MockMatcherFunction = (
+    url,
+    { body, headers }
+  ) => {
+    expect(url).toEqual(
+      "https://api.github.com/app/installations/123/access_tokens"
+    );
+    expect(headers).toStrictEqual({
+      accept: "application/vnd.github.machine-man-preview+json",
+      "user-agent": "test",
+      "content-type": "application/json; charset=utf-8",
+      authorization: `bearer ${BEARER}`
     });
+    expect(JSON.parse(String(body))).toStrictEqual({});
+    return true;
+  };
+
+  const createAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      metadata: "read"
+    },
+    repository_selection: "all"
+  };
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    request: request.defaults({
+      headers: {
+        "user-agent": "test"
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(matchCreateAccessToken, createAccessTokenResponseData)
+      }
+    })
   });
 
-  const authentication = await auth({ installationId: 123 });
+  const authentication = await auth({
+    type: "installation",
+    installationId: 123
+  });
 
   expect(authentication).toEqual({
     type: "token",
@@ -98,247 +113,150 @@ test("README example for installation auth", async () => {
       metadata: "read"
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   });
-
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 123,
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
-});
-
-test("README example for installation auth based on URL", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
-          token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
-        }
-      };
-    }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read"
-        },
-        single_file_name: null
-      }
-    };
-  });
-
-  const auth = createAppAuth({
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
-  });
-
-  const authentication = await auth({
-    installationId: 123,
-    url: "/installation/repositories"
-  });
-
-  expect(authentication).toEqual({
-    type: "token",
-    token: "secret123",
-    tokenType: "installation",
-    installationId: 123,
-    permissions: { metadata: "read" },
-    expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
-  });
-
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 123,
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
 });
 
 test("installationId strategy option", async () => {
-  const request = jest
-    .fn()
-
-    .mockImplementation(async route => {
-      if (route === "POST /app/installations/:installation_id/access_tokens") {
-        return {
-          data: {
-            token: "secret123",
-            expires_at: "1970-01-01T01:00:00.000Z"
-          }
-        };
-      }
-
-      return {
-        data: {
-          permissions: {
-            metadata: "read"
-          },
-          single_file_name: null
-        }
-      };
-    });
-
-  const auth = createAppAuth({
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    installationId: 123,
-    // @ts-ignore
-    request
-  });
-
-  const authentication = await auth();
-
-  expect(authentication).toEqual({
-    type: "token",
-    token: "secret123",
-    tokenType: "installation",
-    installationId: 123,
-    permissions: {
-      metadata: "read"
-    },
-    expiresAt: "1970-01-01T01:00:00.000Z",
+  const requestMock = request.defaults({
     headers: {
-      authorization: "token secret123"
+      "user-agent": "test"
     },
-    query: {}
-  });
-
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 123,
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
-});
-
-test("repositoryIds auth option", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
-          token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z",
-          repositories: [{ id: 1 }, { id: 2 }, { id: 3 }]
-        }
-      };
-    }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read"
-        },
-        single_file_name: null
-      }
-    };
-  });
-
-  const auth = createAppAuth({
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
-  });
-
-  const authentication = await auth({
-    installationId: 123,
-    repositoryIds: [1, 2, 3],
-    url: "/installation/repositories"
-  });
-
-  expect(authentication).toEqual({
-    type: "token",
-    token: "secret123",
-    tokenType: "installation",
-    installationId: 123,
-    permissions: {
-      metadata: "read"
-    },
-    expiresAt: "1970-01-01T01:00:00.000Z",
-    repositoryIds: [1, 2, 3],
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
-  });
-
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 123,
-      repository_ids: [1, 2, 3],
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
-});
-
-test("permissions auth option", async () => {
-  const request = jest
-    .fn()
-
-    .mockImplementation(async route => {
-      if (route === "POST /app/installations/:installation_id/access_tokens") {
-        return {
-          data: {
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce(
+          "https://api.github.com/app/installations/123/access_tokens",
+          {
             token: "secret123",
             expires_at: "1970-01-01T01:00:00.000Z",
             permissions: {
-              single_file: "write"
-            }
+              metadata: "read"
+            },
+            repository_selection: "all"
           }
-        };
-      }
-
-      return {
-        data: {
-          permissions: {
-            single_file: "write"
-          },
-          single_file_name: ".github/myapp.yml"
-        }
-      };
-    });
+        )
+    }
+  });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    installationId: 123,
+    request: requestMock
   });
 
   const authentication = await auth({
+    type: "installation"
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
     installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositorySelection: "all"
+  });
+});
+
+test("repositoryIds auth option", async () => {
+  const matchCreateAccessToken: MockMatcherFunction = (url, { body }) => {
+    expect(JSON.parse(String(body))).toStrictEqual({
+      repository_ids: [1, 2, 3]
+    });
+    return true;
+  };
+
+  const createAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      metadata: "read"
+    },
+    repositories: [{ id: 1 }, { id: 2 }, { id: 3 }],
+    repository_selection: "all"
+  };
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    request: request.defaults({
+      headers: {
+        "user-agent": "test"
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(matchCreateAccessToken, createAccessTokenResponseData)
+      }
+    })
+  });
+
+  const authentication = await auth({
+    type: "installation",
+    installationId: 123,
+    repositoryIds: [1, 2, 3]
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositoryIds: [1, 2, 3],
+    repositorySelection: "all"
+  });
+});
+
+test("permissions auth option", async () => {
+  const matchCreateAccessToken: MockMatcherFunction = (url, { body }) => {
+    expect(JSON.parse(String(body))).toStrictEqual({
+      permissions: {
+        single_file: "write"
+      }
+    });
+    return true;
+  };
+
+  const createAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
       single_file: "write"
     },
-    url: "/installation/repositories"
+    single_file: ".github/myapp.yml",
+    repository_selection: "all"
+  };
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    request: request.defaults({
+      headers: {
+        "user-agent": "test"
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(matchCreateAccessToken, createAccessTokenResponseData)
+      }
+    })
+  });
+
+  const authentication = await auth({
+    type: "installation",
+    installationId: 123,
+    permissions: {
+      single_file: "write"
+    }
   });
 
   expect(authentication).toEqual({
@@ -351,90 +269,34 @@ test("permissions auth option", async () => {
       single_file: "write"
     },
     singleFileName: ".github/myapp.yml",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
-  });
-
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 123,
-      permissions: {
-        single_file: "write"
-      },
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
-  expect(request).toBeCalledWith("GET /app/installations/:installation_id", {
-    installation_id: 123,
-    previews: ["machine-man"],
-    headers: {
-      authorization: `bearer ${BEARER}`
-    }
-  });
-});
-
-test("app auth based on URL", async () => {
-  const request = jest.fn().mockImplementation(() => {
-    throw new Error("Should not create installation token");
-  });
-
-  const auth = createAppAuth({
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
-  });
-
-  const authentication = await auth({
-    installationId: 123,
-    url: "/app"
-  });
-
-  expect(authentication).toEqual({
-    type: "app",
-    token: BEARER,
-    appId: 1,
-    expiration: 600,
-    headers: {
-      authorization: `bearer ${BEARER}`
-    },
-    query: {}
+    repositorySelection: "all"
   });
 });
 
 test("installation auth from cache", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
-        }
-      };
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read",
+            issues: "write"
+          },
+          repository_selection: "all"
+        })
     }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read",
-          issues: "write"
-        },
-        single_file_name: null
-      }
-    };
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    request: requestMock
   });
 
   const EXPECTED = {
@@ -447,53 +309,46 @@ test("installation auth from cache", async () => {
       issues: "write"
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   };
 
   const authentication1 = await auth({
+    type: "installation",
     installationId: 123
   });
   const authentication2 = await auth({
+    type: "installation",
     installationId: 123
   });
 
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
-
-  expect(request.mock.calls.length).toEqual(2);
 });
 
 test("installation auth with selected repositories from cache", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read"
+          },
+          repository_selection: "all",
           repositories: [{ id: 1 }, { id: 2 }, { id: 3 }]
-        }
-      };
+        })
     }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read",
-          issues: "write"
-        },
-        single_file_name: null
-      }
-    };
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    request: requestMock
   });
 
   const EXPECTED = {
@@ -502,57 +357,51 @@ test("installation auth with selected repositories from cache", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read",
-      issues: "write"
+      metadata: "read"
     },
     repositoryIds: [1, 2, 3],
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   };
 
   const authentication1 = await auth({
+    type: "installation",
     installationId: 123,
     repositoryIds: [1, 2, 3]
   });
   const authentication2 = await auth({
+    type: "installation",
     installationId: 123,
     repositoryIds: [1, 2, 3]
   });
 
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
-
-  expect(request.mock.calls.length).toEqual(2);
 });
 
-test("installation cache with different options", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
+test("installation auth with selected permissions from cache", async () => {
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
-        }
-      };
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            issues: "write"
+          },
+          repository_selection: "all"
+        })
     }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read"
-        }
-      }
-    };
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    request: requestMock
   });
 
   const EXPECTED = {
@@ -561,122 +410,201 @@ test("installation cache with different options", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
-    },
-    expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
-  };
-
-  const authentication1 = await auth({
-    installationId: 123
-  });
-  const authentication2 = await auth({
-    installationId: 123,
-    permissions: {
-      metadata: "read"
-    }
-  });
-
-  expect(authentication1).toEqual(EXPECTED);
-  expect(authentication2).toEqual(EXPECTED);
-
-  expect(request.mock.calls.length).toEqual(4);
-});
-
-test("refresh option", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
-          token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
-        }
-      };
-    }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read",
-          issues: "write"
-        },
-        single_file_name: null
-      }
-    };
-  });
-
-  const auth = createAppAuth({
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
-  });
-
-  const EXPECTED = {
-    type: "token",
-    token: "secret123",
-    tokenType: "installation",
-    installationId: 123,
-    permissions: {
-      metadata: "read",
       issues: "write"
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   };
 
   const authentication1 = await auth({
+    type: "installation",
+    installationId: 123,
+    permissions: {
+      issues: "write"
+    }
+  });
+  const authentication2 = await auth({
+    type: "installation",
+    installationId: 123,
+    permissions: {
+      issues: "write"
+    }
+  });
+
+  expect(authentication1).toEqual(EXPECTED);
+  expect(authentication2).toEqual(EXPECTED);
+});
+
+test("installation cache with different options", async () => {
+  const matchCreateAccessToken1: MockMatcherFunction = (url, { body }) => {
+    expect(JSON.parse(String(body))).toStrictEqual({});
+    return true;
+  };
+  const matchCreateAccessToken2: MockMatcherFunction = (url, { body }) => {
+    expect(JSON.parse(String(body))).toStrictEqual({
+      permissions: {
+        metadata: "read"
+      }
+    });
+    return true;
+  };
+
+  const createAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      metadata: "read"
+    },
+    repository_selection: "all"
+  };
+
+  const mock = fetchMock
+    .sandbox()
+    .postOnce(matchCreateAccessToken1, createAccessTokenResponseData)
+    .postOnce(matchCreateAccessToken2, createAccessTokenResponseData);
+
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: mock
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    request: requestMock
+  });
+
+  const EXPECTED = {
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositorySelection: "all"
+  };
+
+  const authentication1 = await auth({
+    type: "installation",
+    installationId: 123
+  });
+  const authentication2 = await auth({
+    type: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read"
+    }
+  });
+
+  expect(authentication1).toEqual(EXPECTED);
+  expect(authentication2).toEqual(EXPECTED);
+  expect(mock.done()).toBe(true);
+});
+
+test("refresh option", async () => {
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock.sandbox().post(
+        "path:/app/installations/123/access_tokens",
+        {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read"
+          },
+          repository_selection: "all"
+        },
+        {
+          repeat: 2
+        }
+      )
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    request: requestMock
+  });
+
+  const EXPECTED = {
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read"
+    },
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositorySelection: "all"
+  };
+
+  const authentication1 = await auth({
+    type: "installation",
     installationId: 123,
     refresh: true
   });
   const authentication2 = await auth({
+    type: "installation",
     installationId: 123,
     refresh: true
   });
 
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
-
-  expect(request.mock.calls.length).toEqual(4);
 });
 
 test("caches based on installation id", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
-          token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
-        }
-      };
-    }
+  const createAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      metadata: "read"
+    },
+    repository_selection: "all"
+  };
 
-    return {
-      data: {
-        permissions: {
-          metadata: "read"
-        }
-      }
-    };
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce(
+          "path:/app/installations/123/access_tokens",
+          createAccessTokenResponseData
+        )
+        .postOnce(
+          "path:/app/installations/456/access_tokens",
+          Object.assign({}, createAccessTokenResponseData, {
+            token: "secret456"
+          })
+        )
+    }
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    request: requestMock
   });
 
   const authentication1 = await auth({
+    type: "installation",
     installationId: 123
   });
   const authentication2 = await auth({
+    type: "installation",
     installationId: 456
   });
 
@@ -687,73 +615,47 @@ test("caches based on installation id", async () => {
     installationId: 123,
     permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   });
   expect(authentication2).toEqual({
     type: "token",
-    token: "secret123",
+    token: "secret456",
     tokenType: "installation",
     installationId: 456,
     permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   });
-
-  expect(request.mock.calls.length).toEqual(4);
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 123,
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
-  expect(request).toBeCalledWith(
-    "POST /app/installations/:installation_id/access_tokens",
-    {
-      installation_id: 456,
-      previews: ["machine-man"],
-      headers: {
-        authorization: `bearer ${BEARER}`
-      }
-    }
-  );
 });
 
 const ONE_HOUR_IN_MS = 1000 * 60 * 60;
 test("request installation again after timeout", async () => {
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock.sandbox().post(
+        "path:/app/installations/123/access_tokens",
+        {
           token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read"
+          },
+          repository_selection: "all"
+        },
+        {
+          repeat: 2
         }
-      };
+      )
     }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read"
-        }
-      }
-    };
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request
+    request: requestMock
   });
 
   const EXPECTED = {
@@ -765,13 +667,11 @@ test("request installation again after timeout", async () => {
       metadata: "read"
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    headers: {
-      authorization: "token secret123"
-    },
-    query: {}
+    repositorySelection: "all"
   };
 
   const authentication1 = await auth({
+    type: "installation",
     installationId: 123
   });
 
@@ -781,65 +681,186 @@ test("request installation again after timeout", async () => {
   });
 
   const authentication2 = await auth({
+    type: "installation",
     installationId: 123
   });
 
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
-
-  expect(request.mock.calls.length).toEqual(4);
 });
 
 test("supports custom cache", async () => {
-  const options = {
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    cache: {
-      get: jest.fn(),
-      set: jest.fn()
-    }
-  };
-
-  const request = jest.fn().mockImplementation(async route => {
-    if (route === "POST /app/installations/:installation_id/access_tokens") {
-      return {
-        data: {
-          token: "secret123",
-          expires_at: "1970-01-01T01:00:00.000Z"
-        }
-      };
-    }
-
-    return {
-      data: {
-        permissions: {
-          metadata: "read"
-        }
-      }
-    };
+  const CACHE: { [key: string]: string } = {};
+  const get = jest.fn().mockImplementation(key => CACHE[key]);
+  const set = jest.fn().mockImplementation((key, value) => {
+    CACHE[key] = value;
   });
 
-  const get = jest.fn();
-  const set = jest.fn();
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce("path:/app/installations/123/access_tokens", {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read"
+          },
+          repository_selection: "all"
+        })
+    }
+  });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    // @ts-ignore
-    request,
     cache: {
       get,
       set
-    }
+    },
+    request: requestMock
   });
 
-  const authentication = await auth({
+  await auth({
+    type: "installation",
     installationId: 123
   });
 
+  await auth({
+    type: "installation",
+    installationId: 123
+  });
+
+  expect(get).toHaveBeenCalledTimes(2);
+  expect(set).toHaveBeenCalledTimes(1);
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T01:00:00.000Z|metadata"
+    "secret123|1970-01-01T01:00:00.000Z|all|metadata"
   );
+});
+
+test("supports custom cache with async get/set", async () => {
+  const CACHE: { [key: string]: string } = {};
+  const get = jest.fn().mockImplementation(async key => CACHE[key]);
+  const set = jest.fn().mockImplementation(async (key, value) => {
+    CACHE[key] = value;
+  });
+
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce("path:/app/installations/123/access_tokens", {
+          token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read"
+          },
+          repository_selection: "all"
+        })
+    }
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    cache: {
+      get,
+      set
+    },
+    request: requestMock
+  });
+
+  await auth({
+    type: "installation",
+    installationId: 123
+  });
+
+  await auth({
+    type: "installation",
+    installationId: 123
+  });
+
+  expect(get).toHaveBeenCalledTimes(2);
+  expect(set).toHaveBeenCalledTimes(1);
+  expect(get).toBeCalledWith("123");
+  expect(set).toBeCalledWith(
+    "123",
+    "secret123|1970-01-01T01:00:00.000Z|all|metadata"
+  );
+});
+
+test("auth.hook() creates token and uses it for succeeding requests", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read"
+      },
+      repository_selection: "all"
+    })
+    .get(
+      "https://api.github.com/repos/octocat/hello-world",
+      { id: 123 },
+      {
+        headers: {
+          authorization: "token secret123"
+        },
+        repeat: 4
+      }
+    )
+    .getOnce(
+      "https://api.github.com/app",
+      { id: 123 },
+      {
+        headers: {
+          accept: "application/vnd.github.machine-man-preview+json",
+          "user-agent": "test",
+          authorization: `bearer ${BEARER}`
+        }
+      }
+    );
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: mock
+    }
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook
+    }
+  });
+
+  await auth.hook(requestWithMock, "GET /repos/octocat/hello-world");
+  await auth.hook(requestWithMock, "GET /repos/octocat/hello-world");
+
+  await requestWithAuth("GET /repos/octocat/hello-world");
+  await requestWithAuth("GET /repos/octocat/hello-world");
+
+  await requestWithAuth("GET /app", {
+    mediaType: {
+      previews: ["machine-man"]
+    }
+  });
+
+  expect(mock.done()).toBe(true);
 });
