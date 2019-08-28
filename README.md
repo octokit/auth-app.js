@@ -54,7 +54,9 @@ const { createOAuthAppAuth } = require("@octokit/auth-oauth-app");
 const auth = createAppAuth({
   id: 1,
   privateKey: "-----BEGIN RSA PRIVATE KEY-----\n...",
-  installationId: 123
+  installationId: 123,
+  clientId: "1234567890abcdef1234",
+  clientSecret: "1234567890abcdef12341234567890abcdef1234"
 });
 
 // Retrieve JSON Web Token (JWT) to authenticate as app
@@ -76,6 +78,16 @@ const installationAuthentication = await auth({ type: "installation" });
 //   token: 'token123',
 //   installationId: 123,
 //   expiresAt: '2019-06-11T22:22:34Z'
+// }
+
+// Retrieve an oauth-access token
+const oauthAuthentication = await auth({ type: "oauth", code: "123456" });
+// resolves with
+// {
+//   type: 'token',
+//   tokenType: 'oauth',
+//   token: 'token123',
+//   scopes: []
 // }
 ```
 
@@ -127,6 +139,28 @@ const installationAuthentication = await auth({ type: "installation" });
       </th>
       <td>
         Default <code>installationId</code> to be used when calling <code>auth({ type: "installation" })</code>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientId</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The Client ID of the GitHub App.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientSecret</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The Client Secret of the GitHub App.
       </td>
     </tr>
     <tr>
@@ -206,7 +240,7 @@ createAppAuth({
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Must be either <code>"app"</code> or <code>"installation"</code>.
+        <strong>Required</strong>. Must be either <code>"app"</code>, <code>"installation"</code>, or <code>"oauth"</code>.
       </td>
     </tr>
     <tr>
@@ -217,7 +251,7 @@ createAppAuth({
         <code>number</code>
       </th>
       <td>
-        <strong>Required unless a default <code>installationId</code> was passed to <code>createAppAuth()</code></strong>. ID of installation to retrieve authentication for.
+        <strong>Required if <code>type</code> is set to <code>"installation"</code> unless a default <code>installationId</code> was passed to <code>createAppAuth()</code></strong>. ID of installation to retrieve authentication for.
       </td>
     </tr>
     <tr>
@@ -228,6 +262,8 @@ createAppAuth({
         <code>array of string</code>
       </th>
       <td>
+        Only relevant <code>type</code> is set to <code>"installation"</code>.<br>
+        <br>
         The `id`s of the repositories that the installation token can access.
       </td>
     </tr>
@@ -239,6 +275,8 @@ createAppAuth({
         <code>object</code>
       </th>
       <td>
+        Only relevant <code>type</code> is set to <code>"installation"</code>.<br>
+        <br>
         The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions">GitHub App permissions</a>.
       </td>
     </tr>
@@ -250,9 +288,50 @@ createAppAuth({
         <code>boolean</code>
       </th>
       <td>
+        Only relevant <code>type</code> is set to <code>"installation"</code>.<br>
+        <br>
         Installation tokens expire after one hour. By default, tokens are cached and returned from cache until expired. To bypass and update a cached token for the given <code>installationId</code>, set <code>refresh</code> to <code>true</code>.<br>
         <br>
         Defaults to <code>false</code>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>code</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        Only relevant <code>type</code> is set to <code>"oauth"</code>.<br>
+        <br>
+        The authorization <code>code</code> which was passed as query parameter to the callback URL from the <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>redirectUrl</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        Only relevant <code>type</code> is set to <code>"oauth"</code>.<br>
+        <br>
+        The URL in your application where users are sent after authorization. See <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#redirect-urls">redirect urls</a>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>state</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        Only relevant <code>type</code> is set to <code>"oauth"</code>.<br>
+        <br>
+        The unguessable random string you provided in Step 1 of the <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
     </tr>
   </tbody>
@@ -264,6 +343,7 @@ There are two possible results
 
 1. JSON Web Token (JWT) authentication
 2. Installation access token authentication
+3. OAuth access token authentication
 
 ### JSON Web Token (JWT) authentication
 
@@ -437,9 +517,73 @@ There are two possible results
   </tbody>
 </table>
 
+#### OAuth access token authentication
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"token"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>token</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The personal access token
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>tokenType</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"oauth"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>scopes</code>
+      </th>
+      <th>
+        <code>array of strings</code>
+      </th>
+      <td>
+        array of scope names enabled for the token
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ## `auth.hook(request, route, parameters)` or `auth.hook(request, options)`
 
-`auth.hook()` hooks directly into the request life cycle. It amends the request to authenticate using the correct authentication method based on the request URL. It also automatically sets the `"machine-man"` preview which is currently required for all endpoints requiring JWT authentication.
+`auth.hook()` hooks directly into the request life cycle. It amends the request to authenticate either as app or as installation based on the request URL. It also automatically sets the `"machine-man"` preview which is currently required for all endpoints requiring JWT authentication.
 
 The `request` option is an instance of [`@octokit/request`](https://github.com/octokit/request.js#readme). The arguments are the same as for the [`request()` method](https://github.com/octokit/request.js#request).
 
@@ -462,6 +606,20 @@ const requestWithAuth = request.defaults({
 });
 
 const { data: installations } = await requestWithAuth("GET /app/installations");
+```
+
+Note that `auth.hook()` does not create and set an OAuth authentication token. But you can use [`@octokit/auth-oauth-app`](https://github.com/octokit/auth-oauth-app.js#readme) for that functionality. And if you don't plan on sending requests to routes that require authentication with `client_id` and `client_secret`, you can just retrieve the token and then create a new instance of [`request()`](https://github.com/octokit/request.js#request) with the authentication header set:
+
+```js
+const { token } = await auth({
+  type: "oauth",
+  code: "123456"
+});
+const requestWithAuth = request.defaults({
+  headers: {
+    authentication: `token ${token}`
+  }
+});
 ```
 
 ## Implementation details
