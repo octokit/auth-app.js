@@ -1,6 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
 
-export function toAppAuthentication(id: number, privateKey: string) {
+export function getAppAuthentication(id: number, privateKey: string) {
   const now = Math.floor(Date.now() / 1000);
   const expiration = now + 60 * 10; // JWT expiration time (10 minute maximum)
   const payload = {
@@ -17,10 +17,6 @@ export function toAppAuthentication(id: number, privateKey: string) {
     type: "app",
     token: JWT,
     appId: id,
-    expiration,
-    headers: {
-      authorization: `bearer ${JWT}`
-    },
-    query: {}
+    expiresAt: new Date(expiration).toISOString()
   };
 }

@@ -1,23 +1,29 @@
-export function toTokenAuthentication(
-  installationId: number,
-  token: string,
-  expiresAt: string,
-  permissions: { [name: string]: string },
-  repositoryIds?: number[],
-  singleFileName?: string
-) {
+import {
+  CacheData,
+  InstallationAccessTokenAuthentication,
+  WithInstallationId,
+  TOKEN_TYPE,
+  INSTALLATION_TOKEN_TYPE
+} from "./types";
+
+export function toTokenAuthentication({
+  installationId,
+  token,
+  expiresAt,
+  repositorySelection,
+  permissions,
+  repositoryIds,
+  singleFileName
+}: CacheData & WithInstallationId): InstallationAccessTokenAuthentication {
   return Object.assign(
     {
-      type: "token",
-      token: token,
-      tokenType: "installation",
+      type: "token" as TOKEN_TYPE,
+      tokenType: "installation" as INSTALLATION_TOKEN_TYPE,
+      token,
       installationId,
       permissions,
       expiresAt,
-      headers: {
-        authorization: `token ${token}`
-      },
-      query: {}
+      repositorySelection
     },
     repositoryIds ? { repositoryIds } : null,
     singleFileName ? { singleFileName } : null

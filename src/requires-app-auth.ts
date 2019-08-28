@@ -47,11 +47,6 @@ function routeMatcher(paths: string[]) {
 
 const REGEX = routeMatcher(PATHS);
 
-type Options = {
-  url?: string;
-  [key: string]: any;
-};
-
-export function isAppRoute(options: Options): Boolean {
-  return !!options.url && REGEX.test(options.url);
+export function requiresAppAuth(url: string): Boolean {
+  return !!url && REGEX.test(url);
 }
