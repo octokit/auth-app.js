@@ -58,7 +58,7 @@ test("README example for app auth", async () => {
 });
 
 test("README example for installation auth", async () => {
-  const matchCreateAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,
     { body, headers }
   ) => {
@@ -75,7 +75,7 @@ test("README example for installation auth", async () => {
     return true;
   };
 
-  const createAccessTokenResponseData = {
+  const createInstallationAccessTokenResponseData = {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
@@ -94,7 +94,10 @@ test("README example for installation auth", async () => {
       request: {
         fetch: fetchMock
           .sandbox()
-          .postOnce(matchCreateAccessToken, createAccessTokenResponseData)
+          .postOnce(
+            matchCreateInstallationAccessToken,
+            createInstallationAccessTokenResponseData
+          )
       }
     })
   });
@@ -114,6 +117,64 @@ test("README example for installation auth", async () => {
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all"
+  });
+});
+
+test("README example for oauth", async () => {
+  const matchCreateOAuthAccessToken: MockMatcherFunction = (
+    url,
+    { body, headers }
+  ) => {
+    expect(url).toEqual("https://github.com/login/oauth/access_token");
+    expect(headers).toStrictEqual({
+      accept: "application/json",
+      "user-agent": "test",
+      "content-type": "application/json; charset=utf-8"
+    });
+    expect(JSON.parse(String(body))).toStrictEqual({
+      client_id: "12345678901234567890",
+      client_secret: "1234567890123456789012345678901234567890",
+      code: "123456"
+    });
+    return true;
+  };
+
+  const createOAuthAccessTokenResponseData = {
+    access_token: "secret123",
+    scope: "",
+    token_type: "bearer"
+  };
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientId: "12345678901234567890",
+    clientSecret: "1234567890123456789012345678901234567890",
+    request: request.defaults({
+      headers: {
+        "user-agent": "test"
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(
+            matchCreateOAuthAccessToken,
+            createOAuthAccessTokenResponseData
+          )
+      }
+    })
+  });
+
+  const authentication = await auth({
+    type: "oauth",
+    code: "123456"
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "oauth",
+    scopes: []
   });
 });
 
@@ -164,14 +225,17 @@ test("installationId strategy option", async () => {
 });
 
 test("repositoryIds auth option", async () => {
-  const matchCreateAccessToken: MockMatcherFunction = (url, { body }) => {
+  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+    url,
+    { body }
+  ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repository_ids: [1, 2, 3]
     });
     return true;
   };
 
-  const createAccessTokenResponseData = {
+  const createInstallationAccessTokenResponseData = {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
@@ -191,7 +255,10 @@ test("repositoryIds auth option", async () => {
       request: {
         fetch: fetchMock
           .sandbox()
-          .postOnce(matchCreateAccessToken, createAccessTokenResponseData)
+          .postOnce(
+            matchCreateInstallationAccessToken,
+            createInstallationAccessTokenResponseData
+          )
       }
     })
   });
@@ -217,7 +284,10 @@ test("repositoryIds auth option", async () => {
 });
 
 test("permissions auth option", async () => {
-  const matchCreateAccessToken: MockMatcherFunction = (url, { body }) => {
+  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+    url,
+    { body }
+  ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
         single_file: "write"
@@ -226,7 +296,7 @@ test("permissions auth option", async () => {
     return true;
   };
 
-  const createAccessTokenResponseData = {
+  const createInstallationAccessTokenResponseData = {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
@@ -246,7 +316,10 @@ test("permissions auth option", async () => {
       request: {
         fetch: fetchMock
           .sandbox()
-          .postOnce(matchCreateAccessToken, createAccessTokenResponseData)
+          .postOnce(
+            matchCreateInstallationAccessToken,
+            createInstallationAccessTokenResponseData
+          )
       }
     })
   });
@@ -449,7 +522,7 @@ test("installation cache with different options", async () => {
     return true;
   };
 
-  const createAccessTokenResponseData = {
+  const createInstallationAccessTokenResponseData = {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
@@ -460,8 +533,14 @@ test("installation cache with different options", async () => {
 
   const mock = fetchMock
     .sandbox()
-    .postOnce(matchCreateAccessToken1, createAccessTokenResponseData)
-    .postOnce(matchCreateAccessToken2, createAccessTokenResponseData);
+    .postOnce(
+      matchCreateAccessToken1,
+      createInstallationAccessTokenResponseData
+    )
+    .postOnce(
+      matchCreateAccessToken2,
+      createInstallationAccessTokenResponseData
+    );
 
   const requestMock = request.defaults({
     headers: {
@@ -563,8 +642,114 @@ test("refresh option", async () => {
   expect(authentication2).toEqual(EXPECTED);
 });
 
+test("oauth with `code`, `redirectUrl` and `state`", async () => {
+  const matchCreateOAuthAccessToken: MockMatcherFunction = (
+    url,
+    { body, headers }
+  ) => {
+    expect(url).toEqual("https://github.com/login/oauth/access_token");
+    expect(headers).toStrictEqual({
+      accept: "application/json",
+      "user-agent": "test",
+      "content-type": "application/json; charset=utf-8"
+    });
+    expect(JSON.parse(String(body))).toStrictEqual({
+      client_id: "12345678901234567890",
+      client_secret: "1234567890123456789012345678901234567890",
+      code: "123456",
+      redirect_uri: "https://example.com/login",
+      state: "mystate123"
+    });
+
+    return true;
+  };
+
+  const createOAuthAccessTokenResponseData = {
+    access_token: "secret123",
+    scope: "",
+    token_type: "bearer"
+  };
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientId: "12345678901234567890",
+    clientSecret: "1234567890123456789012345678901234567890",
+    request: request.defaults({
+      headers: {
+        "user-agent": "test"
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(
+            matchCreateOAuthAccessToken,
+            createOAuthAccessTokenResponseData
+          )
+      }
+    })
+  });
+
+  const authentication = await auth({
+    type: "oauth",
+    code: "123456",
+    state: "mystate123",
+    redirectUrl: "https://example.com/login"
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "oauth",
+    scopes: []
+  });
+});
+
+test("oauth with custom baseUrl (GHE)", async () => {
+  const createOAuthAccessTokenResponseData = {
+    access_token: "secret123",
+    scope: "",
+    token_type: "bearer"
+  };
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientId: "12345678901234567890",
+    clientSecret: "1234567890123456789012345678901234567890",
+    request: request.defaults({
+      baseUrl: "https://github.acme-inc.com/api/v3",
+      headers: {
+        "user-agent": "test"
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(
+            "https://github.acme-inc.com/login/oauth/access_token",
+            createOAuthAccessTokenResponseData
+          )
+      }
+    })
+  });
+
+  const authentication = await auth({
+    type: "oauth",
+    code: "123456",
+    state: "mystate123",
+    redirectUrl: "https://example.com/login"
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "oauth",
+    scopes: []
+  });
+});
+
 test("caches based on installation id", async () => {
-  const createAccessTokenResponseData = {
+  const createInstallationAccessTokenResponseData = {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
@@ -582,11 +767,11 @@ test("caches based on installation id", async () => {
         .sandbox()
         .postOnce(
           "path:/app/installations/123/access_tokens",
-          createAccessTokenResponseData
+          createInstallationAccessTokenResponseData
         )
         .postOnce(
           "path:/app/installations/456/access_tokens",
-          Object.assign({}, createAccessTokenResponseData, {
+          Object.assign({}, createInstallationAccessTokenResponseData, {
             token: "secret456"
           })
         )
