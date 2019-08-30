@@ -18,6 +18,7 @@ For other GitHub authentication strategies see [octokit/auth.js](https://github.
 - [Authentication object](#authentication-object)
   - [JSON Web Token (JWT) authentication](#json-web-token-jwt-authentication)
   - [Installation access token authentication](#installation-access-token-authentication)
+  - [OAuth access token authentication](#oauth-access-token-authentication)
 - [`auth.hook(request, route, parameters)` or `auth.hook(request, options)`](#authhookrequest-route-parameters-or-authhookrequest-options)
 - [Implementation details](#implementation-details)
 - [License](#license)
@@ -517,7 +518,7 @@ There are two possible results
   </tbody>
 </table>
 
-#### OAuth access token authentication
+### OAuth access token authentication
 
 <table width="100%">
   <thead align=left>
