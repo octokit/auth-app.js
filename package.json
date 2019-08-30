@@ -41,7 +41,7 @@
     "fetch-mock": "^7.3.9",
     "jest": "^24.8.0",
     "lolex": "^4.1.0",
-    "semantic-release": "^15.13.12",
+    "semantic-release": "^15.13.24",
     "semantic-release-plugin-update-version-in-files": "^1.0.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.1"
