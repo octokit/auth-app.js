@@ -1,6 +1,7 @@
 import { AuthOptions, StrategyOptionsWithDefaults } from "./types";
 import { getAppAuthentication } from "./get-app-authentication";
 import { getInstallationAuthentication } from "./get-installation-authentication";
+import { getOAuthAuthentication } from "./get-oauth-authentication";
 
 export async function auth(
   state: StrategyOptionsWithDefaults,
@@ -10,5 +11,9 @@ export async function auth(
     return getAppAuthentication(state.id, state.privateKey);
   }
 
-  return getInstallationAuthentication(state, options);
+  if (options.type === "installation") {
+    return getInstallationAuthentication(state, options);
+  }
+
+  return getOAuthAuthentication(state, options);
 }
