@@ -67,7 +67,7 @@ const appAuthentication = await auth({ type: "app" });
 //   type: 'app',
 //   token: 'jsonwebtoken123',
 //   appId: 123,
-//   expiresAt: '2018-07-07T00:09:30Z'
+//   expiresAt: '2018-07-07T00:09:30.000Z'
 // }
 
 // Retrieve installation access token
@@ -78,7 +78,7 @@ const installationAuthentication = await auth({ type: "installation" });
 //   tokenType: 'installation',
 //   token: 'token123',
 //   installationId: 123,
-//   expiresAt: '2018-07-07T00:59:00Z'
+//   expiresAt: '2018-07-07T00:59:00.000Z'
 // }
 
 // Retrieve an oauth-access token
@@ -404,7 +404,7 @@ There are two possible results
         <code>string</code>
       </th>
       <td>
-        Timestamp in UTC format, e.g. <code>"2019-06-11T22:22:34Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
+        Timestamp in UTC format, e.g. <code>"2018-07-07T00:09:30.000Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
       </td>
     </tr>
   </tbody>
@@ -479,7 +479,7 @@ There are two possible results
         <code>string</code>
       </th>
       <td>
-        Timestamp in UTC format, e.g. <code>"2019-06-11T22:22:34Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
+        Timestamp in UTC format, e.g. <code>"2018-07-07T00:59:00.000Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
       </td>
     </tr>
     <tr>
