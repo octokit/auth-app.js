@@ -67,7 +67,7 @@ const appAuthentication = await auth({ type: "app" });
 //   type: 'app',
 //   token: 'jsonwebtoken123',
 //   appId: 123,
-//   expiration: 1564115676
+//   expiresAt: '2018-07-07T00:09:30Z'
 // }
 
 // Retrieve installation access token
@@ -78,7 +78,7 @@ const installationAuthentication = await auth({ type: "installation" });
 //   tokenType: 'installation',
 //   token: 'token123',
 //   installationId: 123,
-//   expiresAt: '2019-06-11T22:22:34Z'
+//   expiresAt: '2018-07-07T00:59:00Z'
 // }
 
 // Retrieve an oauth-access token
