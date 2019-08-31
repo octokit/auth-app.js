@@ -34,7 +34,7 @@ x//0u+zd/R/QRUzLOw4N72/Hu+UG6MNt5iDZFCtapRaKt6OvSBwy8w==
 -----END RSA PRIVATE KEY-----`;
 // see https://runkit.com/gr2m/reproducable-jwt
 const BEARER =
-  "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjAsImV4cCI6NjAwLCJpc3MiOjF9.UYfZtE742hkMV5cKMwp6-gVUvsWnUGoCQkl2UZZEkN8-lgvqzq5V8e5KtTrJxAAgcK7Yn1ViAlDUpwc9hZxrZ-gLaR10GR2hubte3OgkRDH-m_lCQ1Sgb9VQpZnagh_PMyRwphOw3uDXU3D7h2jL86UP3Ora8i9SRgXLq8X_2R9jtr2FDT1wtmcOLdyIc0Q7c_4X1uIPNjZS2UY04QBT7VWePk81EGdJAVQ_nEygXIuWOpMwZvtD0K1hzqQQM9GyV2QOwFSvFLtdbMVyld6Qvs8eEA5VS6Y4vTrGuyUF_lH5XlPdfAFAyrzsGP4inLq3tq6y4mjsx3YIF0P8DcMNPw";
+  "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOi0zMCwiZXhwIjo1NzAsImlzcyI6MX0.q3foRa78U3WegM5PrWLEh5N0bH1SD62OqW66ZYzArp95JBNiCbo8KAlGtiRENCIfBZT9ibDUWy82cI4g3F09mdTq3bD1xLavIfmTksIQCz5EymTWR5v6gL14LSmQdWY9lSqkgUG0XCFljWUglEP39H4yeHbFgdjvAYg3ifDS12z9oQz2ACdSpvxPiTuCC804HkPVw8Qoy0OSXvCkFU70l7VXCVUxnuhHnk8-oCGcKUspmeP6UdDnXk-Aus-eGwDfJbU2WritxxaXw6B4a3flTPojkYLSkPBr6Pi0H2-mBsW_Nvs0aLPVLKobQd4gqTkosX3967DoAG8luUMhrnxe8Q";
 
 let clock: Clock;
 beforeEach(() => {
@@ -53,7 +53,7 @@ test("README example for app auth", async () => {
     type: "app",
     token: BEARER,
     appId: 1,
-    expiresAt: "1970-01-01T00:00:00.600Z"
+    expiresAt: "1970-01-01T00:09:30.000Z"
   });
 });
 
