@@ -39,7 +39,10 @@ export async function getInstallationAuthentication(
     }
   }
 
-  const appAuthentication = getAppAuthentication(state.id, state.privateKey);
+  const appAuthentication = await getAppAuthentication(
+    state.id,
+    state.privateKey
+  );
   const request = customRequest || state.request;
 
   const {
