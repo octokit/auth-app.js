@@ -20,7 +20,7 @@ export async function hook(
   let endpoint: Defaults = request.endpoint.merge(route as string, parameters);
 
   if (requiresAppAuth(endpoint.url)) {
-    const { token } = getAppAuthentication(state.id, state.privateKey);
+    const { token } = await getAppAuthentication(state.id, state.privateKey);
     endpoint.headers.authorization = `bearer ${token}`;
 
     return request(endpoint as Endpoint);
