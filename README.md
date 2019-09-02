@@ -33,19 +33,36 @@ For other GitHub authentication strategies see [octokit/auth.js](https://github.
 Browsers
 </th><td width=100%>
 
-Not yet supported, see [#6](https://github.com/octokit/auth-app.js/issues/6).
+Load `@octokit/auth-app` directly from [cdn.pika.dev](https://cdn.pika.dev)
+
+```html
+<script type="module">
+  import { createOAuthAppAuth } from "https://cdn.pika.dev/@octokit/auth-app";
+</script>
+```
 
 </td></tr>
 <tr><th>
 Node
 </th><td>
 
-Install with <code>npm install @octokit/auth-oauth-app</code>
+Install with <code>npm install @octokit/auth-app</code>
 
 ```js
-const { createOAuthAppAuth } = require("@octokit/auth-oauth-app");
-// or: import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
+const { createOAuthAppAuth } = require("@octokit/auth-app");
+// or: import { createOAuthAppAuth } from "@octokit/auth-app";
 ```
+
+</td></tr>
+<tr><td colspan=2>
+
+⚠️ For usage in browsers: The private keys provide by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
+
+```shell
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
+```
+
+No conversation is needed in Node, both `PKCS#1` and `PKCS#8` format will work.
 
 </td></tr>
 </tbody>
@@ -54,7 +71,7 @@ const { createOAuthAppAuth } = require("@octokit/auth-oauth-app");
 ```js
 const auth = createAppAuth({
   id: 1,
-  privateKey: "-----BEGIN RSA PRIVATE KEY-----\n...",
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   installationId: 123,
   clientId: "1234567890abcdef1234",
   clientSecret: "1234567890abcdef12341234567890abcdef1234"
