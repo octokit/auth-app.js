@@ -28,7 +28,7 @@
     "@types/lru-cache": "^5.1.0",
     "lru-cache": "^5.1.1",
     "universal-github-app-jwt": "^1.0.1",
-    "universal-user-agent": "^3.0.0"
+    "universal-user-agent": "^4.0.0"
   },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
