@@ -37,7 +37,7 @@ Load `@octokit/auth-app` directly from [cdn.pika.dev](https://cdn.pika.dev)
 
 ```html
 <script type="module">
-  import { createOAuthAppAuth } from "https://cdn.pika.dev/@octokit/auth-app";
+  import { createAppAuth } from "https://cdn.pika.dev/@octokit/auth-app";
 </script>
 ```
 
@@ -49,8 +49,8 @@ Node
 Install with <code>npm install @octokit/auth-app</code>
 
 ```js
-const { createOAuthAppAuth } = require("@octokit/auth-app");
-// or: import { createOAuthAppAuth } from "@octokit/auth-app";
+const { createAppAuth } = require("@octokit/auth-app");
+// or: import { createAppAuth } from "@octokit/auth-app";
 ```
 
 </td></tr>
