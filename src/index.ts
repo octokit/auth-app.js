@@ -1,4 +1,4 @@
-import getUserAgent from "universal-user-agent";
+import { getUserAgent } from "universal-user-agent";
 import { request } from "@octokit/request";
 
 import { auth } from "./auth";
