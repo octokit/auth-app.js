@@ -40,7 +40,7 @@
     "@types/lolex": "^3.1.1",
     "fetch-mock": "^7.3.9",
     "jest": "^24.8.0",
-    "lolex": "^4.1.0",
+    "lolex": "^5.0.0",
     "semantic-release": "^15.13.24",
     "semantic-release-plugin-update-version-in-files": "^1.0.0",
     "ts-jest": "^24.0.2",
