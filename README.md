@@ -280,7 +280,7 @@ createAppAuth({
         <code>array of string</code>
       </th>
       <td>
-        Only relevant <code>type</code> is set to <code>"installation"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
         <br>
         The `id`s of the repositories that the installation token can access.
       </td>
@@ -293,7 +293,7 @@ createAppAuth({
         <code>object</code>
       </th>
       <td>
-        Only relevant <code>type</code> is set to <code>"installation"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
         <br>
         The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions">GitHub App permissions</a>.
       </td>
@@ -306,7 +306,7 @@ createAppAuth({
         <code>boolean</code>
       </th>
       <td>
-        Only relevant <code>type</code> is set to <code>"installation"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
         <br>
         Installation tokens expire after one hour. By default, tokens are cached and returned from cache until expired. To bypass and update a cached token for the given <code>installationId</code>, set <code>refresh</code> to <code>true</code>.<br>
         <br>
@@ -321,7 +321,7 @@ createAppAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant <code>type</code> is set to <code>"oauth"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
         <br>
         The authorization <code>code</code> which was passed as query parameter to the callback URL from the <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
@@ -334,7 +334,7 @@ createAppAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant <code>type</code> is set to <code>"oauth"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
         <br>
         The URL in your application where users are sent after authorization. See <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#redirect-urls">redirect urls</a>.
       </td>
@@ -347,7 +347,7 @@ createAppAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant <code>type</code> is set to <code>"oauth"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
         <br>
         The unguessable random string you provided in Step 1 of the <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
