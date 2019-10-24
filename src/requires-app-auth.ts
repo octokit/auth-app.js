@@ -47,6 +47,6 @@ function routeMatcher(paths: string[]) {
 
 const REGEX = routeMatcher(PATHS);
 
-export function requiresAppAuth(url: string): Boolean {
+export function requiresAppAuth(url: string | undefined): Boolean {
   return !!url && REGEX.test(url);
 }
