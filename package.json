@@ -25,6 +25,7 @@
   "homepage": "https://github.com/octokit/auth-app.js#readme",
   "dependencies": {
     "@octokit/request": "^5.0.2",
+    "@octokit/types": "file:../types.ts",
     "@types/lru-cache": "^5.1.0",
     "lru-cache": "^5.1.1",
     "universal-github-app-jwt": "^1.0.1",
