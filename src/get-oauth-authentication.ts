@@ -1,5 +1,5 @@
 import {
-  Request,
+  RequestInterface,
   OAuthOptions,
   StrategyOptionsWithDefaults,
   OAuthAccesTokenAuthentication
@@ -8,7 +8,7 @@ import {
 export async function getOAuthAuthentication(
   state: StrategyOptionsWithDefaults,
   options: OAuthOptions,
-  customRequest?: Request
+  customRequest?: RequestInterface
 ): Promise<OAuthAccesTokenAuthentication> {
   const request = customRequest || state.request;
 

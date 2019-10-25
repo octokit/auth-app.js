@@ -2,7 +2,7 @@ import { get, set } from "./cache";
 import { getAppAuthentication } from "./get-app-authentication";
 import { toTokenAuthentication } from "./to-token-authentication";
 import {
-  Request,
+  RequestInterface,
   InstallationAuthOptions,
   StrategyOptionsWithDefaults
 } from "./types";
@@ -10,7 +10,7 @@ import {
 export async function getInstallationAuthentication(
   state: StrategyOptionsWithDefaults,
   options: InstallationAuthOptions,
-  customRequest?: Request
+  customRequest?: RequestInterface
 ) {
   const installationId = (options.installationId ||
     state.installationId) as number;
