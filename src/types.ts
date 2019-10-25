@@ -2,6 +2,7 @@ import * as OctokitTypes from "@octokit/types";
 import LRUCache from "lru-cache";
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
+export type AuthInterface = OctokitTypes.AuthInterface;
 export type EndpointDefaults = OctokitTypes.EndpointDefaults;
 export type EndpointOptions = OctokitTypes.EndpointOptions;
 export type RequestParameters = OctokitTypes.RequestParameters;
