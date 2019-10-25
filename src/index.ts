@@ -4,10 +4,10 @@ import { request } from "@octokit/request";
 import { auth } from "./auth";
 import { hook } from "./hook";
 import { getCache } from "./cache";
-import { State, StrategyOptions } from "./types";
+import { AuthInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
-export function createAppAuth(options: StrategyOptions) {
+export function createAppAuth(options: StrategyOptions): AuthInterface {
   const state: State = Object.assign(
     {
       request: request.defaults({
