@@ -2,12 +2,16 @@ import * as OctokitTypes from "@octokit/types";
 import LRUCache from "lru-cache";
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
-export type AuthInterface = OctokitTypes.AuthInterface;
 export type EndpointDefaults = OctokitTypes.EndpointDefaults;
 export type EndpointOptions = OctokitTypes.EndpointOptions;
 export type RequestParameters = OctokitTypes.RequestParameters;
 export type Route = OctokitTypes.Route;
 export type RequestInterface = OctokitTypes.RequestInterface;
+export type StrategyInterface = OctokitTypes.StrategyInterface<
+  [StrategyOptions],
+  [AuthOptions],
+  Authentication
+>;
 
 export type Cache =
   | LRUCache<string, string>
@@ -33,11 +37,11 @@ export type JWT = string;
 export type ACCESS_TOKEN = string;
 export type UTC_TIMESTAMP = string;
 
-type AppAuthentication = {
+export type AppAuthentication = {
   type: APP_TYPE;
   token: JWT;
   appId: number;
-  exporation: number;
+  expiresAt: string;
 };
 
 export type InstallationAccessTokenData = {

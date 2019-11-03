@@ -4,14 +4,15 @@ import { toTokenAuthentication } from "./to-token-authentication";
 import {
   RequestInterface,
   InstallationAuthOptions,
-  StrategyOptionsWithDefaults
+  StrategyOptionsWithDefaults,
+  InstallationAccessTokenAuthentication
 } from "./types";
 
 export async function getInstallationAuthentication(
   state: StrategyOptionsWithDefaults,
   options: InstallationAuthOptions,
   customRequest?: RequestInterface
-) {
+): Promise<InstallationAccessTokenAuthentication> {
   const installationId = (options.installationId ||
     state.installationId) as number;
 
