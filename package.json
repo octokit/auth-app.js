@@ -26,6 +26,7 @@
   "dependencies": {
     "@octokit/request": "^5.3.0",
     "@octokit/types": "^2.0.0",
+    "@octokit/request-error": "^1.1.0",
     "@types/lru-cache": "^5.1.0",
     "lru-cache": "^5.1.1",
     "universal-github-app-jwt": "^1.0.1",
