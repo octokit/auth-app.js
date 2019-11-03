@@ -34,9 +34,17 @@ export async function getOAuthAuthentication(
     redirect_uri: options.redirectUrl
   };
 
+  const response = await request(route, parameters);
+
+  if (response.data.error !== undefined) {
+    throw new Error(
+      response.data.error_description || `Unknown error: ${response.data.error}`
+    );
+  }
+
   const {
     data: { access_token: token, scope }
-  } = await request(route, parameters);
+  } = response;
 
   return {
     type: "token",
