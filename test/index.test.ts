@@ -1050,6 +1050,41 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
   expect(mock.done()).toBe(true);
 });
 
+test("auth.hook() uses app auth for full URLs", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .getOnce("https://api.github.com/app/installations?per_page=100", [], {
+      headers: {
+        authorization: `bearer ${BEARER}`
+      }
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test"
+    },
+    request: {
+      fetch: mock
+    }
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook
+    }
+  });
+
+  await requestWithAuth("GET https://api.github.com/app/installations", {
+    per_page: 100
+  });
+
+  expect(mock.done()).toBe(true);
+});
+
 test("oauth endpoint error", async () => {
   const requestMock = request.defaults({
     headers: {
