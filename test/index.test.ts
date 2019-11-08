@@ -1050,25 +1050,26 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
   expect(mock.done()).toBe(true);
 });
 
-
 test("oauth endpoint error", async () => {
   const requestMock = request.defaults({
     headers: {
       "user-agent": "test"
     },
     request: {
-      fetch: fetchMock.sandbox().post(
-        "https://github.com/login/oauth/access_token", {
+      fetch: fetchMock
+        .sandbox()
+        .post("https://github.com/login/oauth/access_token", {
           status: 200,
           body: JSON.stringify({
             error: "incorrect_client_credentials",
-            error_description: "The client_id and/or client_secret passed are incorrect.",
+            error_description:
+              "The client_id and/or client_secret passed are incorrect."
           }),
           headers: {
             "Content-Type": "application/json; charset=utf-8"
           }
-        }),
-    },
+        })
+    }
   });
 
   const auth = createAppAuth({
@@ -1076,14 +1077,14 @@ test("oauth endpoint error", async () => {
     privateKey: PRIVATE_KEY,
     clientId: "12345678901234567890",
     clientSecret: "1234567890123456789012345678901234567890",
-    request: requestMock,
+    request: requestMock
   });
 
   await expect(
     auth({
-      type: 'oauth',
-      code: '12345678901234567890',
-      redirectUrl: 'https://example.com/login',
+      type: "oauth",
+      code: "12345678901234567890",
+      redirectUrl: "https://example.com/login"
     })
-  ).rejects.toThrow('client_id');
+  ).rejects.toThrow("client_id");
 });

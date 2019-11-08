@@ -4,7 +4,7 @@ import {
   StrategyOptionsWithDefaults,
   OAuthAccesTokenAuthentication
 } from "./types";
-import { RequestError } from '@octokit/request-error';
+import { RequestError } from "@octokit/request-error";
 
 export async function getOAuthAuthentication(
   state: StrategyOptionsWithDefaults,
@@ -38,10 +38,14 @@ export async function getOAuthAuthentication(
   const response = await request(route, parameters);
 
   if (response.data.error !== undefined) {
-    throw new RequestError(`${response.data.error_description} (${response.data.error})`, response.status, {
-      headers: response.headers,
-      request: request.endpoint(route, parameters)
-    });
+    throw new RequestError(
+      `${response.data.error_description} (${response.data.error})`,
+      response.status,
+      {
+        headers: response.headers,
+        request: request.endpoint(route, parameters)
+      }
+    );
   }
 
   const {
