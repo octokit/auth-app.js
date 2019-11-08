@@ -3,7 +3,6 @@ import { getInstallationAuthentication } from "./get-installation-authentication
 import { requiresAppAuth } from "./requires-app-auth";
 import {
   AnyResponse,
-  EndpointDefaults,
   EndpointOptions,
   RequestParameters,
   RequestInterface,
@@ -17,12 +16,13 @@ export async function hook(
   route: Route | EndpointOptions,
   parameters?: RequestParameters
 ): Promise<AnyResponse> {
-  let endpoint: EndpointDefaults = request.endpoint.merge(
-    route as string,
-    parameters
-  );
+  let endpoint = request.endpoint.merge(route as string, parameters);
 
-  if (requiresAppAuth(endpoint.url)) {
+  if (
+    requiresAppAuth(
+      (endpoint.url as string).replace(request.endpoint.DEFAULTS.baseUrl, "")
+    )
+  ) {
     const { token } = await getAppAuthentication(state.id, state.privateKey);
     endpoint.headers.authorization = `bearer ${token}`;
 
