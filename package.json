@@ -7,6 +7,9 @@
   "description": "GitHub App authentication for JavaScript",
   "scripts": {
     "build": "pika build",
+    "lint": "prettier --check '{src,test}/**/*.{ts,md}' README.md *.json",
+    "lint:fix": "prettier --write '{src,test}/**/*.{ts,md}' README.md *.json",
+    "pretest": "npm run -s lint",
     "test": "jest --coverage",
     "semantic-release": "semantic-release"
   },
@@ -43,6 +46,7 @@
     "fetch-mock": "^7.3.9",
     "jest": "^24.8.0",
     "lolex": "^5.0.0",
+    "prettier": "^1.18.2",
     "semantic-release": "^15.13.24",
     "semantic-release-plugin-update-version-in-files": "^1.0.0",
     "ts-jest": "^24.0.2",
