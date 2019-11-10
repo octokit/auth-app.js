@@ -41,18 +41,15 @@ export async function get(
 
   const permissions =
     options.permissions ||
-    permissionsString.split(/,/).reduce(
-      (permissions: Permissions, string) => {
-        if (/!$/.test(string)) {
-          permissions[string.slice(0, -1)] = "write";
-        } else {
-          permissions[string] = "read";
-        }
+    permissionsString.split(/,/).reduce((permissions: Permissions, string) => {
+      if (/!$/.test(string)) {
+        permissions[string.slice(0, -1)] = "write";
+      } else {
+        permissions[string] = "read";
+      }
 
-        return permissions;
-      },
-      {} as Permissions
-    );
+      return permissions;
+    }, {} as Permissions);
 
   return {
     token,
