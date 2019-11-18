@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.com/octokit/auth-app.js.svg?branch=master)](https://travis-ci.com/octokit/auth-app.js)
 [![Greenkeeper](https://badges.greenkeeper.io/octokit/auth-app.js.svg)](https://greenkeeper.io/)
 
-`@octokit/auth-app` implements authetication for GitHub Apps using [JSON Web Token](https://jwt.io/) and installation access tokens.
+`@octokit/auth-app` implements authentication for GitHub Apps using [JSON Web Token](https://jwt.io/) and installation access tokens.
 
 For other GitHub authentication strategies see [octokit/auth.js](https://github.com/octokit/auth.js).
 
