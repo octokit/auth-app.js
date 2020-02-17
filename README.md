@@ -295,7 +295,9 @@ createAppAuth({
       <td>
         Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
         <br>
-        The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions">GitHub App permissions</a>.
+        The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions">GitHub App permissions</a>.<br>
+        <br>
+        ⚠️ <strong>Required for GitHub Enterprise Server 2.18 and below</strong>
       </td>
     </tr>
     <tr>
