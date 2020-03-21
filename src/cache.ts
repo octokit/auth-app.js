@@ -8,7 +8,7 @@ import {
   CacheData,
   Permissions,
   InstallationAccessTokenData,
-  REPOSITORY_SELECTION
+  REPOSITORY_SELECTION,
 } from "./types";
 
 export function getCache() {
@@ -16,7 +16,7 @@ export function getCache() {
     // cache max. 15000 tokens, that will use less than 10mb memory
     max: 15000,
     // Cache for 1 minute less than GitHub expiry
-    maxAge: 1000 * 60 * 59
+    maxAge: 1000 * 60 * 59,
   });
 }
 
@@ -36,7 +36,7 @@ export async function get(
     expiresAt,
     repositorySelection,
     permissionsString,
-    singleFileName
+    singleFileName,
   ] = result.split("|");
 
   const permissions =
@@ -57,7 +57,7 @@ export async function get(
     permissions,
     repositoryIds: options.repositoryIds,
     singleFileName,
-    repositorySelection: repositorySelection as REPOSITORY_SELECTION
+    repositorySelection: repositorySelection as REPOSITORY_SELECTION,
   };
 }
 export async function set(
@@ -70,7 +70,9 @@ export async function set(
   const permissionsString = options.permissions
     ? ""
     : Object.keys(data.permissions)
-        .map(name => `${name}${data.permissions[name] === "write" ? "!" : ""}`)
+        .map(
+          (name) => `${name}${data.permissions[name] === "write" ? "!" : ""}`
+        )
         .join(",");
 
   await cache.set(
@@ -80,7 +82,7 @@ export async function set(
       data.expiresAt,
       data.repositorySelection,
       permissionsString,
-      data.singleFileName
+      data.singleFileName,
     ]
       .join("|")
       .replace(/\|+$/, "")
@@ -90,11 +92,11 @@ export async function set(
 function optionsToCacheKey({
   installationId,
   permissions = {},
-  repositoryIds = []
+  repositoryIds = [],
 }: InstallationAuthOptions) {
   const permissionsString = Object.keys(permissions)
     .sort()
-    .map(name => (permissions[name] === "read" ? name : `${name}!`))
+    .map((name) => (permissions[name] === "read" ? name : `${name}!`))
     .join(",");
 
   const repositoryIdsString = repositoryIds.sort().join(",");

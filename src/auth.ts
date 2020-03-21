@@ -1,7 +1,7 @@
 import {
   AuthOptions,
   StrategyOptionsWithDefaults,
-  Authentication
+  Authentication,
 } from "./types";
 import { getAppAuthentication } from "./get-app-authentication";
 import { getInstallationAuthentication } from "./get-installation-authentication";

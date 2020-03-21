@@ -74,7 +74,7 @@ const auth = createAppAuth({
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   installationId: 123,
   clientId: "1234567890abcdef1234",
-  clientSecret: "1234567890abcdef12341234567890abcdef1234"
+  clientSecret: "1234567890abcdef12341234567890abcdef1234",
 });
 
 // Retrieve JSON Web Token (JWT) to authenticate as app
@@ -197,8 +197,8 @@ createAppAuth({
   clientId: 123,
   clientSecret: "secret",
   request: request.defaults({
-    baseUrl: "https://ghe.my-company.com/api/v3"
-  })
+    baseUrl: "https://ghe.my-company.com/api/v3",
+  }),
 });
 ```
 
@@ -224,8 +224,8 @@ createAppAuth({
     },
     async set(key, value) {
       CACHE[key] = value;
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -621,8 +621,8 @@ Or it can be passed as option to [`request()`](https://github.com/octokit/reques
 ```js
 const requestWithAuth = request.defaults({
   request: {
-    hook: auth.hook
-  }
+    hook: auth.hook,
+  },
 });
 
 const { data: installations } = await requestWithAuth("GET /app/installations");
@@ -633,12 +633,12 @@ Note that `auth.hook()` does not create and set an OAuth authentication token. B
 ```js
 const { token } = await auth({
   type: "oauth",
-  code: "123456"
+  code: "123456",
 });
 const requestWithAuth = request.defaults({
   headers: {
-    authentication: `token ${token}`
-  }
+    authentication: `token ${token}`,
+  },
 });
 ```
 

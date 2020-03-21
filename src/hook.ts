@@ -7,7 +7,7 @@ import {
   RequestParameters,
   RequestInterface,
   Route,
-  State
+  State,
 } from "./types";
 
 export async function hook(

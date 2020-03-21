@@ -5,7 +5,7 @@ import {
   RequestInterface,
   InstallationAuthOptions,
   StrategyOptionsWithDefaults,
-  InstallationAccessTokenAuthentication
+  InstallationAccessTokenAuthentication,
 } from "./types";
 
 export async function getInstallationAuthentication(
@@ -25,7 +25,7 @@ export async function getInstallationAuthentication(
         permissions,
         repositoryIds,
         singleFileName,
-        repositorySelection
+        repositorySelection,
       } = result;
 
       return toTokenAuthentication({
@@ -35,7 +35,7 @@ export async function getInstallationAuthentication(
         permissions,
         repositorySelection,
         repositoryIds,
-        singleFileName
+        singleFileName,
       });
     }
   }
@@ -53,18 +53,18 @@ export async function getInstallationAuthentication(
       repositories,
       permissions,
       repository_selection: repositorySelection,
-      single_file: singleFileName
-    }
+      single_file: singleFileName,
+    },
   } = await request("POST /app/installations/:installation_id/access_tokens", {
     installation_id: installationId,
     repository_ids: options.repositoryIds,
     permissions: options.permissions,
     mediaType: {
-      previews: ["machine-man"]
+      previews: ["machine-man"],
     },
     headers: {
-      authorization: `bearer ${appAuthentication.token}`
-    }
+      authorization: `bearer ${appAuthentication.token}`,
+    },
   });
 
   const repositoryIds = repositories
@@ -77,7 +77,7 @@ export async function getInstallationAuthentication(
     repositorySelection,
     permissions,
     repositoryIds,
-    singleFileName
+    singleFileName,
   });
 
   return toTokenAuthentication({
@@ -87,6 +87,6 @@ export async function getInstallationAuthentication(
     repositorySelection,
     permissions,
     repositoryIds,
-    singleFileName
+    singleFileName,
   });
 }
