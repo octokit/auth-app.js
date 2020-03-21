@@ -12,6 +12,6 @@ export async function getAppAuthentication(
     type: "app",
     token: appAuthentication.token,
     appId: appAuthentication.appId,
-    expiresAt: new Date(appAuthentication.expiration * 1000).toISOString()
+    expiresAt: new Date(appAuthentication.expiration * 1000).toISOString(),
   };
 }

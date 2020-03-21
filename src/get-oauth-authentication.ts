@@ -2,7 +2,7 @@ import {
   RequestInterface,
   OAuthOptions,
   StrategyOptionsWithDefaults,
-  OAuthAccesTokenAuthentication
+  OAuthAccesTokenAuthentication,
 } from "./types";
 import { RequestError } from "@octokit/request-error";
 
@@ -26,13 +26,13 @@ export async function getOAuthAuthentication(
 
   const parameters = {
     headers: {
-      accept: `application/json`
+      accept: `application/json`,
     },
     client_id: state.clientId,
     client_secret: state.clientSecret,
     code: options.code,
     state: options.state,
-    redirect_uri: options.redirectUrl
+    redirect_uri: options.redirectUrl,
   };
 
   const response = await request(route, parameters);
@@ -43,19 +43,19 @@ export async function getOAuthAuthentication(
       response.status,
       {
         headers: response.headers,
-        request: request.endpoint(route, parameters)
+        request: request.endpoint(route, parameters),
       }
     );
   }
 
   const {
-    data: { access_token: token, scope }
+    data: { access_token: token, scope },
   } = response;
 
   return {
     type: "token",
     tokenType: "oauth",
     token,
-    scopes: scope.split(/,\s*/).filter(Boolean)
+    scopes: scope.split(/,\s*/).filter(Boolean),
   };
 }
