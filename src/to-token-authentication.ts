@@ -3,7 +3,7 @@ import {
   InstallationAccessTokenAuthentication,
   WithInstallationId,
   TOKEN_TYPE,
-  INSTALLATION_TOKEN_TYPE
+  INSTALLATION_TOKEN_TYPE,
 } from "./types";
 
 export function toTokenAuthentication({
@@ -13,7 +13,7 @@ export function toTokenAuthentication({
   repositorySelection,
   permissions,
   repositoryIds,
-  singleFileName
+  singleFileName,
 }: CacheData & WithInstallationId): InstallationAccessTokenAuthentication {
   return Object.assign(
     {
@@ -23,7 +23,7 @@ export function toTokenAuthentication({
       installationId,
       permissions,
       expiresAt,
-      repositorySelection
+      repositorySelection,
     },
     repositoryIds ? { repositoryIds } : null,
     singleFileName ? { singleFileName } : null

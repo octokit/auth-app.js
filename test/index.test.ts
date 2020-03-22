@@ -44,7 +44,7 @@ beforeEach(() => {
 test("README example for app auth", async () => {
   const auth = createAppAuth({
     id: APP_ID,
-    privateKey: PRIVATE_KEY
+    privateKey: PRIVATE_KEY,
   });
 
   const authentication = await auth({ type: "app" });
@@ -53,7 +53,7 @@ test("README example for app auth", async () => {
     type: "app",
     token: BEARER,
     appId: 1,
-    expiresAt: "1970-01-01T00:09:30.000Z"
+    expiresAt: "1970-01-01T00:09:30.000Z",
   });
 });
 
@@ -69,7 +69,7 @@ test("README example for installation auth", async () => {
       accept: "application/vnd.github.machine-man-preview+json",
       "user-agent": "test",
       "content-type": "application/json; charset=utf-8",
-      authorization: `bearer ${BEARER}`
+      authorization: `bearer ${BEARER}`,
     });
     expect(JSON.parse(String(body))).toStrictEqual({});
     return true;
@@ -79,9 +79,9 @@ test("README example for installation auth", async () => {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
-    repository_selection: "all"
+    repository_selection: "all",
   };
 
   const auth = createAppAuth({
@@ -89,7 +89,7 @@ test("README example for installation auth", async () => {
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
-        "user-agent": "test"
+        "user-agent": "test",
       },
       request: {
         fetch: fetchMock
@@ -97,14 +97,14 @@ test("README example for installation auth", async () => {
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData
-          )
-      }
-    })
+          ),
+      },
+    }),
   });
 
   const authentication = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   expect(authentication).toEqual({
@@ -113,10 +113,10 @@ test("README example for installation auth", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   });
 });
 
@@ -129,12 +129,12 @@ test("README example for oauth", async () => {
     expect(headers).toStrictEqual({
       accept: "application/json",
       "user-agent": "test",
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
     });
     expect(JSON.parse(String(body))).toStrictEqual({
       client_id: "12345678901234567890",
       client_secret: "1234567890123456789012345678901234567890",
-      code: "123456"
+      code: "123456",
     });
     return true;
   };
@@ -142,7 +142,7 @@ test("README example for oauth", async () => {
   const createOAuthAccessTokenResponseData = {
     access_token: "secret123",
     scope: "",
-    token_type: "bearer"
+    token_type: "bearer",
   };
 
   const auth = createAppAuth({
@@ -152,7 +152,7 @@ test("README example for oauth", async () => {
     clientSecret: "1234567890123456789012345678901234567890",
     request: request.defaults({
       headers: {
-        "user-agent": "test"
+        "user-agent": "test",
       },
       request: {
         fetch: fetchMock
@@ -160,28 +160,28 @@ test("README example for oauth", async () => {
           .postOnce(
             matchCreateOAuthAccessToken,
             createOAuthAccessTokenResponseData
-          )
-      }
-    })
+          ),
+      },
+    }),
   });
 
   const authentication = await auth({
     type: "oauth",
-    code: "123456"
+    code: "123456",
   });
 
   expect(authentication).toEqual({
     type: "token",
     token: "secret123",
     tokenType: "oauth",
-    scopes: []
+    scopes: [],
   });
 });
 
 test("installationId strategy option", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -192,23 +192,23 @@ test("installationId strategy option", async () => {
             token: "secret123",
             expires_at: "1970-01-01T01:00:00.000Z",
             permissions: {
-              metadata: "read"
+              metadata: "read",
             },
-            repository_selection: "all"
+            repository_selection: "all",
           }
-        )
-    }
+        ),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
-    request: requestMock
+    request: requestMock,
   });
 
   const authentication = await auth({
-    type: "installation"
+    type: "installation",
   });
 
   expect(authentication).toEqual({
@@ -217,10 +217,10 @@ test("installationId strategy option", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   });
 });
 
@@ -230,7 +230,7 @@ test("repositoryIds auth option", async () => {
     { body }
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
-      repository_ids: [1, 2, 3]
+      repository_ids: [1, 2, 3],
     });
     return true;
   };
@@ -239,10 +239,10 @@ test("repositoryIds auth option", async () => {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     repositories: [{ id: 1 }, { id: 2 }, { id: 3 }],
-    repository_selection: "all"
+    repository_selection: "all",
   };
 
   const auth = createAppAuth({
@@ -250,7 +250,7 @@ test("repositoryIds auth option", async () => {
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
-        "user-agent": "test"
+        "user-agent": "test",
       },
       request: {
         fetch: fetchMock
@@ -258,15 +258,15 @@ test("repositoryIds auth option", async () => {
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData
-          )
-      }
-    })
+          ),
+      },
+    }),
   });
 
   const authentication = await auth({
     type: "installation",
     installationId: 123,
-    repositoryIds: [1, 2, 3]
+    repositoryIds: [1, 2, 3],
   });
 
   expect(authentication).toEqual({
@@ -275,11 +275,11 @@ test("repositoryIds auth option", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositoryIds: [1, 2, 3],
-    repositorySelection: "all"
+    repositorySelection: "all",
   });
 });
 
@@ -290,8 +290,8 @@ test("permissions auth option", async () => {
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
-        single_file: "write"
-      }
+        single_file: "write",
+      },
     });
     return true;
   };
@@ -300,10 +300,10 @@ test("permissions auth option", async () => {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
-      single_file: "write"
+      single_file: "write",
     },
     single_file: ".github/myapp.yml",
-    repository_selection: "all"
+    repository_selection: "all",
   };
 
   const auth = createAppAuth({
@@ -311,7 +311,7 @@ test("permissions auth option", async () => {
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
-        "user-agent": "test"
+        "user-agent": "test",
       },
       request: {
         fetch: fetchMock
@@ -319,17 +319,17 @@ test("permissions auth option", async () => {
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData
-          )
-      }
-    })
+          ),
+      },
+    }),
   });
 
   const authentication = await auth({
     type: "installation",
     installationId: 123,
     permissions: {
-      single_file: "write"
-    }
+      single_file: "write",
+    },
   });
 
   expect(authentication).toEqual({
@@ -339,17 +339,17 @@ test("permissions auth option", async () => {
     installationId: 123,
     expiresAt: "1970-01-01T01:00:00.000Z",
     permissions: {
-      single_file: "write"
+      single_file: "write",
     },
     singleFileName: ".github/myapp.yml",
-    repositorySelection: "all"
+    repositorySelection: "all",
   });
 });
 
 test("installation auth from cache", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -359,17 +359,17 @@ test("installation auth from cache", async () => {
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
             metadata: "read",
-            issues: "write"
+            issues: "write",
           },
-          repository_selection: "all"
-        })
-    }
+          repository_selection: "all",
+        }),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const EXPECTED = {
@@ -379,19 +379,19 @@ test("installation auth from cache", async () => {
     installationId: 123,
     permissions: {
       metadata: "read",
-      issues: "write"
+      issues: "write",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   };
 
   const authentication1 = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
   const authentication2 = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -401,7 +401,7 @@ test("installation auth from cache", async () => {
 test("installation auth with selected repositories from cache", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -410,18 +410,18 @@ test("installation auth with selected repositories from cache", async () => {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
-            metadata: "read"
+            metadata: "read",
           },
           repository_selection: "all",
-          repositories: [{ id: 1 }, { id: 2 }, { id: 3 }]
-        })
-    }
+          repositories: [{ id: 1 }, { id: 2 }, { id: 3 }],
+        }),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const EXPECTED = {
@@ -430,22 +430,22 @@ test("installation auth with selected repositories from cache", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     repositoryIds: [1, 2, 3],
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   };
 
   const authentication1 = await auth({
     type: "installation",
     installationId: 123,
-    repositoryIds: [1, 2, 3]
+    repositoryIds: [1, 2, 3],
   });
   const authentication2 = await auth({
     type: "installation",
     installationId: 123,
-    repositoryIds: [1, 2, 3]
+    repositoryIds: [1, 2, 3],
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -455,7 +455,7 @@ test("installation auth with selected repositories from cache", async () => {
 test("installation auth with selected permissions from cache", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -464,17 +464,17 @@ test("installation auth with selected permissions from cache", async () => {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
-            issues: "write"
+            issues: "write",
           },
-          repository_selection: "all"
-        })
-    }
+          repository_selection: "all",
+        }),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const EXPECTED = {
@@ -483,25 +483,25 @@ test("installation auth with selected permissions from cache", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      issues: "write"
+      issues: "write",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   };
 
   const authentication1 = await auth({
     type: "installation",
     installationId: 123,
     permissions: {
-      issues: "write"
-    }
+      issues: "write",
+    },
   });
   const authentication2 = await auth({
     type: "installation",
     installationId: 123,
     permissions: {
-      issues: "write"
-    }
+      issues: "write",
+    },
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -516,8 +516,8 @@ test("installation cache with different options", async () => {
   const matchCreateAccessToken2: MockMatcherFunction = (url, { body }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
-        metadata: "read"
-      }
+        metadata: "read",
+      },
     });
     return true;
   };
@@ -526,9 +526,9 @@ test("installation cache with different options", async () => {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
-    repository_selection: "all"
+    repository_selection: "all",
   };
 
   const mock = fetchMock
@@ -544,17 +544,17 @@ test("installation cache with different options", async () => {
 
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
-      fetch: mock
-    }
+      fetch: mock,
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const EXPECTED = {
@@ -563,22 +563,22 @@ test("installation cache with different options", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   };
 
   const authentication1 = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
   const authentication2 = await auth({
     type: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
-    }
+      metadata: "read",
+    },
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -589,7 +589,7 @@ test("installation cache with different options", async () => {
 test("refresh option", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock.sandbox().post(
@@ -598,21 +598,21 @@ test("refresh option", async () => {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
-            metadata: "read"
+            metadata: "read",
           },
-          repository_selection: "all"
+          repository_selection: "all",
         },
         {
-          repeat: 2
+          repeat: 2,
         }
-      )
-    }
+      ),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const EXPECTED = {
@@ -621,21 +621,21 @@ test("refresh option", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   };
 
   const authentication1 = await auth({
     type: "installation",
     installationId: 123,
-    refresh: true
+    refresh: true,
   });
   const authentication2 = await auth({
     type: "installation",
     installationId: 123,
-    refresh: true
+    refresh: true,
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -651,14 +651,14 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
     expect(headers).toStrictEqual({
       accept: "application/json",
       "user-agent": "test",
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
     });
     expect(JSON.parse(String(body))).toStrictEqual({
       client_id: "12345678901234567890",
       client_secret: "1234567890123456789012345678901234567890",
       code: "123456",
       redirect_uri: "https://example.com/login",
-      state: "mystate123"
+      state: "mystate123",
     });
 
     return true;
@@ -667,7 +667,7 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
   const createOAuthAccessTokenResponseData = {
     access_token: "secret123",
     scope: "",
-    token_type: "bearer"
+    token_type: "bearer",
   };
 
   const auth = createAppAuth({
@@ -677,7 +677,7 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
     clientSecret: "1234567890123456789012345678901234567890",
     request: request.defaults({
       headers: {
-        "user-agent": "test"
+        "user-agent": "test",
       },
       request: {
         fetch: fetchMock
@@ -685,23 +685,23 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
           .postOnce(
             matchCreateOAuthAccessToken,
             createOAuthAccessTokenResponseData
-          )
-      }
-    })
+          ),
+      },
+    }),
   });
 
   const authentication = await auth({
     type: "oauth",
     code: "123456",
     state: "mystate123",
-    redirectUrl: "https://example.com/login"
+    redirectUrl: "https://example.com/login",
   });
 
   expect(authentication).toEqual({
     type: "token",
     token: "secret123",
     tokenType: "oauth",
-    scopes: []
+    scopes: [],
   });
 });
 
@@ -709,7 +709,7 @@ test("oauth with custom baseUrl (GHE)", async () => {
   const createOAuthAccessTokenResponseData = {
     access_token: "secret123",
     scope: "",
-    token_type: "bearer"
+    token_type: "bearer",
   };
 
   const auth = createAppAuth({
@@ -720,7 +720,7 @@ test("oauth with custom baseUrl (GHE)", async () => {
     request: request.defaults({
       baseUrl: "https://github.acme-inc.com/api/v3",
       headers: {
-        "user-agent": "test"
+        "user-agent": "test",
       },
       request: {
         fetch: fetchMock
@@ -728,23 +728,23 @@ test("oauth with custom baseUrl (GHE)", async () => {
           .postOnce(
             "https://github.acme-inc.com/login/oauth/access_token",
             createOAuthAccessTokenResponseData
-          )
-      }
-    })
+          ),
+      },
+    }),
   });
 
   const authentication = await auth({
     type: "oauth",
     code: "123456",
     state: "mystate123",
-    redirectUrl: "https://example.com/login"
+    redirectUrl: "https://example.com/login",
   });
 
   expect(authentication).toEqual({
     type: "token",
     token: "secret123",
     tokenType: "oauth",
-    scopes: []
+    scopes: [],
   });
 });
 
@@ -753,14 +753,14 @@ test("caches based on installation id", async () => {
     token: "secret123",
     expires_at: "1970-01-01T01:00:00.000Z",
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
-    repository_selection: "all"
+    repository_selection: "all",
   };
 
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -772,25 +772,25 @@ test("caches based on installation id", async () => {
         .postOnce(
           "path:/app/installations/456/access_tokens",
           Object.assign({}, createInstallationAccessTokenResponseData, {
-            token: "secret456"
+            token: "secret456",
           })
-        )
-    }
+        ),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const authentication1 = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
   const authentication2 = await auth({
     type: "installation",
-    installationId: 456
+    installationId: 456,
   });
 
   expect(authentication1).toEqual({
@@ -800,7 +800,7 @@ test("caches based on installation id", async () => {
     installationId: 123,
     permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   });
   expect(authentication2).toEqual({
     type: "token",
@@ -809,7 +809,7 @@ test("caches based on installation id", async () => {
     installationId: 456,
     permissions: { metadata: "read" },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   });
 });
 
@@ -817,7 +817,7 @@ const ONE_HOUR_IN_MS = 1000 * 60 * 60;
 test("request installation again after timeout", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock.sandbox().post(
@@ -826,21 +826,21 @@ test("request installation again after timeout", async () => {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
-            metadata: "read"
+            metadata: "read",
           },
-          repository_selection: "all"
+          repository_selection: "all",
         },
         {
-          repeat: 2
+          repeat: 2,
         }
-      )
-    }
+      ),
+    },
   });
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    request: requestMock
+    request: requestMock,
   });
 
   const EXPECTED = {
@@ -849,25 +849,25 @@ test("request installation again after timeout", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: {
-      metadata: "read"
+      metadata: "read",
     },
     expiresAt: "1970-01-01T01:00:00.000Z",
-    repositorySelection: "all"
+    repositorySelection: "all",
   };
 
   const authentication1 = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
-  await new Promise(resolve => {
+  await new Promise((resolve) => {
     setTimeout(resolve, ONE_HOUR_IN_MS);
     clock.tick(ONE_HOUR_IN_MS);
   });
 
   const authentication2 = await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -876,14 +876,14 @@ test("request installation again after timeout", async () => {
 
 test("supports custom cache", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest.fn().mockImplementation(key => CACHE[key]);
+  const get = jest.fn().mockImplementation((key) => CACHE[key]);
   const set = jest.fn().mockImplementation((key, value) => {
     CACHE[key] = value;
   });
 
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -892,11 +892,11 @@ test("supports custom cache", async () => {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
-            metadata: "read"
+            metadata: "read",
           },
-          repository_selection: "all"
-        })
-    }
+          repository_selection: "all",
+        }),
+    },
   });
 
   const auth = createAppAuth({
@@ -904,19 +904,19 @@ test("supports custom cache", async () => {
     privateKey: PRIVATE_KEY,
     cache: {
       get,
-      set
+      set,
     },
-    request: requestMock
+    request: requestMock,
   });
 
   await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   expect(get).toHaveBeenCalledTimes(2);
@@ -930,14 +930,14 @@ test("supports custom cache", async () => {
 
 test("supports custom cache with async get/set", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest.fn().mockImplementation(async key => CACHE[key]);
+  const get = jest.fn().mockImplementation(async (key) => CACHE[key]);
   const set = jest.fn().mockImplementation(async (key, value) => {
     CACHE[key] = value;
   });
 
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -946,11 +946,11 @@ test("supports custom cache with async get/set", async () => {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
-            metadata: "read"
+            metadata: "read",
           },
-          repository_selection: "all"
-        })
-    }
+          repository_selection: "all",
+        }),
+    },
   });
 
   const auth = createAppAuth({
@@ -958,19 +958,19 @@ test("supports custom cache with async get/set", async () => {
     privateKey: PRIVATE_KEY,
     cache: {
       get,
-      set
+      set,
     },
-    request: requestMock
+    request: requestMock,
   });
 
   await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   await auth({
     type: "installation",
-    installationId: 123
+    installationId: 123,
   });
 
   expect(get).toHaveBeenCalledTimes(2);
@@ -989,18 +989,18 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
       permissions: {
-        metadata: "read"
+        metadata: "read",
       },
-      repository_selection: "all"
+      repository_selection: "all",
     })
     .get(
       "https://api.github.com/repos/octocat/hello-world",
       { id: 123 },
       {
         headers: {
-          authorization: "token secret123"
+          authorization: "token secret123",
         },
-        repeat: 4
+        repeat: 4,
       }
     )
     .getOnce(
@@ -1010,29 +1010,29 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
         headers: {
           accept: "application/vnd.github.machine-man-preview+json",
           "user-agent": "test",
-          authorization: `bearer ${BEARER}`
-        }
+          authorization: `bearer ${BEARER}`,
+        },
       }
     );
 
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
-    installationId: 123
+    installationId: 123,
   });
 
   const requestWithMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
-      fetch: mock
-    }
+      fetch: mock,
+    },
   });
   const requestWithAuth = requestWithMock.defaults({
     request: {
-      hook: auth.hook
-    }
+      hook: auth.hook,
+    },
   });
 
   await auth.hook(requestWithMock, "GET /repos/octocat/hello-world");
@@ -1043,8 +1043,8 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
 
   await requestWithAuth("GET /app", {
     mediaType: {
-      previews: ["machine-man"]
-    }
+      previews: ["machine-man"],
+    },
   });
 
   expect(mock.done()).toBe(true);
@@ -1055,31 +1055,31 @@ test("auth.hook() uses app auth for full URLs", async () => {
     .sandbox()
     .getOnce("https://api.github.com/app/installations?per_page=100", [], {
       headers: {
-        authorization: `bearer ${BEARER}`
-      }
+        authorization: `bearer ${BEARER}`,
+      },
     });
 
   const auth = createAppAuth({
     id: APP_ID,
-    privateKey: PRIVATE_KEY
+    privateKey: PRIVATE_KEY,
   });
 
   const requestWithMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
-      fetch: mock
-    }
+      fetch: mock,
+    },
   });
   const requestWithAuth = requestWithMock.defaults({
     request: {
-      hook: auth.hook
-    }
+      hook: auth.hook,
+    },
   });
 
   await requestWithAuth("GET https://api.github.com/app/installations", {
-    per_page: 100
+    per_page: 100,
   });
 
   expect(mock.done()).toBe(true);
@@ -1088,7 +1088,7 @@ test("auth.hook() uses app auth for full URLs", async () => {
 test("oauth endpoint error", async () => {
   const requestMock = request.defaults({
     headers: {
-      "user-agent": "test"
+      "user-agent": "test",
     },
     request: {
       fetch: fetchMock
@@ -1098,13 +1098,13 @@ test("oauth endpoint error", async () => {
           body: JSON.stringify({
             error: "incorrect_client_credentials",
             error_description:
-              "The client_id and/or client_secret passed are incorrect."
+              "The client_id and/or client_secret passed are incorrect.",
           }),
           headers: {
-            "Content-Type": "application/json; charset=utf-8"
-          }
-        })
-    }
+            "Content-Type": "application/json; charset=utf-8",
+          },
+        }),
+    },
   });
 
   const auth = createAppAuth({
@@ -1112,14 +1112,14 @@ test("oauth endpoint error", async () => {
     privateKey: PRIVATE_KEY,
     clientId: "12345678901234567890",
     clientSecret: "1234567890123456789012345678901234567890",
-    request: requestMock
+    request: requestMock,
   });
 
   await expect(
     auth({
       type: "oauth",
       code: "12345678901234567890",
-      redirectUrl: "https://example.com/login"
+      redirectUrl: "https://example.com/login",
     })
   ).rejects.toThrow("client_id");
 });

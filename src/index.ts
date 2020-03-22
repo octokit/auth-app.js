@@ -9,7 +9,7 @@ import {
   State,
   StrategyOptions,
   AuthOptions,
-  Authentication
+  Authentication,
 } from "./types";
 import { VERSION } from "./version";
 
@@ -26,15 +26,15 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
     {
       request: request.defaults({
         headers: {
-          "user-agent": `octokit-auth-app.js/${VERSION} ${getUserAgent()}`
-        }
+          "user-agent": `octokit-auth-app.js/${VERSION} ${getUserAgent()}`,
+        },
       }),
-      cache: getCache()
+      cache: getCache(),
     },
     options
   );
 
   return Object.assign(auth.bind(null, state), {
-    hook: hook.bind(null, state)
+    hook: hook.bind(null, state),
   });
 };
