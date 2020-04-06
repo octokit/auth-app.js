@@ -46,7 +46,7 @@
     "fetch-mock": "^9.0.0",
     "jest": "^24.8.0",
     "lolex": "^6.0.0",
-    "prettier": "^2.0.3",
+    "prettier": "^2.0.4",
     "semantic-release": "^17.0.0",
     "semantic-release-plugin-update-version-in-files": "^1.0.0",
     "ts-jest": "^25.1.0",
