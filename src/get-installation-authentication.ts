@@ -13,8 +13,8 @@ export async function getInstallationAuthentication(
   options: InstallationAuthOptions,
   customRequest?: RequestInterface
 ): Promise<InstallationAccessTokenAuthentication> {
-  const installationId =
-    (options.installationId || state.installationId) as number;
+  const installationId = (options.installationId ||
+    state.installationId) as number;
 
   if (!options.refresh) {
     const result = await get(state.cache, options);
