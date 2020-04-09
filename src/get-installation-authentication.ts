@@ -52,7 +52,9 @@ export async function getInstallationAuthentication(
       expires_at: expiresAt,
       repositories,
       permissions,
+      // @ts-ignore
       repository_selection: repositorySelection,
+      // @ts-ignore
       single_file: singleFileName,
     },
   } = await request("POST /app/installations/:installation_id/access_tokens", {
