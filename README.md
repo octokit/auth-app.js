@@ -4,7 +4,6 @@
 
 [![@latest](https://img.shields.io/npm/v/@octokit/auth-app.svg)](https://www.npmjs.com/package/@octokit/auth-app)
 [![Build Status](https://github.com/octokit/auth-app.js/workflows/Test/badge.svg)](https://github.com/octokit/auth-app.js/actions?query=workflow%3ATest)
-[![Greenkeeper](https://badges.greenkeeper.io/octokit/auth-app.js.svg)](https://greenkeeper.io/)
 
 `@octokit/auth-app` implements authentication for GitHub Apps using [JSON Web Token](https://jwt.io/) and installation access tokens.
 
