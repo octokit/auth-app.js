@@ -21,6 +21,7 @@ export async function getInstallationAuthentication(
     if (result) {
       const {
         token,
+        createdAt,
         expiresAt,
         permissions,
         repositoryIds,
@@ -31,6 +32,7 @@ export async function getInstallationAuthentication(
       return toTokenAuthentication({
         installationId,
         token,
+        createdAt,
         expiresAt,
         permissions,
         repositorySelection,
@@ -73,8 +75,10 @@ export async function getInstallationAuthentication(
     ? repositories.map((r: { id: number }) => r.id)
     : void 0;
 
+  const createdAt = new Date().toISOString();
   await set(state.cache, options, {
     token,
+    createdAt,
     expiresAt,
     repositorySelection,
     permissions,
@@ -85,6 +89,7 @@ export async function getInstallationAuthentication(
   return toTokenAuthentication({
     installationId,
     token,
+    createdAt,
     expiresAt,
     repositorySelection,
     permissions,

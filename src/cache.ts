@@ -33,6 +33,7 @@ export async function get(
 
   const [
     token,
+    createdAt,
     expiresAt,
     repositorySelection,
     permissionsString,
@@ -53,6 +54,7 @@ export async function get(
 
   return {
     token,
+    createdAt,
     expiresAt,
     permissions,
     repositoryIds: options.repositoryIds,
@@ -65,7 +67,7 @@ export async function set(
   options: InstallationAuthOptions,
   data: CacheData
 ): Promise<void> {
-  const cacheKey = optionsToCacheKey(options);
+  const key = optionsToCacheKey(options);
 
   const permissionsString = options.permissions
     ? ""
@@ -75,18 +77,18 @@ export async function set(
         )
         .join(",");
 
-  await cache.set(
-    cacheKey,
-    [
-      data.token,
-      data.expiresAt,
-      data.repositorySelection,
-      permissionsString,
-      data.singleFileName,
-    ]
-      .join("|")
-      .replace(/\|+$/, "")
-  );
+  const value = [
+    data.token,
+    data.createdAt,
+    data.expiresAt,
+    data.repositorySelection,
+    permissionsString,
+    data.singleFileName,
+  ]
+    .join("|")
+    .replace(/\|+$/, "");
+
+  await cache.set(key, value);
 }
 
 function optionsToCacheKey({
