@@ -115,6 +115,7 @@ test("README example for installation auth", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -219,6 +220,7 @@ test("installationId strategy option", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -277,6 +279,7 @@ test("repositoryIds auth option", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositoryIds: [1, 2, 3],
     repositorySelection: "all",
@@ -337,6 +340,7 @@ test("permissions auth option", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     permissions: {
       single_file: "write",
@@ -381,6 +385,7 @@ test("installation auth from cache", async () => {
       metadata: "read",
       issues: "write",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -433,6 +438,7 @@ test("installation auth with selected repositories from cache", async () => {
       metadata: "read",
     },
     repositoryIds: [1, 2, 3],
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -485,6 +491,7 @@ test("installation auth with selected permissions from cache", async () => {
     permissions: {
       issues: "write",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -565,6 +572,7 @@ test("installation cache with different options", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -623,6 +631,7 @@ test("refresh option", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -799,6 +808,7 @@ test("caches based on installation id", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: { metadata: "read" },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -808,6 +818,7 @@ test("caches based on installation id", async () => {
     tokenType: "installation",
     installationId: 456,
     permissions: { metadata: "read" },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -843,7 +854,7 @@ test("request installation again after timeout", async () => {
     request: requestMock,
   });
 
-  const EXPECTED = {
+  const EXPECTED1 = {
     type: "token",
     token: "secret123",
     tokenType: "installation",
@@ -851,8 +862,13 @@ test("request installation again after timeout", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
+  };
+  const EXPECTED2 = {
+    ...EXPECTED1,
+    createdAt: "1970-01-01T01:00:00.000Z",
   };
 
   const authentication1 = await auth({
@@ -870,8 +886,8 @@ test("request installation again after timeout", async () => {
     installationId: 123,
   });
 
-  expect(authentication1).toEqual(EXPECTED);
-  expect(authentication2).toEqual(EXPECTED);
+  expect(authentication1).toEqual(EXPECTED1);
+  expect(authentication2).toEqual(EXPECTED2);
 });
 
 test("supports custom cache", async () => {
@@ -924,7 +940,7 @@ test("supports custom cache", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T01:00:00.000Z|all|metadata"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
   );
 });
 
@@ -978,7 +994,7 @@ test("supports custom cache with async get/set", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T01:00:00.000Z|all|metadata"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
   );
 });
 
