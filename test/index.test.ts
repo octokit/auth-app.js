@@ -1,6 +1,6 @@
 import fetchMock, { MockMatcherFunction } from "fetch-mock";
 import { request } from "@octokit/request";
-import { install, Clock } from "lolex";
+import { install, Clock } from "@sinonjs/fake-timers";
 
 import { createAppAuth } from "../src/index";
 
@@ -1101,6 +1101,150 @@ test("auth.hook() uses app auth for full URLs", async () => {
   expect(mock.done()).toBe(true);
 });
 
+test("auth.hook(): handle 401 in first minute (#65)", async () => {
+  let requestCount = 0;
+  const ONE_MINUTE_IN_MS = 1000 * 60;
+
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", (url) => {
+      if (Date.now() < ONE_MINUTE_IN_MS) {
+        return {
+          status: 401,
+          body: {
+            message: "Bad credentials",
+            documentation_url: "https://developer.github.com/v3",
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: { id: 123 },
+      };
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world2",
+      {
+        status: 401,
+        body: {
+          message: "Bad credentials",
+          documentation_url: "https://developer.github.com/v3",
+        },
+      },
+      {
+        headers: {
+          authorization: "token secret123",
+        },
+      }
+    );
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  const promise = requestWithAuth("GET /repos/octocat/hello-world");
+
+  let i = 0;
+
+  // it takes 6 retries until a total time of more than 60s pass
+  await clock.tickAsync(1000);
+  await clock.tickAsync(4000);
+  await clock.tickAsync(9000);
+  await clock.tickAsync(16000);
+  await clock.tickAsync(25000);
+  await clock.tickAsync(36000);
+
+  const { data } = await promise;
+
+  try {
+    await requestWithAuth("GET /repos/octocat/hello-world2");
+    throw new Error("Should not resolve");
+  } catch (error) {
+    expect(error.status).toEqual(401);
+  }
+
+  expect(data).toStrictEqual({ id: 123 });
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(6);
+});
+
+test("auth.hook(): throws on 500 error without retries", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", 500);
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  try {
+    await requestWithAuth("GET /repos/octocat/hello-world");
+    throw new Error("Should not resolve");
+  } catch (error) {
+    expect(error.status).toEqual(500);
+  }
+
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(0);
+});
+
 test("oauth endpoint error", async () => {
   const requestMock = request.defaults({
     headers: {
@@ -1138,92 +1282,4 @@ test("oauth endpoint error", async () => {
       redirectUrl: "https://example.com/login",
     })
   ).rejects.toThrow("client_id");
-});
-
-test("auth.hook(): handle 401 in first 30s (#65)", async () => {
-  const mock = fetchMock
-    .sandbox()
-    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
-      token: "secret123",
-      expires_at: "1970-01-01T01:00:00.000Z",
-      permissions: {
-        metadata: "read",
-      },
-      repository_selection: "all",
-    })
-    .getOnce(
-      "https://api.github.com/repos/octocat/hello-world",
-      {
-        status: 401,
-        body: {
-          message: "Bad credentials",
-          documentation_url: "https://developer.github.com/v3",
-        },
-      },
-      {
-        headers: {
-          authorization: "token secret123",
-        },
-      }
-    )
-    .getOnce(
-      "https://api.github.com/repos/octocat/hello-world",
-      { id: 123 },
-      {
-        headers: {
-          authorization: "token secret123",
-        },
-        overwriteRoutes: false,
-      }
-    )
-    .getOnce(
-      "https://api.github.com/repos/octocat/hello-world2",
-      {
-        status: 401,
-        body: {
-          message: "Bad credentials",
-          documentation_url: "https://developer.github.com/v3",
-        },
-      },
-      {
-        headers: {
-          authorization: "token secret123",
-        },
-      }
-    );
-
-  const auth = createAppAuth({
-    id: APP_ID,
-    privateKey: PRIVATE_KEY,
-    installationId: 123,
-  });
-
-  const requestWithMock = request.defaults({
-    headers: {
-      "user-agent": "test",
-    },
-    request: {
-      fetch: mock,
-    },
-  });
-  const requestWithAuth = requestWithMock.defaults({
-    request: {
-      hook: auth.hook,
-    },
-  });
-
-  const { data } = await requestWithAuth("GET /repos/octocat/hello-world");
-
-  const ONE_MINUTE_IN_MS = 1000 * 60;
-  clock.tick(ONE_MINUTE_IN_MS);
-
-  try {
-    await requestWithAuth("GET /repos/octocat/hello-world2");
-    throw new Error("Should not resolve");
-  } catch (error) {
-    expect(error.status).toEqual(401);
-  }
-
-  expect(data).toStrictEqual({ id: 123 });
-  expect(mock.done()).toBe(true);
 });
