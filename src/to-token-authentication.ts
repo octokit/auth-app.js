@@ -9,6 +9,7 @@ import {
 export function toTokenAuthentication({
   installationId,
   token,
+  createdAt,
   expiresAt,
   repositorySelection,
   permissions,
@@ -22,6 +23,7 @@ export function toTokenAuthentication({
       token,
       installationId,
       permissions,
+      createdAt,
       expiresAt,
       repositorySelection,
     },

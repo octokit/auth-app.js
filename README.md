@@ -94,6 +94,7 @@ const installationAuthentication = await auth({ type: "installation" });
 //   tokenType: 'installation',
 //   token: 'token123',
 //   installationId: 123,
+//   createdAt: '2018-07-07T00:00:00.000Z'
 //   expiresAt: '2018-07-07T00:59:00.000Z'
 // }
 
@@ -487,6 +488,17 @@ There are two possible results
       </th>
       <td>
         Installation database ID.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>createdAt</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        Timestamp in UTC format, e.g. <code>"2018-07-07T00:00:00.000Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
       </td>
     </tr>
     <tr>

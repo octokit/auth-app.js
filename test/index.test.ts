@@ -1,6 +1,6 @@
 import fetchMock, { MockMatcherFunction } from "fetch-mock";
 import { request } from "@octokit/request";
-import { install, Clock } from "lolex";
+import { install, Clock } from "@sinonjs/fake-timers";
 
 import { createAppAuth } from "../src/index";
 
@@ -115,6 +115,7 @@ test("README example for installation auth", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -219,6 +220,7 @@ test("installationId strategy option", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -277,6 +279,7 @@ test("repositoryIds auth option", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositoryIds: [1, 2, 3],
     repositorySelection: "all",
@@ -337,6 +340,7 @@ test("permissions auth option", async () => {
     token: "secret123",
     tokenType: "installation",
     installationId: 123,
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     permissions: {
       single_file: "write",
@@ -381,6 +385,7 @@ test("installation auth from cache", async () => {
       metadata: "read",
       issues: "write",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -433,6 +438,7 @@ test("installation auth with selected repositories from cache", async () => {
       metadata: "read",
     },
     repositoryIds: [1, 2, 3],
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -485,6 +491,7 @@ test("installation auth with selected permissions from cache", async () => {
     permissions: {
       issues: "write",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -565,6 +572,7 @@ test("installation cache with different options", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -623,6 +631,7 @@ test("refresh option", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   };
@@ -799,6 +808,7 @@ test("caches based on installation id", async () => {
     tokenType: "installation",
     installationId: 123,
     permissions: { metadata: "read" },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -808,6 +818,7 @@ test("caches based on installation id", async () => {
     tokenType: "installation",
     installationId: 456,
     permissions: { metadata: "read" },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
   });
@@ -843,7 +854,7 @@ test("request installation again after timeout", async () => {
     request: requestMock,
   });
 
-  const EXPECTED = {
+  const EXPECTED1 = {
     type: "token",
     token: "secret123",
     tokenType: "installation",
@@ -851,8 +862,13 @@ test("request installation again after timeout", async () => {
     permissions: {
       metadata: "read",
     },
+    createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
+  };
+  const EXPECTED2 = {
+    ...EXPECTED1,
+    createdAt: "1970-01-01T01:00:00.000Z",
   };
 
   const authentication1 = await auth({
@@ -870,8 +886,8 @@ test("request installation again after timeout", async () => {
     installationId: 123,
   });
 
-  expect(authentication1).toEqual(EXPECTED);
-  expect(authentication2).toEqual(EXPECTED);
+  expect(authentication1).toEqual(EXPECTED1);
+  expect(authentication2).toEqual(EXPECTED2);
 });
 
 test("supports custom cache", async () => {
@@ -924,7 +940,7 @@ test("supports custom cache", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T01:00:00.000Z|all|metadata"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
   );
 });
 
@@ -978,7 +994,7 @@ test("supports custom cache with async get/set", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T01:00:00.000Z|all|metadata"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
   );
 });
 
@@ -1083,6 +1099,150 @@ test("auth.hook() uses app auth for full URLs", async () => {
   });
 
   expect(mock.done()).toBe(true);
+});
+
+test("auth.hook(): handle 401 in first minute (#65)", async () => {
+  let requestCount = 0;
+  const ONE_MINUTE_IN_MS = 1000 * 60;
+
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", (url) => {
+      if (Date.now() < ONE_MINUTE_IN_MS) {
+        return {
+          status: 401,
+          body: {
+            message: "Bad credentials",
+            documentation_url: "https://developer.github.com/v3",
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: { id: 123 },
+      };
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world2",
+      {
+        status: 401,
+        body: {
+          message: "Bad credentials",
+          documentation_url: "https://developer.github.com/v3",
+        },
+      },
+      {
+        headers: {
+          authorization: "token secret123",
+        },
+      }
+    );
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  const promise = requestWithAuth("GET /repos/octocat/hello-world");
+
+  let i = 0;
+
+  // it takes 6 retries until a total time of more than 60s pass
+  await clock.tickAsync(1000);
+  await clock.tickAsync(4000);
+  await clock.tickAsync(9000);
+  await clock.tickAsync(16000);
+  await clock.tickAsync(25000);
+  await clock.tickAsync(36000);
+
+  const { data } = await promise;
+
+  try {
+    await requestWithAuth("GET /repos/octocat/hello-world2");
+    throw new Error("Should not resolve");
+  } catch (error) {
+    expect(error.status).toEqual(401);
+  }
+
+  expect(data).toStrictEqual({ id: 123 });
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(6);
+});
+
+test("auth.hook(): throws on 500 error without retries", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", 500);
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  try {
+    await requestWithAuth("GET /repos/octocat/hello-world");
+    throw new Error("Should not resolve");
+  } catch (error) {
+    expect(error.status).toEqual(500);
+  }
+
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(0);
 });
 
 test("oauth endpoint error", async () => {

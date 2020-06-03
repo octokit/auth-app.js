@@ -46,6 +46,7 @@ export type AppAuthentication = {
 
 export type InstallationAccessTokenData = {
   token: ACCESS_TOKEN;
+  createdAt: UTC_TIMESTAMP;
   expiresAt: UTC_TIMESTAMP;
   permissions: Permissions;
   repositorySelection: REPOSITORY_SELECTION;
