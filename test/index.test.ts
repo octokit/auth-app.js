@@ -904,8 +904,17 @@ test("supports custom cache", async () => {
     request: {
       fetch: fetchMock
         .sandbox()
-        .postOnce("path:/app/installations/123/access_tokens", {
+        .post("path:/app/installations/123/access_tokens", {
           token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read",
+          },
+          repository_selection: "all",
+          repeat: 4,
+        })
+        .postOnce("path:/app/installations/456/access_tokens", {
+          token: "secret456",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
             metadata: "read",
@@ -935,13 +944,34 @@ test("supports custom cache", async () => {
     installationId: 123,
   });
 
-  expect(get).toHaveBeenCalledTimes(2);
-  expect(set).toHaveBeenCalledTimes(1);
+  await auth({
+    type: "installation",
+    installationId: 123,
+    permissions: {
+      content: "read",
+    },
+  });
+
+  await auth({
+    type: "installation",
+    installationId: 456,
+  });
+
+  expect(get).toHaveBeenCalledTimes(4);
+  expect(set).toHaveBeenCalledTimes(3);
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
     "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
   );
+  expect(CACHE).toStrictEqual({
+    "123":
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+    "123|content":
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all",
+    "456":
+      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+  });
 });
 
 test("supports custom cache with async get/set", async () => {
