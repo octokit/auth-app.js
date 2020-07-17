@@ -904,8 +904,17 @@ test("supports custom cache", async () => {
     request: {
       fetch: fetchMock
         .sandbox()
-        .postOnce("path:/app/installations/123/access_tokens", {
+        .post("path:/app/installations/123/access_tokens", {
           token: "secret123",
+          expires_at: "1970-01-01T01:00:00.000Z",
+          permissions: {
+            metadata: "read",
+          },
+          repository_selection: "all",
+          repeat: 4,
+        })
+        .postOnce("path:/app/installations/456/access_tokens", {
+          token: "secret456",
           expires_at: "1970-01-01T01:00:00.000Z",
           permissions: {
             metadata: "read",
@@ -935,13 +944,34 @@ test("supports custom cache", async () => {
     installationId: 123,
   });
 
-  expect(get).toHaveBeenCalledTimes(2);
-  expect(set).toHaveBeenCalledTimes(1);
+  await auth({
+    type: "installation",
+    installationId: 123,
+    permissions: {
+      content: "read",
+    },
+  });
+
+  await auth({
+    type: "installation",
+    installationId: 456,
+  });
+
+  expect(get).toHaveBeenCalledTimes(4);
+  expect(set).toHaveBeenCalledTimes(3);
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
     "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
   );
+  expect(CACHE).toStrictEqual({
+    "123":
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+    "123|content":
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all",
+    "456":
+      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+  });
 });
 
 test("supports custom cache with async get/set", async () => {
@@ -1282,4 +1312,93 @@ test("oauth endpoint error", async () => {
       redirectUrl: "https://example.com/login",
     })
   ).rejects.toThrow("client_id");
+});
+
+test("auth.hook() and custom cache", async () => {
+  const CACHE: { [key: string]: string } = {};
+  const get = jest.fn().mockImplementation(async (key) => CACHE[key]);
+  const set = jest.fn().mockImplementation(async (key, value) => {
+    CACHE[key] = value;
+  });
+
+  const mock = fetchMock
+    .sandbox()
+    .post("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+      repeat: 2,
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world",
+      { id: 123 },
+      {
+        headers: {
+          authorization: "token secret123",
+        },
+      }
+    )
+    .postOnce("https://api.github.com/app/installations/456/access_tokens", {
+      token: "secret456",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world2",
+      { id: 456 },
+      {
+        headers: {
+          authorization: "token secret456",
+        },
+      }
+    );
+
+  const auth1 = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+    cache: { get, set },
+  });
+  const auth2 = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 456,
+    cache: { get, set },
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth1 = requestWithMock.defaults({
+    request: {
+      hook: auth1.hook,
+    },
+  });
+  const requestWithAuth2 = requestWithMock.defaults({
+    request: {
+      hook: auth2.hook,
+    },
+  });
+
+  await requestWithAuth1("GET /repos/octocat/hello-world");
+  await requestWithAuth2("GET /repos/octocat/hello-world2");
+
+  expect(mock.done()).toBe(true);
+  expect(CACHE).toStrictEqual({
+    "123":
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+    "456":
+      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+  });
 });

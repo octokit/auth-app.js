@@ -16,8 +16,16 @@ export async function getInstallationAuthentication(
   const installationId = (options.installationId ||
     state.installationId) as number;
 
+  const optionsWithInstallationTokenFromState = Object.assign(
+    { installationId },
+    options
+  );
+
   if (!options.refresh) {
-    const result = await get(state.cache, options);
+    const result = await get(
+      state.cache,
+      optionsWithInstallationTokenFromState
+    );
     if (result) {
       const {
         token,
@@ -76,7 +84,7 @@ export async function getInstallationAuthentication(
     : void 0;
 
   const createdAt = new Date().toISOString();
-  await set(state.cache, options, {
+  await set(state.cache, optionsWithInstallationTokenFromState, {
     token,
     createdAt,
     expiresAt,
