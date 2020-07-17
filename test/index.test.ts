@@ -1313,3 +1313,92 @@ test("oauth endpoint error", async () => {
     })
   ).rejects.toThrow("client_id");
 });
+
+test("auth.hook() and custom cache", async () => {
+  const CACHE: { [key: string]: string } = {};
+  const get = jest.fn().mockImplementation(async (key) => CACHE[key]);
+  const set = jest.fn().mockImplementation(async (key, value) => {
+    CACHE[key] = value;
+  });
+
+  const mock = fetchMock
+    .sandbox()
+    .post("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+      repeat: 2,
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world",
+      { id: 123 },
+      {
+        headers: {
+          authorization: "token secret123",
+        },
+      }
+    )
+    .postOnce("https://api.github.com/app/installations/456/access_tokens", {
+      token: "secret456",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world2",
+      { id: 456 },
+      {
+        headers: {
+          authorization: "token secret456",
+        },
+      }
+    );
+
+  const auth1 = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+    cache: { get, set },
+  });
+  const auth2 = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 456,
+    cache: { get, set },
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth1 = requestWithMock.defaults({
+    request: {
+      hook: auth1.hook,
+    },
+  });
+  const requestWithAuth2 = requestWithMock.defaults({
+    request: {
+      hook: auth2.hook,
+    },
+  });
+
+  await requestWithAuth1("GET /repos/octocat/hello-world");
+  await requestWithAuth2("GET /repos/octocat/hello-world2");
+
+  expect(mock.done()).toBe(true);
+  expect(CACHE).toStrictEqual({
+    "123":
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+    "456":
+      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+  });
+});
