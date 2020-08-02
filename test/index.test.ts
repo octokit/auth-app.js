@@ -226,6 +226,46 @@ test("installationId strategy option", async () => {
   });
 });
 
+test("installationId strategy option fails with no installationId", async () => {
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: fetchMock
+        .sandbox()
+        .postOnce(
+          "https://api.github.com/app/installations/123/access_tokens",
+          {
+            token: "secret123",
+            expires_at: "1970-01-01T01:00:00.000Z",
+            permissions: {
+              metadata: "read",
+            },
+            repository_selection: "all",
+          }
+        ),
+    },
+  });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    request: requestMock,
+  });
+
+  try {
+    await auth({
+      type: "installation",
+    });
+    expect(1).not.toBe(1);
+  } catch (e) {
+    expect(e).toEqual(
+      new Error("installationId is required for installation authtentication.")
+    );
+  }
+});
+
 test("repositoryIds auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,

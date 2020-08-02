@@ -16,6 +16,12 @@ export async function getInstallationAuthentication(
   const installationId = (options.installationId ||
     state.installationId) as number;
 
+  if (typeof installationId !== "number") {
+    throw new Error(
+      "installationId is required for installation authtentication."
+    );
+  }
+
   const optionsWithInstallationTokenFromState = Object.assign(
     { installationId },
     options
