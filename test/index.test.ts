@@ -261,7 +261,9 @@ test("installationId strategy option fails with no installationId", async () => 
     expect(1).not.toBe(1);
   } catch (e) {
     expect(e).toEqual(
-      new Error("installationId is required for installation authtentication.")
+      new Error(
+        "[@octokit/auth-app] installationId option is required for installation authentication."
+      )
     );
   }
 });

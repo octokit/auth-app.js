@@ -18,7 +18,7 @@ export async function getInstallationAuthentication(
 
   if (typeof installationId !== "number") {
     throw new Error(
-      "installationId is required for installation authtentication."
+      "[@octokit/auth-app] installationId option is required for installation authentication."
     );
   }
 
