@@ -55,7 +55,7 @@ const { createAppAuth } = require("@octokit/auth-app");
 </td></tr>
 <tr><td colspan=2>
 
-⚠️ For usage in browsers: The private keys provide by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
+⚠️ For usage in browsers: The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
 
 ```shell
 openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
