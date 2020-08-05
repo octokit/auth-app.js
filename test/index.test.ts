@@ -1131,6 +1131,43 @@ test("auth.hook() uses app auth for full URLs", async () => {
   expect(mock.done()).toBe(true);
 });
 
+test("auth.hook() uses app auth for marketplace URL", async () => {
+  const mock = fetchMock.sandbox().getOnce(
+    "path:/marketplace_listing/accounts/1",
+    {},
+    {
+      headers: {
+        authorization: `bearer ${BEARER}`,
+      },
+    }
+  );
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  await requestWithAuth("GET /marketplace_listing/accounts/:account_id", {
+    account_id: 1,
+  });
+
+  expect(mock.done()).toBe(true);
+});
+
 test("auth.hook(): handle 401 in first minute (#65)", async () => {
   let requestCount = 0;
   const ONE_MINUTE_IN_MS = 1000 * 60;
