@@ -2,7 +2,6 @@ const PATHS = [
   "/app",
   "/app/installations",
   "/app/installations/:installation_id",
-  "/app/installations/:installation_id",
   "/app/installations/:installation_id/access_tokens",
   "/marketplace_listing/accounts/:account_id",
   "/marketplace_listing/plan",
@@ -11,10 +10,7 @@ const PATHS = [
   "/marketplace_listing/stubbed/plan",
   "/marketplace_listing/stubbed/plans/:plan_id/accounts",
   "/orgs/:org/installation",
-  "/orgs/:org/installation",
   "/repos/:owner/:repo/installation",
-  "/repos/:owner/:repo/installation",
-  "/users/:username/installation",
   "/users/:username/installation",
 ];
 
