@@ -40,13 +40,6 @@ export async function get(
     singleFileName,
   ] = result.split("|");
 
-  /* istanbul ignore if - this is to debug an exception we see in production */
-  if (!options.permissions && typeof permissionsString === "undefined") {
-    throw new Error(
-      `[@octokit/auth-app] Invalid cache. Key: ${cacheKey}. Result: ${result}`
-    );
-  }
-
   const permissions =
     options.permissions ||
     permissionsString.split(/,/).reduce((permissions: Permissions, string) => {
@@ -91,9 +84,7 @@ export async function set(
     data.repositorySelection,
     permissionsString,
     data.singleFileName,
-  ]
-    .join("|")
-    .replace(/\|+$/, "");
+  ].join("|");
 
   await cache.set(key, value);
 }
