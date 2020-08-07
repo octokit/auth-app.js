@@ -1004,15 +1004,15 @@ test("supports custom cache", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|"
   );
   expect(CACHE).toStrictEqual({
     "123":
-      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
     "123|content":
-      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all",
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all||",
     "456":
-      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   });
 });
 
@@ -1066,7 +1066,7 @@ test("supports custom cache with async get/set", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|"
   );
 });
 
@@ -1476,8 +1476,8 @@ test("auth.hook() and custom cache", async () => {
   expect(mock.done()).toBe(true);
   expect(CACHE).toStrictEqual({
     "123":
-      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+      "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
     "456":
-      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata",
+      "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   });
 });
