@@ -16,9 +16,15 @@ export async function getInstallationAuthentication(
   const installationId = (options.installationId ||
     state.installationId) as number;
 
-  if (typeof installationId !== "number") {
+  if (typeof installationId === "undefined") {
     throw new Error(
       "[@octokit/auth-app] installationId option is required for installation authentication."
+    );
+  }
+
+  if (typeof installationId !== "number") {
+    throw new Error(
+      "[@octokit/auth-app] installationId option should be of type number."
     );
   }
 
