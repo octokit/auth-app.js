@@ -1210,9 +1210,8 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
   expect(mock.done()).toBe(true);
 });
 
-test("auth.hook(): handle 401 in first minute (#65)", async () => {
-  let requestCount = 0;
-  const ONE_MINUTE_IN_MS = 1000 * 60;
+test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
+  const FIVE_SECONDS_IN_MS = 1000 * 5;
 
   const mock = fetchMock
     .sandbox()
@@ -1225,7 +1224,7 @@ test("auth.hook(): handle 401 in first minute (#65)", async () => {
       repository_selection: "all",
     })
     .get("https://api.github.com/repos/octocat/hello-world", (url) => {
-      if (Date.now() < ONE_MINUTE_IN_MS) {
+      if (Date.now() < FIVE_SECONDS_IN_MS) {
         return {
           status: 401,
           body: {
@@ -1280,15 +1279,10 @@ test("auth.hook(): handle 401 in first minute (#65)", async () => {
 
   const promise = requestWithAuth("GET /repos/octocat/hello-world");
 
-  let i = 0;
-
-  // it takes 6 retries until a total time of more than 60s pass
+  // it takes 3 retries until a total time of more than 5s pass
   await clock.tickAsync(1000);
-  await clock.tickAsync(4000);
-  await clock.tickAsync(9000);
-  await clock.tickAsync(16000);
-  await clock.tickAsync(25000);
-  await clock.tickAsync(36000);
+  await clock.tickAsync(2000);
+  await clock.tickAsync(3000);
 
   const { data } = await promise;
 
@@ -1303,7 +1297,7 @@ test("auth.hook(): handle 401 in first minute (#65)", async () => {
   expect(mock.done()).toBe(true);
 
   // @ts-ignore
-  expect(global.console.warn.mock.calls.length).toEqual(6);
+  expect(global.console.warn.mock.calls.length).toEqual(3);
 });
 
 test("auth.hook(): throws on 500 error without retries", async () => {
