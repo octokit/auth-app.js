@@ -10,7 +10,7 @@ import {
   State,
 } from "./types";
 
-const SIXTY_SECONDS_IN_MS = 60 * 1000;
+const FIVE_SECONDS_IN_MS = 5 * 1000;
 
 export async function hook(
   state: State,
@@ -68,12 +68,12 @@ async function sendRequestWithRetries(
       throw error;
     }
 
-    if (timeSinceTokenCreationInMs >= SIXTY_SECONDS_IN_MS) {
+    if (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS) {
       throw error;
     }
 
     ++retries;
-    const awaitTime = retries * retries * 1000;
+    const awaitTime = retries * 1000;
     console.warn(
       `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${awaitTime}ms)`
     );
