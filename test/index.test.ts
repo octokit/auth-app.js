@@ -1210,7 +1210,7 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
   expect(mock.done()).toBe(true);
 });
 
-test.only("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
+test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   const FIVE_SECONDS_IN_MS = 1000 * 5;
 
   const mock = fetchMock
