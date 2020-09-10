@@ -69,13 +69,21 @@ async function sendRequestWithRetries(
     }
 
     if (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS) {
+      if (retries > 0) {
+        error.message = `[@octokit/auth-app] After ${retries} retries within ${
+          timeSinceTokenCreationInMs / 1000
+        }s after creating the installation access token, the response remains 401. At this point it's unlikely a replication lag, but a legit authentication problem or a system outage, please check https://www.githubstatus.com/`;
+      }
       throw error;
     }
 
     ++retries;
+
     const awaitTime = retries * 1000;
     console.warn(
-      `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${awaitTime}ms)`
+      `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${
+        awaitTime / 1000
+      }s)`
     );
     await new Promise((resolve) => setTimeout(resolve, awaitTime));
 
