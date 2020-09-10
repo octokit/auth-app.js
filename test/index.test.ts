@@ -1347,7 +1347,7 @@ test("auth.hook(): throw error with custom message after unsuccessful retries (#
 
   requestWithAuth("GET /repos/octocat/hello-world").catch((error) => {
     expect(error.message).toBe(
-      `[@octokit/auth-app] After 3 retries within 6s after creating the installation access token, the response remains 401. At this point it's unlikely a replication lag, but a legit authentication problem or a system outage, please check https://www.githubstatus.com/`
+      `After 3 retries within 6s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`
     );
   });
 

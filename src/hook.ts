@@ -70,9 +70,9 @@ async function sendRequestWithRetries(
 
     if (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS) {
       if (retries > 0) {
-        error.message = `[@octokit/auth-app] After ${retries} retries within ${
+        error.message = `After ${retries} retries within ${
           timeSinceTokenCreationInMs / 1000
-        }s after creating the installation access token, the response remains 401. At this point it's unlikely a replication lag, but a legit authentication problem or a system outage, please check https://www.githubstatus.com/`;
+        }s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`;
       }
       throw error;
     }
