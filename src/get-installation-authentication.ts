@@ -13,10 +13,9 @@ export async function getInstallationAuthentication(
   options: InstallationAuthOptions,
   customRequest?: RequestInterface
 ): Promise<InstallationAccessTokenAuthentication> {
-  const installationId = (options.installationId ||
-    state.installationId) as number;
+  const installationId = Number(options.installationId || state.installationId);
 
-  if (typeof installationId !== "number") {
+  if (!installationId) {
     throw new Error(
       "[@octokit/auth-app] installationId option is required for installation authentication."
     );

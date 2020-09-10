@@ -74,9 +74,9 @@ export type Authentication =
   | OAuthAccesTokenAuthentication;
 
 export type StrategyOptions = {
-  id: number;
+  id: number | string;
   privateKey: string;
-  installationId?: number;
+  installationId?: number | string;
   clientId?: string;
   clientSecret?: string;
   request?: OctokitTypes.RequestInterface;
@@ -84,6 +84,7 @@ export type StrategyOptions = {
 };
 
 export type StrategyOptionsWithDefaults = StrategyOptions & {
+  id: number;
   request: OctokitTypes.RequestInterface;
   cache: Cache;
 };
@@ -93,7 +94,7 @@ export type Permissions = {
 };
 
 export type InstallationAuthOptions = {
-  installationId?: number;
+  installationId?: number | string;
   repositoryIds?: number[];
   permissions?: Permissions;
   refresh?: boolean;
@@ -115,6 +116,8 @@ export type WithInstallationId = {
 };
 
 export type State = StrategyOptions & {
+  id: number;
+  installationId?: number;
   request: OctokitTypes.RequestInterface;
   cache: Cache;
 };
