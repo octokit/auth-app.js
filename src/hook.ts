@@ -49,7 +49,7 @@ export async function hook(
 /**
  * Newly created tokens might not be accessible immediately after creation.
  * In case of a 401 response, we retry with an exponential delay until more
- * than one minute passes since the creation of the token.
+ * than five seconds pass since the creation of the token.
  *
  * @see https://github.com/octokit/auth-app.js/issues/65
  */
