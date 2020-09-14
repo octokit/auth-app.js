@@ -33,7 +33,7 @@ export async function hook(
 
   const { token, createdAt } = await getInstallationAuthentication(
     state,
-    {},
+    { permissions: {} },
     request
   );
 

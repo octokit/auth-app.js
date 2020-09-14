@@ -69,7 +69,7 @@ export async function set(
 ): Promise<void> {
   const key = optionsToCacheKey(options);
 
-  const permissionsString = options.permissions
+  const permissionsString = isNonEmptyObject(options.permissions)
     ? ""
     : Object.keys(data.permissions)
         .map(
@@ -87,6 +87,10 @@ export async function set(
   ].join("|");
 
   await cache.set(key, value);
+}
+
+function isNonEmptyObject(object: object = {}): boolean {
+  return Object.keys(object).length > 0;
 }
 
 function optionsToCacheKey({
