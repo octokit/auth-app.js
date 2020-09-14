@@ -67,7 +67,7 @@ export async function getInstallationAuthentication(
       token,
       expires_at: expiresAt,
       repositories,
-      permissions,
+      permissions = {},
       // @ts-ignore
       repository_selection: repositorySelection,
       // @ts-ignore
