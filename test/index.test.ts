@@ -1300,6 +1300,63 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   expect(global.console.warn.mock.calls.length).toEqual(3);
 });
 
+test("auth.hook(): throw error with custom message after unsuccessful retries (#163)", async () => {
+  expect.assertions(1);
+
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", (url) => {
+      return {
+        status: 401,
+        body: {
+          message: "Bad credentials",
+          documentation_url: "https://developer.github.com/v3",
+        },
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  requestWithAuth("GET /repos/octocat/hello-world").catch((error) => {
+    expect(error.message).toBe(
+      `After 3 retries within 6s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`
+    );
+  });
+
+  // it takes 3 retries until a total time of more than 5s pass
+  await clock.tickAsync(1000);
+  await clock.tickAsync(2000);
+  await clock.tickAsync(3000);
+});
+
 test("auth.hook(): throws on 500 error without retries", async () => {
   const mock = fetchMock
     .sandbox()

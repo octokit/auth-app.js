@@ -49,7 +49,7 @@ export async function hook(
 /**
  * Newly created tokens might not be accessible immediately after creation.
  * In case of a 401 response, we retry with an exponential delay until more
- * than one minute passes since the creation of the token.
+ * than five seconds pass since the creation of the token.
  *
  * @see https://github.com/octokit/auth-app.js/issues/65
  */
@@ -69,13 +69,21 @@ async function sendRequestWithRetries(
     }
 
     if (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS) {
+      if (retries > 0) {
+        error.message = `After ${retries} retries within ${
+          timeSinceTokenCreationInMs / 1000
+        }s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`;
+      }
       throw error;
     }
 
     ++retries;
+
     const awaitTime = retries * 1000;
     console.warn(
-      `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${awaitTime}ms)`
+      `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${
+        awaitTime / 1000
+      }s)`
     );
     await new Promise((resolve) => setTimeout(resolve, awaitTime));
 
