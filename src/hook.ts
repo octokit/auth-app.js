@@ -63,7 +63,7 @@ export async function hook(
 
       console.warn(error.message);
       console.warn(
-        `GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`
+        `[octokit/auth-app] GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`
       );
 
       const { token } = await getAppAuthentication({
