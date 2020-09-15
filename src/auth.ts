@@ -12,7 +12,7 @@ export async function auth(
   options: AuthOptions
 ): Promise<Authentication> {
   if (options.type === "app") {
-    return getAppAuthentication(state.id, state.privateKey);
+    return getAppAuthentication(state);
   }
 
   if (options.type === "installation") {

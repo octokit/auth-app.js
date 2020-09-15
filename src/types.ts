@@ -81,6 +81,7 @@ export type StrategyOptions = {
   clientSecret?: string;
   request?: OctokitTypes.RequestInterface;
   cache?: Cache;
+  timeDifference?: number;
 };
 
 export type StrategyOptionsWithDefaults = StrategyOptions & {

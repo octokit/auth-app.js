@@ -1210,6 +1210,269 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
   expect(mock.done()).toBe(true);
 });
 
+test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .get("https://api.github.com/app", (_url, options) => {
+      const auth = (options.headers as { [key: string]: string | undefined })[
+        "authorization"
+      ];
+      const [_, jwt] = (auth || "").split(" ");
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
+
+      // By default the mocked time will set the payload to 570 (10 minutes - 30 seconds in seconds)
+      // By returning an error for that exp with an API time of 30 seconds in the future,
+      // the new request will be made with a JWT that has an expiration set 30 seconds further in the future.
+      if (payload.exp < 600) {
+        return {
+          status: 401,
+          body: {
+            message:
+              "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
+            documentation_url: "https://developer.github.com/v3",
+          },
+          headers: {
+            date: new Date(Date.now() + 30000).toUTCString(),
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: [],
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const requestWithMock = request.defaults({
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  const promise = requestWithAuth("GET /app");
+
+  const { data } = await promise;
+
+  expect(data).toStrictEqual([]);
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(2);
+  expect(global.console.warn).toHaveBeenNthCalledWith(
+    1,
+    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires."
+  );
+  expect(global.console.warn).toHaveBeenNthCalledWith(
+    2,
+    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
+  );
+});
+
+test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 second clock skew", async () => {
+  const fakeTimeMs = 1029392939;
+  const githubTimeMs = fakeTimeMs + 800000;
+  clock = install({ now: fakeTimeMs, toFake: ["Date", "setTimeout"] });
+  const mock = fetchMock
+    .sandbox()
+    .get("https://api.github.com/app", (_url, options) => {
+      const auth = (options.headers as { [key: string]: string | undefined })[
+        "authorization"
+      ];
+      const [_, jwt] = (auth || "").split(" ");
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
+
+      // The first request will send an expiration that is 200 seconds before GitHub's mocked API time.
+      // The second request will send an adjusted expiration claim based on the 800 seconds skew and trigger a 200 response.
+      if (payload.exp <= Math.floor(githubTimeMs / 1000)) {
+        return {
+          status: 401,
+          body: {
+            message:
+              "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
+            documentation_url: "https://developer.github.com/v3",
+          },
+          headers: {
+            date: new Date(githubTimeMs).toUTCString(),
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: [],
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const requestWithMock = request.defaults({
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  const promise = requestWithAuth("GET /app");
+
+  const { data } = await promise;
+
+  expect(data).toStrictEqual([]);
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(2);
+  expect(global.console.warn).toHaveBeenNthCalledWith(
+    1,
+    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires."
+  );
+  expect(global.console.warn).toHaveBeenNthCalledWith(
+    2,
+    `[@octokit/auth-app] GitHub API time and system time are different by 800 seconds. Retrying request with the difference accounted for.`
+  );
+});
+
+test("auth.hook(): handle 401 due to an iat timestamp in the future", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .get("https://api.github.com/app", (_url, options) => {
+      const auth = (options.headers as { [key: string]: string | undefined })[
+        "authorization"
+      ];
+      const [_, jwt] = (auth || "").split(" ");
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
+
+      // By default the mocked time will set the payload.iat to -30.
+      // By returning an error for that exp with an API time of 30 seconds in the future,
+      // the new request will be made with a JWT that has an issued_at set 30 seconds further in the future.
+      if (payload.iat < 0) {
+        return {
+          status: 401,
+          body: {
+            message:
+              "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued.",
+            documentation_url: "https://developer.github.com/v3",
+          },
+          headers: {
+            date: new Date(Date.now() + 30000).toUTCString(),
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: [],
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const requestWithMock = request.defaults({
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  const promise = requestWithAuth("GET /app");
+  const { data } = await promise;
+
+  expect(data).toStrictEqual([]);
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(2);
+  expect(global.console.warn).toHaveBeenNthCalledWith(
+    1,
+    "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued."
+  );
+  expect(global.console.warn).toHaveBeenNthCalledWith(
+    2,
+    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
+  );
+});
+
+test("auth.hook(): throw 401 error in app auth flow without timing errors", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .get("https://api.github.com/app", {
+      status: 401,
+      body: {
+        message: "Bad credentials",
+        documentation_url: "https://developer.github.com/v3",
+      },
+    })
+    .get("https://api.github.com/marketplace_listing/plan", {
+      status: 401,
+      body: {
+        message:
+          "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued.",
+        documentation_url: "https://developer.github.com/v3",
+      },
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const requestWithMock = request.defaults({
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  global.console.warn = jest.fn();
+
+  try {
+    await requestWithAuth("GET /app");
+    throw new Error("Should not resolve");
+  } catch (error) {
+    expect(error.status).toEqual(401);
+  }
+
+  try {
+    await requestWithAuth("GET /marketplace_listing/plan");
+    throw new Error("Should not resolve");
+  } catch (error) {
+    expect(error.status).toEqual(401);
+  }
+});
+
 test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   const FIVE_SECONDS_IN_MS = 1000 * 5;
 

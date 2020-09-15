@@ -9,8 +9,20 @@ import {
   Route,
   State,
 } from "./types";
+import { RequestError } from "@octokit/request-error";
 
 const FIVE_SECONDS_IN_MS = 5 * 1000;
+
+function isNotTimeSkewError(error: RequestError) {
+  return !(
+    error.message.match(
+      /'Expiration time' claim \('exp'\) must be a numeric value representing the future time at which the assertion expires/
+    ) ||
+    error.message.match(
+      /'Issued at' claim \('iat'\) must be an Integer representing the time that the assertion was issued/
+    )
+  );
+}
 
 export async function hook(
   state: State,
@@ -25,10 +37,44 @@ export async function hook(
       (endpoint.url as string).replace(request.endpoint.DEFAULTS.baseUrl, "")
     )
   ) {
-    const { token } = await getAppAuthentication(state.id, state.privateKey);
+    const { token } = await getAppAuthentication(state);
     endpoint.headers.authorization = `bearer ${token}`;
 
-    return request(endpoint as EndpointOptions);
+    let response;
+    try {
+      response = await request(endpoint as EndpointOptions);
+    } catch (error) {
+      // If there's an issue with the expiration, regenerate the token and try again.
+      // Otherwise rethrow the error for upstream handling.
+      if (isNotTimeSkewError(error)) {
+        throw error;
+      }
+
+      // If the date header is missing, we can't correct the system time skew.
+      // Throw the error to be handled upstream.
+      if (typeof error.headers.date === "undefined") {
+        throw error;
+      }
+
+      const diff = Math.floor(
+        (Date.parse(error.headers.date) - Date.parse(new Date().toString())) /
+          1000
+      );
+
+      console.warn(error.message);
+      console.warn(
+        `[@octokit/auth-app] GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`
+      );
+
+      const { token } = await getAppAuthentication({
+        ...state,
+        timeDifference: diff,
+      });
+      endpoint.headers.authorization = `bearer ${token}`;
+      return request(endpoint as EndpointOptions);
+    }
+
+    return response;
   }
 
   const { token, createdAt } = await getInstallationAuthentication(
