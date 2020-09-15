@@ -1276,7 +1276,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
-    `GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
+    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
   );
 });
 
@@ -1348,7 +1348,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
-    `GitHub API time and system time are different by 800 seconds. Retrying request with the difference accounted for.`
+    `[@octokit/auth-app] GitHub API time and system time are different by 800 seconds. Retrying request with the difference accounted for.`
   );
 });
 
@@ -1417,7 +1417,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
-    `GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
+    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
   );
 });
 
