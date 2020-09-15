@@ -1795,3 +1795,39 @@ test("auth.hook() and custom cache", async () => {
       "secret456|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   });
 });
+
+test("id and installationId can be passed as options", async () => {
+  const createInstallationAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      metadata: "read",
+    },
+    repository_selection: "all",
+  };
+
+  const auth = createAppAuth({
+    id: String(APP_ID),
+    privateKey: PRIVATE_KEY,
+    request: request.defaults({
+      headers: {
+        "user-agent": "test",
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(
+            "https://api.github.com/app/installations/123/access_tokens",
+            createInstallationAccessTokenResponseData
+          ),
+      },
+    }),
+  });
+
+  const authentication = await auth({
+    type: "installation",
+    installationId: "123",
+  });
+
+  expect(authentication.token).toEqual("secret123");
+});

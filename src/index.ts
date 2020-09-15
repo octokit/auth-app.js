@@ -31,7 +31,13 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
       }),
       cache: getCache(),
     },
-    options
+    options,
+    {
+      id: Number(options.id),
+    },
+    options.installationId
+      ? { installationId: Number(options.installationId) }
+      : {}
   );
 
   return Object.assign(auth.bind(null, state), {
