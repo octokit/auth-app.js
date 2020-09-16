@@ -2,14 +2,14 @@ import { get, set } from "./cache";
 import { getAppAuthentication } from "./get-app-authentication";
 import { toTokenAuthentication } from "./to-token-authentication";
 import {
-  RequestInterface,
   InstallationAuthOptions,
-  StrategyOptionsWithDefaults,
   InstallationAccessTokenAuthentication,
+  RequestInterface,
+  State,
 } from "./types";
 
 export async function getInstallationAuthentication(
-  state: StrategyOptionsWithDefaults,
+  state: State,
   options: InstallationAuthOptions,
   customRequest?: RequestInterface
 ): Promise<InstallationAccessTokenAuthentication> {
