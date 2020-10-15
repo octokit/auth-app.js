@@ -1872,10 +1872,7 @@ test("createAppAuth passed with log option", async () => {
     id: APP_ID,
     privateKey: PRIVATE_KEY,
     log: {
-      debug: () => calls.push("debug"),
-      info: () => calls.push("info"),
       warn: () => calls.push("warn"),
-      error: () => calls.push("error"),
     },
   });
 
