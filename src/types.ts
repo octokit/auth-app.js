@@ -83,7 +83,11 @@ export type StrategyOptions = {
   cache?: Cache;
   timeDifference?: number;
   log?: {
+    debug: (message: string, additionalInfo?: object) => any;
+    info: (message: string, additionalInfo?: object) => any;
     warn: (message: string, additionalInfo?: object) => any;
+    error: (message: string, additionalInfo?: object) => any;
+    [key: string]: any;
   };
 };
 
@@ -125,6 +129,10 @@ export type State = StrategyOptions & {
   request: OctokitTypes.RequestInterface;
   cache: Cache;
   log: {
+    debug: (message: string, additionalInfo?: object) => any;
+    info: (message: string, additionalInfo?: object) => any;
     warn: (message: string, additionalInfo?: object) => any;
+    error: (message: string, additionalInfo?: object) => any;
+    [key: string]: any;
   };
 };
