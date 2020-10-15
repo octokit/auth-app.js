@@ -61,8 +61,8 @@ export async function hook(
           1000
       );
 
-      console.warn(error.message);
-      console.warn(
+      state.log.warn(error.message);
+      state.log.warn(
         `[@octokit/auth-app] GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`
       );
 
@@ -86,6 +86,7 @@ export async function hook(
   endpoint.headers.authorization = `token ${token}`;
 
   return sendRequestWithRetries(
+    state,
     request,
     endpoint as EndpointOptions,
     createdAt
@@ -100,6 +101,7 @@ export async function hook(
  * @see https://github.com/octokit/auth-app.js/issues/65
  */
 async function sendRequestWithRetries(
+  state: State,
   request: RequestInterface,
   options: EndpointOptions,
   createdAt: string,
@@ -126,13 +128,13 @@ async function sendRequestWithRetries(
     ++retries;
 
     const awaitTime = retries * 1000;
-    console.warn(
+    state.log.warn(
       `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${
         awaitTime / 1000
       }s)`
     );
     await new Promise((resolve) => setTimeout(resolve, awaitTime));
 
-    return sendRequestWithRetries(request, options, createdAt, retries);
+    return sendRequestWithRetries(state, request, options, createdAt, retries);
   }
 }
