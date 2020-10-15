@@ -1243,9 +1243,12 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
       };
     });
 
+  global.console.warn = jest.fn();
+
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
+    log: global.console,
   });
 
   const requestWithMock = request.defaults({
@@ -1258,8 +1261,6 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
       hook: auth.hook,
     },
   });
-
-  global.console.warn = jest.fn();
 
   const promise = requestWithAuth("GET /app");
 
@@ -1315,9 +1316,12 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
       };
     });
 
+  global.console.warn = jest.fn();
+
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
+    log: global.console,
   });
 
   const requestWithMock = request.defaults({
@@ -1330,8 +1334,6 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
       hook: auth.hook,
     },
   });
-
-  global.console.warn = jest.fn();
 
   const promise = requestWithAuth("GET /app");
 
@@ -1385,9 +1387,12 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
       };
     });
 
+  global.console.warn = jest.fn();
+
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
+    log: global.console,
   });
 
   const requestWithMock = request.defaults({
@@ -1400,8 +1405,6 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
       hook: auth.hook,
     },
   });
-
-  global.console.warn = jest.fn();
 
   const promise = requestWithAuth("GET /app");
   const { data } = await promise;
@@ -1440,9 +1443,12 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
       },
     });
 
+  global.console.warn = jest.fn();
+
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
+    log: global.console,
   });
 
   const requestWithMock = request.defaults({
@@ -1455,8 +1461,6 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
       hook: auth.hook,
     },
   });
-
-  global.console.warn = jest.fn();
 
   try {
     await requestWithAuth("GET /app");
@@ -1518,10 +1522,13 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
       }
     );
 
+  global.console.warn = jest.fn();
+
   const auth = createAppAuth({
     id: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
+    log: global.console,
   });
 
   const requestWithMock = request.defaults({
@@ -1537,8 +1544,6 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
       hook: auth.hook,
     },
   });
-
-  global.console.warn = jest.fn();
 
   const promise = requestWithAuth("GET /repos/octocat/hello-world");
 
@@ -1830,4 +1835,64 @@ test("id and installationId can be passed as options", async () => {
   });
 
   expect(authentication.token).toEqual("secret123");
+});
+
+test("createAppAuth passed with log option", async () => {
+  const calls: String[] = [];
+
+  const mock = fetchMock
+    .sandbox()
+    .get("https://api.github.com/app", (_url, options) => {
+      const auth = (options.headers as { [key: string]: string | undefined })[
+        "authorization"
+      ];
+      const [_, jwt] = (auth || "").split(" ");
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      if (payload.exp < 600) {
+        return {
+          status: 401,
+          body: {
+            message:
+              "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
+            documentation_url: "https://developer.github.com/v3",
+          },
+          headers: {
+            date: new Date(Date.now() + 30000).toUTCString(),
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: [],
+      };
+    });
+
+  const auth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+    log: {
+      warn: () => calls.push("warn"),
+    },
+  });
+
+  const requestWithMock = request.defaults({
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  const promise = requestWithAuth("GET /app");
+
+  const { data } = await promise;
+
+  expect(data).toStrictEqual([]);
+  expect(mock.done()).toBe(true);
+
+  expect(calls).toStrictEqual(["warn", "warn"]);
 });

@@ -37,7 +37,15 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
     },
     options.installationId
       ? { installationId: Number(options.installationId) }
-      : {}
+      : {},
+    {
+      log: Object.assign(
+        {
+          warn: console.warn.bind(console),
+        },
+        options.log
+      ),
+    }
   );
 
   return Object.assign(auth.bind(null, state), {

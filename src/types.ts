@@ -82,6 +82,10 @@ export type StrategyOptions = {
   request?: OctokitTypes.RequestInterface;
   cache?: Cache;
   timeDifference?: number;
+  log?: {
+    warn: (message: string, additionalInfo?: object) => any;
+    [key: string]: any;
+  };
 };
 
 export type StrategyOptionsWithDefaults = StrategyOptions & {
@@ -121,4 +125,8 @@ export type State = StrategyOptions & {
   installationId?: number;
   request: OctokitTypes.RequestInterface;
   cache: Cache;
+  log: {
+    warn: (message: string, additionalInfo?: object) => any;
+    [key: string]: any;
+  };
 };
