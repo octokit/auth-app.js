@@ -230,6 +230,25 @@ createAppAuth({
 ```
 
 </td></tr>
+  <tr>
+      <th>
+        <code>log</code>
+      </th>
+      <th>
+        <code>object</code>
+      </th>
+      <td>
+        You can pass in your preferred logging tool by passing <code>option.log</code> to the constructor. If you would like to make the log level configurable using an environment variable or external option, we recommend the console-log-level package. For example:
+
+```js
+createAppAuth({
+  clientId: 123,
+  clientSecret: "secret",
+  log: require("console-log-level")({ level: "info" }),
+});
+```
+
+</td></tr>
   </tbody>
 </table>
 
