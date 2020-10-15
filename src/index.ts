@@ -41,10 +41,7 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
     {
       log: Object.assign(
         {
-          debug: () => {},
-          info: () => {},
           warn: console.warn.bind(console),
-          error: () => {},
         },
         options.log
       ),
