@@ -194,8 +194,8 @@ const oauthAuthentication = await auth({ type: "oauth", code: "123456" });
 ```js
 const { request } = require("@octokit/request");
 createAppAuth({
-  clientId: 123,
-  clientSecret: "secret",
+  id: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   request: request.defaults({
     baseUrl: "https://ghe.my-company.com/api/v3",
   }),
@@ -216,8 +216,8 @@ createAppAuth({
 ```js
 const CACHE = {};
 createAppAuth({
-  clientId: 123,
-  clientSecret: "secret",
+  id: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   cache: {
     async get(key) {
       return CACHE[key];
@@ -242,8 +242,8 @@ createAppAuth({
 
 ```js
 createAppAuth({
-  clientId: 123,
-  clientSecret: "secret",
+  id: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   log: require("console-log-level")({ level: "info" }),
 });
 ```
