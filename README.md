@@ -319,6 +319,35 @@ createAppAuth({
     </tr>
     <tr>
       <th>
+        <code>factory</code>
+      </th>
+      <th>
+        <code>function</code>
+      </th>
+      <td>
+Only relevant if `type` is set to `"installation"`.
+
+When the `factory` option is, the `auth({type: "installation", installationId, factory })` call with resolve with whatever the factory function returns. The `factory` function will be called with all the strategy option that `auth` was created with, plus the additional options passed to `auth`, besides `type` and `factory`.
+
+For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
+
+```js
+const appAuth = createAppAuth({
+  id: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+});
+
+const installationAuth123 = await appAuth({
+  type: "installation",
+  installationId: 123,
+  factory: createAppAuth,
+});
+```
+
+</td>
+    </tr>
+    <tr>
+      <th>
         <code>refresh</code>
       </th>
       <th>
