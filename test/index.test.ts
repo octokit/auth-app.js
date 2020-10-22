@@ -1,4 +1,5 @@
 import fetchMock, { MockMatcherFunction } from "fetch-mock";
+
 import { request } from "@octokit/request";
 import { install, Clock } from "@sinonjs/fake-timers";
 
@@ -1895,4 +1896,42 @@ test("createAppAuth passed with log option", async () => {
   expect(mock.done()).toBe(true);
 
   expect(calls).toStrictEqual(["warn", "warn"]);
+});
+
+test("factory auth option", async () => {
+  const appAuth = createAppAuth({
+    id: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const factory = jest.fn().mockReturnValue({ ok: true });
+
+  const customAuth = await appAuth({
+    type: "installation",
+    installationId: 123,
+    factory,
+  });
+
+  expect(customAuth).toStrictEqual({ ok: true });
+
+  const factoryOptions = factory.mock.calls[0][0];
+  expect(Object.keys(factoryOptions).sort()).toStrictEqual([
+    "cache",
+    "clientId",
+    "clientSecret",
+    "id",
+    "installationId",
+    "log",
+    "privateKey",
+    "request",
+    "timeDifference",
+  ]);
+
+  expect(factoryOptions).toEqual(
+    expect.objectContaining({
+      id: APP_ID,
+      privateKey: PRIVATE_KEY,
+      installationId: 123,
+    })
+  );
 });
