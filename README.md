@@ -32,11 +32,11 @@ For other GitHub authentication strategies see [octokit/auth.js](https://github.
 Browsers
 </th><td width=100%>
 
-Load `@octokit/auth-app` directly from [cdn.pika.dev](https://cdn.pika.dev)
+Load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev)
 
 ```html
 <script type="module">
-  import { createAppAuth } from "https://cdn.pika.dev/@octokit/auth-app";
+  import { createAppAuth } from "https://cdn.skypack.dev/@octokit/auth-app";
 </script>
 ```
 
