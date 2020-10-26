@@ -8,7 +8,7 @@ export async function getAppAuthentication({
   timeDifference,
 }: State): Promise<AppAuthentication> {
   const appAuthentication = await githubAppJwt({
-    id,
+    id: +id,
     privateKey,
     now: timeDifference && Math.floor(Date.now() / 1000) + timeDifference,
   });
