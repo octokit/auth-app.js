@@ -77,8 +77,8 @@ type OAuthStrategyOptions = {
   clientId?: string;
   clientSecret?: string;
 };
-export type StrategyOptions = OAuthStrategyOptions & {
-  id: number | string;
+
+type CommonStrategyOptions = {
   privateKey: string;
   installationId?: number | string;
   request?: OctokitTypes.RequestInterface;
@@ -89,12 +89,31 @@ export type StrategyOptions = OAuthStrategyOptions & {
   };
 };
 
-export type FactoryOptions = Required<Omit<StrategyOptions, keyof State>> &
+type DeprecatedStrategyOptions = OAuthStrategyOptions &
+  CommonStrategyOptions & {
+    /**
+     * @deprecated id is deprecated, use appId instead
+     */
+    id: number | string;
+  };
+
+type CurrentStrategyOptions = OAuthStrategyOptions &
+  CommonStrategyOptions & {
+    appId: number | string;
+  };
+
+export type StrategyOptions =
+  | DeprecatedStrategyOptions
+  | CurrentStrategyOptions;
+
+export type FactoryOptions = Required<
+  Omit<CurrentStrategyOptions, keyof State>
+> &
   State;
 
-export type StrategyOptionsWithDefaults = StrategyOptions &
+export type StrategyOptionsWithDefaults = CurrentStrategyOptions &
   Required<
-    Omit<StrategyOptions, keyof OAuthStrategyOptions | "installationId">
+    Omit<CurrentStrategyOptions, keyof OAuthStrategyOptions | "installationId">
   >;
 
 export type Permissions = {

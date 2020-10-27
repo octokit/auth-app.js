@@ -3,12 +3,12 @@ import { githubAppJwt } from "universal-github-app-jwt";
 import { AppAuthentication, State } from "./types";
 
 export async function getAppAuthentication({
-  id,
+  appId,
   privateKey,
   timeDifference,
 }: State): Promise<AppAuthentication> {
   const appAuthentication = await githubAppJwt({
-    id: +id,
+    id: +appId,
     privateKey,
     now: timeDifference && Math.floor(Date.now() / 1000) + timeDifference,
   });

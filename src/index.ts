@@ -1,5 +1,6 @@
 import { getUserAgent } from "universal-user-agent";
 import { request } from "@octokit/request";
+import { Deprecation } from "deprecation";
 
 import { auth } from "./auth";
 import { hook } from "./hook";
@@ -22,6 +23,21 @@ export type Types = {
 export const createAppAuth: StrategyInterface = function createAppAuth(
   options: StrategyOptions
 ) {
+  const log = Object.assign(
+    {
+      warn: console.warn.bind(console),
+    },
+    options.log
+  );
+
+  if ("id" in options) {
+    log.warn(
+      new Deprecation(
+        '[@octokit/auth-app] "createAppAuth({ id })" is deprecated, use "createAppAuth({ appId })" instead'
+      )
+    );
+  }
+
   const state: State = Object.assign(
     {
       request: request.defaults({
@@ -33,18 +49,13 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
     },
     options,
     {
-      id: Number(options.id),
+      appId: Number("appId" in options ? options.appId : options.id),
     },
     options.installationId
       ? { installationId: Number(options.installationId) }
       : {},
     {
-      log: Object.assign(
-        {
-          warn: console.warn.bind(console),
-        },
-        options.log
-      ),
+      log,
     }
   );
 
