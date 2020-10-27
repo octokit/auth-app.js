@@ -69,7 +69,7 @@ No conversation is needed in Node, both `PKCS#1` and `PKCS#8` format will work.
 
 ```js
 const auth = createAppAuth({
-  id: 1,
+  appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   installationId: 123,
   clientId: "1234567890abcdef1234",
@@ -128,7 +128,7 @@ const oauthAuthentication = await auth({ type: "oauth", code: "123456" });
   <tbody align=left valign=top>
     <tr>
       <th>
-        <code>id</code>
+        <code>appId</code>
       </th>
       <th>
         <code>number</code>
@@ -194,7 +194,7 @@ const oauthAuthentication = await auth({ type: "oauth", code: "123456" });
 ```js
 const { request } = require("@octokit/request");
 createAppAuth({
-  id: 1,
+  appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   request: request.defaults({
     baseUrl: "https://ghe.my-company.com/api/v3",
@@ -216,7 +216,7 @@ createAppAuth({
 ```js
 const CACHE = {};
 createAppAuth({
-  id: 1,
+  appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   cache: {
     async get(key) {
@@ -242,7 +242,7 @@ createAppAuth({
 
 ```js
 createAppAuth({
-  id: 1,
+  appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
   log: require("console-log-level")({ level: "info" }),
 });
@@ -333,7 +333,7 @@ For example, you can create a new `auth` instance for an installation which shar
 
 ```js
 const appAuth = createAppAuth({
-  id: 1,
+  appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
 });
 
