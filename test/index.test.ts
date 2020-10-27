@@ -44,7 +44,7 @@ beforeEach(() => {
 
 test("README example for app auth", async () => {
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
   });
 
@@ -86,7 +86,7 @@ test("README example for installation auth", async () => {
   };
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
@@ -148,7 +148,7 @@ test("README example for oauth", async () => {
   };
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     clientId: "12345678901234567890",
     clientSecret: "1234567890123456789012345678901234567890",
@@ -203,7 +203,7 @@ test("installationId strategy option", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
     request: requestMock,
@@ -250,7 +250,7 @@ test("installationId strategy option fails with no installationId", async () => 
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -291,7 +291,7 @@ test("repositoryIds auth option", async () => {
   };
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
@@ -353,7 +353,7 @@ test("permissions auth option", async () => {
   };
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
@@ -414,7 +414,7 @@ test("installation auth from cache", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -467,7 +467,7 @@ test("installation auth with selected repositories from cache", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -521,7 +521,7 @@ test("installation auth with selected permissions from cache", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -602,7 +602,7 @@ test("installation cache with different options", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -661,7 +661,7 @@ test("refresh option", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -723,7 +723,7 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
   };
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     clientId: "12345678901234567890",
     clientSecret: "1234567890123456789012345678901234567890",
@@ -765,7 +765,7 @@ test("oauth with custom baseUrl (GHE)", async () => {
   };
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     clientId: "12345678901234567890",
     clientSecret: "1234567890123456789012345678901234567890",
@@ -831,7 +831,7 @@ test("caches based on installation id", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -892,7 +892,7 @@ test("request installation again after timeout", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     request: requestMock,
   });
@@ -968,7 +968,7 @@ test("supports custom cache", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     cache: {
       get,
@@ -1043,7 +1043,7 @@ test("supports custom cache with async get/set", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     cache: {
       get,
@@ -1105,7 +1105,7 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
     );
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
   });
@@ -1149,7 +1149,7 @@ test("auth.hook() uses app auth for full URLs", async () => {
     });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
   });
 
@@ -1186,7 +1186,7 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
   );
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
   });
 
@@ -1247,7 +1247,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
   global.console.warn = jest.fn();
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     log: global.console,
   });
@@ -1320,7 +1320,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   global.console.warn = jest.fn();
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     log: global.console,
   });
@@ -1391,7 +1391,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
   global.console.warn = jest.fn();
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     log: global.console,
   });
@@ -1447,7 +1447,7 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
   global.console.warn = jest.fn();
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     log: global.console,
   });
@@ -1526,7 +1526,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   global.console.warn = jest.fn();
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
     log: global.console,
@@ -1593,7 +1593,7 @@ test("auth.hook(): throw error with custom message after unsuccessful retries (#
     });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
   });
@@ -1640,7 +1640,7 @@ test("auth.hook(): throws on 500 error without retries", async () => {
     .get("https://api.github.com/repos/octocat/hello-world", 500);
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
   });
@@ -1697,7 +1697,7 @@ test("oauth endpoint error", async () => {
   });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     clientId: "12345678901234567890",
     clientSecret: "1234567890123456789012345678901234567890",
@@ -1759,13 +1759,13 @@ test("auth.hook() and custom cache", async () => {
     );
 
   const auth1 = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 123,
     cache: { get, set },
   });
   const auth2 = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     installationId: 456,
     cache: { get, set },
@@ -1813,7 +1813,7 @@ test("id and installationId can be passed as options", async () => {
   };
 
   const auth = createAppAuth({
-    id: String(APP_ID),
+    appId: String(APP_ID),
     privateKey: PRIVATE_KEY,
     request: request.defaults({
       headers: {
@@ -1870,7 +1870,7 @@ test("createAppAuth passed with log option", async () => {
     });
 
   const auth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
     log: {
       warn: () => calls.push("warn"),
@@ -1900,7 +1900,7 @@ test("createAppAuth passed with log option", async () => {
 
 test("factory auth option", async () => {
   const appAuth = createAppAuth({
-    id: APP_ID,
+    appId: APP_ID,
     privateKey: PRIVATE_KEY,
   });
 
@@ -1916,10 +1916,10 @@ test("factory auth option", async () => {
 
   const factoryOptions = factory.mock.calls[0][0];
   expect(Object.keys(factoryOptions).sort()).toStrictEqual([
+    "appId",
     "cache",
     "clientId",
     "clientSecret",
-    "id",
     "installationId",
     "log",
     "privateKey",
@@ -1929,7 +1929,7 @@ test("factory auth option", async () => {
 
   expect(factoryOptions).toEqual(
     expect.objectContaining({
-      id: APP_ID,
+      appId: APP_ID,
       privateKey: PRIVATE_KEY,
       installationId: 123,
     })

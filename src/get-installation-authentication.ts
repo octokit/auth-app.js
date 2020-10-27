@@ -25,7 +25,7 @@ export async function getInstallationAuthentication(
     // @ts-ignore if `options.factory` is set, the return type for `auth()` should be `Promise<ReturnType<options.factory>>`
     return options.factory({
       cache: state.cache,
-      id: state.id,
+      appId: state.appId,
       privateKey: state.privateKey,
       log: state.log,
       request: state.request,
