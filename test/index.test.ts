@@ -66,13 +66,15 @@ test("README example for installation auth", async () => {
     expect(url).toEqual(
       "https://api.github.com/app/installations/123/access_tokens"
     );
-    expect(headers).toStrictEqual({
-      accept: "application/vnd.github.machine-man-preview+json",
-      "user-agent": "test",
-      "content-type": "application/json; charset=utf-8",
-      authorization: `bearer ${BEARER}`,
-    });
-    expect(JSON.parse(String(body))).toStrictEqual({});
+    expect(headers).toStrictEqual(
+      expect.objectContaining({
+        accept: "application/vnd.github.machine-man-preview+json",
+        "user-agent": "test",
+        authorization: `bearer ${BEARER}`,
+      })
+    );
+    expect(body).toBeUndefined();
+
     return true;
   };
 
@@ -560,7 +562,7 @@ test("installation auth with selected permissions from cache", async () => {
 
 test("installation cache with different options", async () => {
   const matchCreateAccessToken1: MockMatcherFunction = (url, { body }) => {
-    expect(JSON.parse(String(body))).toStrictEqual({});
+    expect(body).toBeUndefined();
     return true;
   };
   const matchCreateAccessToken2: MockMatcherFunction = (url, { body }) => {
