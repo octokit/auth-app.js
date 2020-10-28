@@ -22,18 +22,9 @@ export async function getInstallationAuthentication(
   }
 
   if (options.factory) {
+    const { type, factory, ...factoryAuthOptions } = options;
     // @ts-ignore if `options.factory` is set, the return type for `auth()` should be `Promise<ReturnType<options.factory>>`
-    return options.factory({
-      cache: state.cache,
-      appId: state.appId,
-      privateKey: state.privateKey,
-      log: state.log,
-      request: state.request,
-      clientId: state.clientId,
-      clientSecret: state.clientSecret,
-      timeDifference: state.timeDifference,
-      installationId,
-    });
+    return factory(Object.assign({}, state, factoryAuthOptions));
   }
 
   const optionsWithInstallationTokenFromState = Object.assign(
