@@ -1902,6 +1902,8 @@ test("factory auth option", async () => {
   const appAuth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
+    extra1: "value1",
+    extra2: "value2",
   });
 
   const factory = jest.fn().mockReturnValue({ ok: true });
@@ -1909,6 +1911,7 @@ test("factory auth option", async () => {
   const customAuth = await appAuth({
     type: "installation",
     installationId: 123,
+    extra1: "auth overide",
     factory,
   });
 
@@ -1918,13 +1921,12 @@ test("factory auth option", async () => {
   expect(Object.keys(factoryOptions).sort()).toStrictEqual([
     "appId",
     "cache",
-    "clientId",
-    "clientSecret",
+    "extra1",
+    "extra2",
     "installationId",
     "log",
     "privateKey",
     "request",
-    "timeDifference",
   ]);
 
   expect(factoryOptions).toEqual(
@@ -1932,6 +1934,8 @@ test("factory auth option", async () => {
       appId: APP_ID,
       privateKey: PRIVATE_KEY,
       installationId: 123,
+      extra1: "auth overide",
+      extra2: "value2",
     })
   );
 });
