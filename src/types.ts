@@ -102,9 +102,10 @@ type CurrentStrategyOptions = OAuthStrategyOptions &
     appId: number | string;
   };
 
-export type StrategyOptions =
+export type StrategyOptions = (
   | DeprecatedStrategyOptions
-  | CurrentStrategyOptions;
+  | CurrentStrategyOptions
+) & { [key: string]: unknown };
 
 export type FactoryOptions = Required<
   Omit<CurrentStrategyOptions, keyof State>
@@ -128,6 +129,7 @@ export type InstallationAuthOptions = {
   // TODO: return type of `auth({ type: "installation", installationId, factory })`
   //       should be Promise<ReturnType<factory>>
   factory?: (options: FactoryOptions) => unknown;
+  [key: string]: unknown;
 };
 
 export type OAuthOptions = {
