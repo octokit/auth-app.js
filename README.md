@@ -405,7 +405,7 @@ const installationAuth123 = await appAuth({
 
 ## Authentication object
 
-There are two possible results
+There are three possible results
 
 1. JSON Web Token (JWT) authentication
 2. Installation access token authentication
