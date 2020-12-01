@@ -1206,7 +1206,7 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
     },
   });
 
-  await requestWithAuth("GET /marketplace_listing/accounts/:account_id", {
+  await requestWithAuth("GET /marketplace_listing/accounts/{account_id}", {
     account_id: 1,
   });
 
