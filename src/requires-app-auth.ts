@@ -26,7 +26,7 @@ function routeMatcher(paths: string[]) {
   const regexes = paths.map((p) =>
     p
       .split("/")
-      .map((c) => (c.startsWith(":") ? "(?:.+?)" : c))
+      .map((c) => (c.startsWith("{") ? "(?:.+?)" : c))
       .join("/")
   );
   // 'regexes' would contain:
