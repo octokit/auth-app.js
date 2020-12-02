@@ -75,7 +75,7 @@ export async function getInstallationAuthentication(
       // @ts-ignore
       single_file: singleFileName,
     },
-  } = await request("POST /app/installations/:installation_id/access_tokens", {
+  } = await request("POST /app/installations/{installation_id}/access_tokens", {
     installation_id: installationId,
     repository_ids: options.repositoryIds,
     permissions: options.permissions,

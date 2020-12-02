@@ -1,17 +1,17 @@
 const PATHS = [
   "/app",
   "/app/installations",
-  "/app/installations/:installation_id",
-  "/app/installations/:installation_id/access_tokens",
-  "/marketplace_listing/accounts/:account_id",
+  "/app/installations/{installation_id}",
+  "/app/installations/{installation_id}/access_tokens",
+  "/marketplace_listing/accounts/{account_id}",
   "/marketplace_listing/plan",
-  "/marketplace_listing/plans/:plan_id/accounts",
-  "/marketplace_listing/stubbed/accounts/:account_id",
+  "/marketplace_listing/plans/{plan_id}/accounts",
+  "/marketplace_listing/stubbed/accounts/{account_id}",
   "/marketplace_listing/stubbed/plan",
-  "/marketplace_listing/stubbed/plans/:plan_id/accounts",
-  "/orgs/:org/installation",
-  "/repos/:owner/:repo/installation",
-  "/users/:username/installation",
+  "/marketplace_listing/stubbed/plans/{plan_id}/accounts",
+  "/orgs/{org}/installation",
+  "/repos/{owner}/{repo}/installation",
+  "/users/{username}/installation",
 ];
 
 // CREDIT: Simon Grondin (https://github.com/SGrondin)
@@ -19,14 +19,14 @@ const PATHS = [
 function routeMatcher(paths: string[]) {
   // EXAMPLE. For the following paths:
   /* [
-      "/orgs/:org/invitations",
-      "/repos/:owner/:repo/collaborators/:username"
+      "/orgs/{org}/invitations",
+      "/repos/{owner}/{repo}/collaborators/{username}"
   ] */
 
   const regexes = paths.map((p) =>
     p
       .split("/")
-      .map((c) => (c.startsWith(":") ? "(?:.+?)" : c))
+      .map((c) => (c.startsWith("{") ? "(?:.+?)" : c))
       .join("/")
   );
   // 'regexes' would contain:
