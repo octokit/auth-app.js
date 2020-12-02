@@ -1242,7 +1242,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
 
       return {
         status: 200,
-        body: [],
+        body: {
+          id: 1,
+        },
       };
     });
 
@@ -1269,7 +1271,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
 
   const { data } = await promise;
 
-  expect(data).toStrictEqual([]);
+  expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
   // @ts-ignore
@@ -1315,7 +1317,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
 
       return {
         status: 200,
-        body: [],
+        body: { id: 1 },
       };
     });
 
@@ -1342,7 +1344,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
 
   const { data } = await promise;
 
-  expect(data).toStrictEqual([]);
+  expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
   // @ts-ignore
@@ -1386,7 +1388,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
 
       return {
         status: 200,
-        body: [],
+        body: { id: 1 },
       };
     });
 
@@ -1412,7 +1414,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
   const promise = requestWithAuth("GET /app");
   const { data } = await promise;
 
-  expect(data).toStrictEqual([]);
+  expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
   // @ts-ignore
@@ -1867,7 +1869,7 @@ test("createAppAuth passed with log option", async () => {
 
       return {
         status: 200,
-        body: [],
+        body: { id: 1 },
       };
     });
 
@@ -1894,7 +1896,7 @@ test("createAppAuth passed with log option", async () => {
 
   const { data } = await promise;
 
-  expect(data).toStrictEqual([]);
+  expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
   expect(calls).toStrictEqual(["warn", "warn"]);
@@ -1908,7 +1910,7 @@ test("factory auth option", async () => {
     extra2: "value2",
   });
 
-  const factory = jest.fn().mockReturnValue({ ok: true });
+  const factory = jest.fn().mockReturnValue({ token: "secret" });
 
   const customAuth = await appAuth({
     type: "installation",
@@ -1917,7 +1919,7 @@ test("factory auth option", async () => {
     factory,
   });
 
-  expect(customAuth).toStrictEqual({ ok: true });
+  expect(customAuth.token).toStrictEqual("secret");
 
   const factoryOptions = factory.mock.calls[0][0];
   expect(Object.keys(factoryOptions).sort()).toStrictEqual([
