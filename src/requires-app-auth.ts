@@ -1,5 +1,6 @@
 const PATHS = [
   "/app",
+  "/app/hook/config",
   "/app/installations",
   "/app/installations/{installation_id}",
   "/app/installations/{installation_id}/access_tokens",
