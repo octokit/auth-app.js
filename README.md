@@ -660,7 +660,7 @@ There are three possible results
 
 ## `auth.hook(request, route, parameters)` or `auth.hook(request, options)`
 
-`auth.hook()` hooks directly into the request life cycle. It amends the request to authenticate either as app or as installation based on the request URL. It also automatically sets the `"machine-man"` preview which is currently required for all endpoints requiring JWT authentication.
+`auth.hook()` hooks directly into the request life cycle. It amends the request to authenticate either as app or as installation based on the request URL. Although the `"machine-man"` preview has graduated to the official API, https://developer.github.com/changes/2020-08-20-graduate-machine-man-and-sailor-v-previews/, it is still required in versions of GitHub Enterprise up to 2.21 so it automatically sets the `"machine-man"` preview for all endpoints requiring JWT authentication.
 
 The `request` option is an instance of [`@octokit/request`](https://github.com/octokit/request.js#readme). The arguments are the same as for the [`request()` method](https://github.com/octokit/request.js#request).
 
