@@ -44,7 +44,6 @@
     "@sinonjs/fake-timers": "^7.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^26.0.16",
-    "@types/sinonjs__fake-timers": "^6.0.1",
     "fetch-mock": "^9.0.0",
     "jest": "^26.0.1",
     "prettier": "^2.0.4",
