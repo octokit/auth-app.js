@@ -1232,7 +1232,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
           body: {
             message:
               "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
-            documentation_url: "https://developer.github.com/v3",
+            documentation_url: "https://docs.github.com/",
           },
           headers: {
             date: new Date(Date.now() + 30000).toUTCString(),
@@ -1307,7 +1307,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
           body: {
             message:
               "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
-            documentation_url: "https://developer.github.com/v3",
+            documentation_url: "https://docs.github.com/",
           },
           headers: {
             date: new Date(githubTimeMs).toUTCString(),
@@ -1378,7 +1378,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
           body: {
             message:
               "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued.",
-            documentation_url: "https://developer.github.com/v3",
+            documentation_url: "https://docs.github.com/",
           },
           headers: {
             date: new Date(Date.now() + 30000).toUTCString(),
@@ -1436,7 +1436,7 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
       status: 401,
       body: {
         message: "Bad credentials",
-        documentation_url: "https://developer.github.com/v3",
+        documentation_url: "https://docs.github.com/",
       },
     })
     .get("https://api.github.com/marketplace_listing/plan", {
@@ -1444,7 +1444,7 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
       body: {
         message:
           "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued.",
-        documentation_url: "https://developer.github.com/v3",
+        documentation_url: "https://docs.github.com/",
       },
     });
 
@@ -1501,7 +1501,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
           status: 401,
           body: {
             message: "Bad credentials",
-            documentation_url: "https://developer.github.com/v3",
+            documentation_url: "https://docs.github.com/",
           },
         };
       }
@@ -1517,7 +1517,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
         status: 401,
         body: {
           message: "Bad credentials",
-          documentation_url: "https://developer.github.com/v3",
+          documentation_url: "https://docs.github.com/",
         },
       },
       {
@@ -1591,7 +1591,7 @@ test("auth.hook(): throw error with custom message after unsuccessful retries (#
         status: 401,
         body: {
           message: "Bad credentials",
-          documentation_url: "https://developer.github.com/v3",
+          documentation_url: "https://docs.github.com/",
         },
       };
     });
@@ -1859,7 +1859,7 @@ test("createAppAuth passed with log option", async () => {
           body: {
             message:
               "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
-            documentation_url: "https://developer.github.com/v3",
+            documentation_url: "https://docs.github.com/",
           },
           headers: {
             date: new Date(Date.now() + 30000).toUTCString(),
