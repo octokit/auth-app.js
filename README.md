@@ -314,7 +314,7 @@ createAppAuth({
       <td>
         Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
         <br>
-        The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://developer.github.com/apps/building-github-apps/creating-github-apps-using-url-parameters/#github-app-permissions">GitHub App permissions</a>.
+        The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://docs.github.com/en/developers/apps/creating-a-github-app-using-url-parameters#github-app-permissions">GitHub App permissions</a>.
       </td>
     </tr>
     <tr>
@@ -371,7 +371,7 @@ const installationAuth123 = await appAuth({
       <td>
         Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
         <br>
-        The authorization <code>code</code> which was passed as query parameter to the callback URL from the <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
+        The authorization <code>code</code> which was passed as query parameter to the callback URL from the <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
     </tr>
     <tr>
@@ -384,7 +384,7 @@ const installationAuth123 = await appAuth({
       <td>
         Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
         <br>
-        The URL in your application where users are sent after authorization. See <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#redirect-urls">redirect urls</a>.
+        The URL in your application where users are sent after authorization. See <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#redirect-urls">redirect urls</a>.
       </td>
     </tr>
     <tr>
@@ -397,7 +397,7 @@ const installationAuth123 = await appAuth({
       <td>
         Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
         <br>
-        The unguessable random string you provided in Step 1 of the <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
+        The unguessable random string you provided in Step 1 of the <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
     </tr>
   </tbody>
@@ -566,7 +566,7 @@ There are three possible results
         <code>array of numbers</code>
       </th>
       <td>
-        Only present if <code>repositoryIds</code> option passed to <code>auth(options)</code>. 
+        Only present if <code>repositoryIds</code> option passed to <code>auth(options)</code>.
       </td>
     </tr>
     <tr>
@@ -577,7 +577,7 @@ There are three possible results
         <code>object</code>
       </th>
       <td>
-        An object where keys are the permission name and the value is either <code>"read"</code> or <code>"write"</code>. See the list of all <a href="https://developer.github.com/v3/apps/permissions/">GitHub App Permissions</a>.
+        An object where keys are the permission name and the value is either <code>"read"</code> or <code>"write"</code>. See the list of all <a href="https://docs.github.com/en/rest/reference/permissions-required-for-github-apps">GitHub App Permissions</a>.
       </td>
     </tr>
     <tr>
@@ -588,7 +588,7 @@ There are three possible results
         <code>string</code>
       </th>
       <td>
-        If the <a herf="https://developer.github.com/v3/apps/permissions/#permission-on-single-file">single file permission</a> is enabled, the <code>singleFileName</code> property is set to the path of the accessible file.
+        If the <a herf="https://docs.github.com/en/rest/reference/permissions-required-for-github-apps#permission-on-single-file">single file permission</a> is enabled, the <code>singleFileName</code> property is set to the path of the accessible file.
       </td>
     </tr>
   </tbody>
