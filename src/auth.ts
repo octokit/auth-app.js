@@ -7,13 +7,16 @@ export async function auth(
   state: State,
   options: AuthOptions
 ): Promise<Authentication> {
-  if (options.type === "app") {
-    return getAppAuthentication(state);
-  }
+  const { type } = options;
 
-  if (options.type === "installation") {
-    return getInstallationAuthentication(state, options);
+  switch (type) {
+    case "app":
+      return getAppAuthentication(state);
+    case "installation":
+      return getInstallationAuthentication(state, options);
+    case "oauth":
+      return getOAuthAuthentication(state, options);
+    default:
+      throw new Error(`Invalid auth type: ${type}`)
   }
-
-  return getOAuthAuthentication(state, options);
 }
