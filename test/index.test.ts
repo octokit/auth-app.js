@@ -58,6 +58,15 @@ test("README example for app auth", async () => {
   });
 });
 
+test("throws if invalid 'type' is provided", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  expect(auth({ type: "app2" })).toThrow();
+});
+
 test("README example for installation auth", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,
