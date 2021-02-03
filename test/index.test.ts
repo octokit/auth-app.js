@@ -58,6 +58,19 @@ test("README example for app auth", async () => {
   });
 });
 
+test("throws if invalid 'type' is provided", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  // @ts-expect-error TS2322
+  // Details here: https://github.com/octokit/auth-app.js/issues/216#issuecomment-772106164
+  await expect(auth({ type: "app2" })).rejects.toEqual(
+    new Error("Invalid auth type: app2")
+  );
+});
+
 test("README example for installation auth", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,
