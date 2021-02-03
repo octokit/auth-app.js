@@ -17,6 +17,6 @@ export async function auth(
     case "oauth":
       return getOAuthAuthentication(state, options);
     default:
-      throw new Error(`Invalid auth type: ${type}`)
+      throw new Error(`Invalid auth type: ${type}`);
   }
 }
