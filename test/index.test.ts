@@ -66,7 +66,9 @@ test("throws if invalid 'type' is provided", async () => {
 
   // @ts-expect-error TS2322
   // Details here: https://github.com/octokit/auth-app.js/issues/216#issuecomment-772106164
-  expect(auth({ type: "app2" })).toThrow();
+  await expect(auth({ type: "app2" })).rejects.toEqual(
+    new Error("Invalid auth type: app2")
+  );
 });
 
 test("README example for installation auth", async () => {
