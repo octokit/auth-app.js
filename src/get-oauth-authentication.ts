@@ -1,13 +1,13 @@
 import {
   RequestInterface,
   OAuthOptions,
-  StrategyOptionsWithDefaults,
+  State,
   OAuthAccesTokenAuthentication,
 } from "./types";
 import { RequestError } from "@octokit/request-error";
 
 export async function getOAuthAuthentication(
-  state: StrategyOptionsWithDefaults,
+  state: State,
   options: OAuthOptions,
   customRequest?: RequestInterface
 ): Promise<OAuthAccesTokenAuthentication> {
