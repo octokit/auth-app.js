@@ -49,13 +49,12 @@ export async function getOAuthAuthentication(
   }
 
   const {
-    data: { access_token: token, scope },
+    data: { access_token: token },
   } = response;
 
   return {
     type: "token",
     tokenType: "oauth",
     token,
-    scopes: scope.split(/,\s*/).filter(Boolean),
   };
 }

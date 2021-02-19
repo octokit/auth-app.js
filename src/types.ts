@@ -65,7 +65,6 @@ export type OAuthAccesTokenAuthentication = {
   type: TOKEN_TYPE;
   tokenType: OAUTH_TOKEN_TYPE;
   token: ACCESS_TOKEN;
-  scopes: string[];
 };
 
 export type Authentication =
