@@ -191,7 +191,6 @@ test("README example for oauth", async () => {
     type: "token",
     token: "secret123",
     tokenType: "oauth",
-    scopes: [],
   });
 });
 
@@ -768,7 +767,6 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
     type: "token",
     token: "secret123",
     tokenType: "oauth",
-    scopes: [],
   });
 });
 
@@ -811,7 +809,6 @@ test("oauth with custom baseUrl (GHE)", async () => {
     type: "token",
     token: "secret123",
     tokenType: "oauth",
-    scopes: [],
   });
 });
 

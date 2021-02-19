@@ -104,8 +104,7 @@ const oauthAuthentication = await auth({ type: "oauth", code: "123456" });
 // {
 //   type: 'token',
 //   tokenType: 'oauth',
-//   token: 'token123',
-//   scopes: []
+//   token: 'token123'
 // }
 ```
 
@@ -642,17 +641,6 @@ There are three possible results
       </th>
       <td>
         <code>"oauth"</code>
-      </td>
-    </tr>
-    <tr>
-      <th>
-        <code>scopes</code>
-      </th>
-      <th>
-        <code>array of strings</code>
-      </th>
-      <td>
-        array of scope names enabled for the token
       </td>
     </tr>
   </tbody>

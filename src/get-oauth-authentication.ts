@@ -1,13 +1,13 @@
 import {
   RequestInterface,
   OAuthOptions,
-  StrategyOptionsWithDefaults,
+  State,
   OAuthAccesTokenAuthentication,
 } from "./types";
 import { RequestError } from "@octokit/request-error";
 
 export async function getOAuthAuthentication(
-  state: StrategyOptionsWithDefaults,
+  state: State,
   options: OAuthOptions,
   customRequest?: RequestInterface
 ): Promise<OAuthAccesTokenAuthentication> {
@@ -49,13 +49,12 @@ export async function getOAuthAuthentication(
   }
 
   const {
-    data: { access_token: token, scope },
+    data: { access_token: token },
   } = response;
 
   return {
     type: "token",
     tokenType: "oauth",
     token,
-    scopes: scope.split(/,\s*/).filter(Boolean),
   };
 }

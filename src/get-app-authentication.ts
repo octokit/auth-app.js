@@ -6,7 +6,7 @@ export async function getAppAuthentication({
   appId,
   privateKey,
   timeDifference,
-}: State): Promise<AppAuthentication> {
+}: State & { timeDifference?: number }): Promise<AppAuthentication> {
   const appAuthentication = await githubAppJwt({
     id: +appId,
     privateKey,
