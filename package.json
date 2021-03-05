@@ -13,7 +13,7 @@
     "test": "jest --coverage",
     "semantic-release": "semantic-release"
   },
-  "repository": "https://github.com/octokit/auth-app.js",
+  "repository": "github:octokit/auth-app.js",
   "keywords": [
     "github",
     "octokit",
@@ -22,10 +22,6 @@
   ],
   "author": "Gregor Martynus (https://github.com/gr2m)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/octokit/auth-app.js/issues"
-  },
-  "homepage": "https://github.com/octokit/auth-app.js#readme",
   "dependencies": {
     "@octokit/request": "^5.4.11",
     "@octokit/request-error": "^2.0.0",
