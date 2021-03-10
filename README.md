@@ -324,6 +324,7 @@ createAppAuth({
         <code>function</code>
       </th>
       <td>
+
 Only relevant if `type` is set to `"installation"`.
 
 When the `factory` option is, the `auth({type: "installation", installationId, factory })` call with resolve with whatever the factory function returns. The `factory` function will be called with all the strategy option that `auth` was created with, plus the additional options passed to `auth`, besides `type` and `factory`.
