@@ -1,5 +1,9 @@
 import * as OctokitTypes from "@octokit/types";
 import LRUCache from "lru-cache";
+import {
+  GitHubAuthInterface,
+  AppAuthentication as OAuthAppAuthentication,
+} from "@octokit/auth-oauth-app";
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
 export type EndpointDefaults = OctokitTypes.EndpointDefaults;
@@ -69,6 +73,7 @@ export type OAuthAccesTokenAuthentication = {
 
 export type Authentication =
   | AppAuthentication
+  | OAuthAppAuthentication
   | InstallationAccessTokenAuthentication
   | OAuthAccesTokenAuthentication;
 
@@ -99,7 +104,7 @@ export type Permissions = {
   [name: string]: string;
 };
 
-export type InstallationAuthOptions = {
+type CommonAuthOptions = {
   installationId?: number | string;
   repositoryIds?: number[];
   permissions?: Permissions;
@@ -110,15 +115,19 @@ export type InstallationAuthOptions = {
   [key: string]: unknown;
 };
 
+export type InstallationAuthOptions = CommonAuthOptions & {
+  type: "installation";
+};
+
 export type OAuthOptions = {
   code?: string;
   redirectUrl?: string;
   state?: string;
 };
 
-export type AuthOptions = InstallationAuthOptions &
+export type AuthOptions = CommonAuthOptions &
   OAuthOptions & {
-    type: "app" | "installation" | "oauth" | "oauth-user";
+    type: "app" | "installation" | "oauth" | "oauth-app" | "oauth-user";
   };
 
 export type WithInstallationId = {
@@ -127,4 +136,6 @@ export type WithInstallationId = {
 
 export type State = Required<Omit<CommonStrategyOptions, "installationId">> & {
   installationId?: number;
-} & OAuthStrategyOptions;
+} & OAuthStrategyOptions & {
+    oauthApp: GitHubAuthInterface;
+  };

@@ -1,5 +1,6 @@
 import { getUserAgent } from "universal-user-agent";
 import { request } from "@octokit/request";
+import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 
 import { auth } from "./auth";
 import { hook } from "./hook";
@@ -34,6 +35,11 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
       : {},
     {
       log,
+      oauthApp: createOAuthAppAuth({
+        clientType: "github-app",
+        clientId: options.clientId || "",
+        clientSecret: options.clientSecret || "",
+      }),
     }
   );
 

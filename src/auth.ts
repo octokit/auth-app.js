@@ -9,13 +9,17 @@ export async function auth(
   state: State,
   options: AuthOptions
 ): Promise<Authentication> {
-  const { type } = options;
-
-  switch (type) {
+  switch (options.type) {
     case "app":
       return getAppAuthentication(state);
+    case "oauth-app":
+      return state.oauthApp({ type: "oauth-app" });
     case "installation":
-      return getInstallationAuthentication(state, options);
+      return getInstallationAuthentication(state, {
+        ...options,
+        // TypeScript is making us do this
+        type: "installation",
+      });
     case "oauth":
       state.log.warn(
         // @ts-expect-error
@@ -26,6 +30,6 @@ export async function auth(
     case "oauth-user":
       return getOAuthAuthentication(state, options);
     default:
-      throw new Error(`Invalid auth type: ${type}`);
+      throw new Error(`Invalid auth type: ${options.type}`);
   }
 }

@@ -58,6 +58,29 @@ test("README example for app auth", async () => {
   });
 });
 
+test("README example for OAuth app auth", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
+  });
+
+  const authentication = await auth({ type: "oauth-app" });
+
+  expect(authentication).toMatchInlineSnapshot(`
+    Object {
+      "clientId": "lv1.1234567890abcdef",
+      "clientSecret": "1234567890abcdef1234567890abcdef12345678",
+      "clientType": "github-app",
+      "headers": Object {
+        "authorization": "basic bHYxLjEyMzQ1Njc4OTBhYmNkZWY6MTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3OA==",
+      },
+      "type": "oauth-app",
+    }
+  `);
+});
+
 test("throws if invalid 'type' is provided", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
@@ -149,8 +172,8 @@ test("README example for oauth", async () => {
       "content-type": "application/json; charset=utf-8",
     });
     expect(JSON.parse(String(body))).toStrictEqual({
-      client_id: "12345678901234567890",
-      client_secret: "1234567890123456789012345678901234567890",
+      client_id: "lv1.1234567890abcdef",
+      client_secret: "1234567890abcdef1234567890abcdef12345678",
       code: "123456",
     });
     return true;
@@ -165,8 +188,8 @@ test("README example for oauth", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientId: "12345678901234567890",
-    clientSecret: "1234567890123456789012345678901234567890",
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: request.defaults({
       headers: {
         "user-agent": "test",
@@ -720,8 +743,8 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
       "content-type": "application/json; charset=utf-8",
     });
     expect(JSON.parse(String(body))).toStrictEqual({
-      client_id: "12345678901234567890",
-      client_secret: "1234567890123456789012345678901234567890",
+      client_id: "lv1.1234567890abcdef",
+      client_secret: "1234567890abcdef1234567890abcdef12345678",
       code: "123456",
       redirect_uri: "https://example.com/login",
       state: "mystate123",
@@ -739,8 +762,8 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientId: "12345678901234567890",
-    clientSecret: "1234567890123456789012345678901234567890",
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: request.defaults({
       headers: {
         "user-agent": "test",
@@ -780,8 +803,8 @@ test("oauth with custom baseUrl (GHE)", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientId: "12345678901234567890",
-    clientSecret: "1234567890123456789012345678901234567890",
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: request.defaults({
       baseUrl: "https://github.acme-inc.com/api/v3",
       headers: {
@@ -1713,15 +1736,15 @@ test("oauth endpoint error", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientId: "12345678901234567890",
-    clientSecret: "1234567890123456789012345678901234567890",
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: requestMock,
   });
 
   await expect(
     auth({
       type: "oauth-user",
-      code: "12345678901234567890",
+      code: "lv1.1234567890abcdef",
       redirectUrl: "https://example.com/login",
     })
   ).rejects.toThrow("client_id");
@@ -1849,6 +1872,7 @@ test("id and installationId can be passed as options", async () => {
     installationId: "123",
   });
 
+  // @ts-expect-error TBD
   expect(authentication.token).toEqual("secret123");
 });
 
@@ -1929,6 +1953,7 @@ test("factory auth option", async () => {
     factory,
   });
 
+  // @ts-expect-error TBD
   expect(customAuth.token).toStrictEqual("secret");
 
   const factoryOptions = factory.mock.calls[0][0];

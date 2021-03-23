@@ -22,9 +22,12 @@ export async function getInstallationAuthentication(
   }
 
   if (options.factory) {
-    const { type, factory, ...factoryAuthOptions } = options;
-    // @ts-ignore if `options.factory` is set, the return type for `auth()` should be `Promise<ReturnType<options.factory>>`
-    return factory(Object.assign({}, state, factoryAuthOptions));
+    const { type, factory, oauthApp, ...factoryAuthOptions } = {
+      ...state,
+      ...options,
+    };
+    // @ts-expect-error if `options.factory` is set, the return type for `auth()` should be `Promise<ReturnType<options.factory>>`
+    return factory(factoryAuthOptions);
   }
 
   const optionsWithInstallationTokenFromState = Object.assign(
