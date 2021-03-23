@@ -5,26 +5,36 @@
 [![@latest](https://img.shields.io/npm/v/@octokit/auth-app.svg)](https://www.npmjs.com/package/@octokit/auth-app)
 [![Build Status](https://github.com/octokit/auth-app.js/workflows/Test/badge.svg)](https://github.com/octokit/auth-app.js/actions?query=workflow%3ATest)
 
-`@octokit/auth-app` implements authentication for GitHub Apps using [JSON Web Token](https://jwt.io/) and installation access tokens.
-
-For other GitHub authentication strategies see [octokit/auth.js](https://github.com/octokit/auth.js).
+`@octokit/auth-app` implements authentication for GitHub Apps using [JSON Web Token](https://jwt.io/), installation access tokens, and OAuth user-to-server access tokens.
 
 <!-- toc -->
 
-- [Usage](#usage)
-- [`createAppAuth(options)`](#createappauthoptions)
-- [`auth(options)`](#authoptions)
+- [Standalone usage](#standalone-usage)
+  - [Authenticate as GitHub App (JSON Web Token)](#authenticate-as-github-app-json-web-token)
+  - [Authenticate as OAuth App (client ID/client secret)](#authenticate-as-oauth-app-client-idclient-secret)
+  - [Authenticate as installation](#authenticate-as-installation)
+  - [Authenticate as user](#authenticate-as-user)
+- [Usage with Octokit](#usage-with-octokit)
+- [`createAppAuth(options)` or `new Octokit({ auth })`](#createappauthoptions-or-new-octokit-auth-)
+- [`auth(options)` or `octokit.auth(options)`](#authoptions-or-octokitauthoptions)
+  - [JSON Web Token (JWT) Authentication](#json-web-token-jwt-authentication)
+  - [OAuth App authentication](#oauth-app-authentication)
+  - [Installation authentication](#installation-authentication)
+  - [User authentication (web flow)](#user-authentication-web-flow)
+  - [User authentication (device flow)](#user-authentication-device-flow)
 - [Authentication object](#authentication-object)
   - [JSON Web Token (JWT) authentication](#json-web-token-jwt-authentication)
+  - [OAuth App authentication](#oauth-app-authentication-1)
   - [Installation access token authentication](#installation-access-token-authentication)
-  - [OAuth access token authentication](#oauth-access-token-authentication)
+  - [GitHub APP user authentication token with expiring disabled](#github-app-user-authentication-token-with-expiring-disabled)
+  - [GitHub APP user authentication token with expiring enabled](#github-app-user-authentication-token-with-expiring-enabled)
 - [`auth.hook(request, route, parameters)` or `auth.hook(request, options)`](#authhookrequest-route-parameters-or-authhookrequest-options)
 - [Implementation details](#implementation-details)
 - [License](#license)
 
 <!-- tocstop -->
 
-## Usage
+## Standalone usage
 
 <table>
 <tbody valign=top align=left>
@@ -46,6 +56,8 @@ Load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev
 openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
 ```
 
+Also creating and refreshing OAuth user-to-server tokens is not possible due to CORS restrictions.
+
 </td></tr>
 <tr><th>
 Node
@@ -62,48 +74,224 @@ const { createAppAuth } = require("@octokit/auth-app");
 </tbody>
 </table>
 
+### Authenticate as GitHub App (JSON Web Token)
+
 ```js
 const auth = createAppAuth({
   appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
-  installationId: 123,
-  clientId: "1234567890abcdef1234",
+  clientId: "lv1.1234567890abcdef",
   clientSecret: "1234567890abcdef12341234567890abcdef1234",
 });
 
 // Retrieve JSON Web Token (JWT) to authenticate as app
 const appAuthentication = await auth({ type: "app" });
-// resolves with
-// {
-//   type: 'app',
-//   token: 'jsonwebtoken123',
-//   appId: 123,
-//   expiresAt: '2018-07-07T00:09:30.000Z'
-// }
-
-// Retrieve installation access token
-const installationAuthentication = await auth({ type: "installation" });
-// resolves with
-// {
-//   type: 'token',
-//   tokenType: 'installation',
-//   token: 'token123',
-//   installationId: 123,
-//   createdAt: '2018-07-07T00:00:00.000Z'
-//   expiresAt: '2018-07-07T00:59:00.000Z'
-// }
-
-// Retrieve an oauth-access token
-const oauthAuthentication = await auth({ type: "oauth-user", code: "123456" });
-// resolves with
-// {
-//   type: 'token',
-//   tokenType: 'oauth',
-//   token: 'token123'
-// }
 ```
 
-## `createAppAuth(options)`
+resolves with
+
+```json
+{
+  "type": "app",
+  "token": "jsonwebtoken123",
+  "appId": 123,
+  "expiresAt": "2018-07-07T00:09:30.000Z"
+}
+```
+
+### Authenticate as OAuth App (client ID/client secret)
+
+The [OAuth Application APIs](https://docs.github.com/en/rest/reference/apps#oauth-applications-api) require the app to authenticate using clientID/client as Basic Authentication
+
+```js
+const auth = createAppAuth({
+  appId: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+  clientId: "lv1.1234567890abcdef",
+  clientSecret: "1234567890abcdef12341234567890abcdef1234",
+});
+
+const appAuthentication = await auth({
+  type: "oauth-app",
+});
+```
+
+resolves with
+
+```json
+{
+  "type": "oauth-app",
+  "clientId": "lv1.1234567890abcdef",
+  "clientSecret": "1234567890abcdef1234567890abcdef12345678",
+  "headers": {
+    "authorization": "basic bHYxLjEyMzQ1Njc4OTBhYmNkZWY6MTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3OA=="
+  }
+}
+```
+
+### Authenticate as installation
+
+```js
+const auth = createAppAuth({
+  appId: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+  clientId: "lv1.1234567890abcdef",
+  clientSecret: "1234567890abcdef12341234567890abcdef1234",
+});
+
+// Retrieve installation access token
+const installationAuthentication = await auth({
+  type: "installation",
+  installationId: 123,
+});
+```
+
+resolves with
+
+```json
+{
+  "type": "token",
+  "tokenType": "installation",
+  "token": "token123",
+  "installationId": 123,
+  "createdAt": "2018-07-07T00:00:00.000Z",
+  "expiresAt": "2018-07-07T00:59:00.000Z"
+}
+```
+
+### Authenticate as user
+
+```js
+const auth = createAppAuth({
+  appId: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+  clientId: "lv1.1234567890abcdef",
+  clientSecret: "1234567890abcdef12341234567890abcdef1234",
+});
+
+// Retrieve an oauth-access token
+const userAuthentication = await auth({ type: "oauth-user", code: "123456" });
+```
+
+Resolves with
+
+```json
+{
+  "type": "token",
+  "tokenType": "oauth",
+  "token": "token123"
+}
+```
+
+## Usage with Octokit
+
+<table>
+<tbody valign=top align=left>
+<tr><th>
+
+Browsers
+
+</th><td width=100%>
+
+Load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly from [cdn.skypack.dev](https://cdn.skypack.dev)
+
+```html
+<script type="module">
+  import { createAppAuth } from "https://cdn.skypack.dev/@octokit/auth-app";
+  import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
+</script>
+```
+
+⚠️ The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
+
+```shell
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
+```
+
+Also creating and refreshing OAuth user-to-server tokens is not possible due to CORS restrictions.
+
+</td></tr>
+<tr><th>
+
+Node
+
+</th><td>
+
+Install with `npm install @octokit/core @octokit/auth-app`. Optionally replace `@octokit/core` with a compatible module
+
+```js
+const { Octokit } = require("@octokit/core");
+const { createAppAuth, createOAuthUserAuth } = require("@octokit/auth-app");
+```
+
+</td></tr>
+</tbody>
+</table>
+
+```js
+const appOctokit = new Octokit({
+  authStrategy: createAppAuth,
+  auth: {
+    appId: 1,
+    privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+    clientId: "1234567890abcdef1234",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
+  },
+});
+
+// Send requests as GitHub App
+const { slug } = await appOctokit.request("GET /user");
+console.log("authenticated as %s", slug);
+
+// Send requests as OAuth App
+await appOctokit.request("POST /application/{client_id}/token", {
+  client_id: "1234567890abcdef1234",
+  access_token: "existingtoken123",
+});
+console.log("token is valid");
+
+// create a new octokit instance that is authenticated as the user
+const userOctokit = await appOctokit.auth({
+  type: "oauth-user",
+  code: "code123",
+  factor: (options) => {
+    return new Octokit({
+      authStrategy: createOAuthUserAuth,
+      auth: options,
+    });
+  },
+});
+
+// Exchanges the code for the user access token authentication on first request
+// and caches the authentication for successive requests
+const {
+  data: { login },
+} = await userOctokit.request("GET /user");
+console.log("Hello, %s!", login);
+```
+
+In order to create an `octokit` instance that is authenticated as an installation, with automated installation token refresh, set `installationId` as `auth` option
+
+```js
+const installationOctokit = new Octokit({
+  authStrategy: createAppAuth,
+  auth: {
+    appId: 1,
+    privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+    installationId: 123,
+  },
+});
+
+// transparently creates an installation access token the first time it is needed
+// and refreshes it when it expires
+await installationOctokit.request("POST /repos/{owner}/{repo}/issues", {
+  owner: "octocat",
+  repo: "hello-world",
+  title: "title",
+});
+```
+
+## `createAppAuth(options)` or `new Octokit({ auth })`
 
 <table width="100%">
   <thead align=left>
@@ -161,7 +349,7 @@ const oauthAuthentication = await auth({ type: "oauth-user", code: "123456" });
         <code>string</code>
       </th>
       <td>
-        The Client ID of the GitHub App.
+        The client ID of the GitHub App.
       </td>
     </tr>
     <tr>
@@ -172,7 +360,7 @@ const oauthAuthentication = await auth({ type: "oauth-user", code: "123456" });
         <code>string</code>
       </th>
       <td>
-        The Client Secret of the GitHub App.
+        A client secret for the GitHub App.
       </td>
     </tr>
     <tr>
@@ -183,7 +371,10 @@ const oauthAuthentication = await auth({ type: "oauth-user", code: "123456" });
         <code>function</code>
       </th>
       <td>
-        You can pass in your own <a href="https://github.com/octokit/request.js"><code>@octokit/request</code></a> instance. For usage with enterprise, set <code>baseUrl</code> to the hostname + <code>/api/v3</code>. Example:
+
+Automatically set to `octokit.request` when using with an `Octokit` constructor.
+
+For standalone usage, you can pass in your own [`@octokit/request`](https://github.com/octokit/request.js) instance. For usage with enterprise, set `baseUrl` to the hostname + `/api/v3`. Example:
 
 ```js
 const { request } = require("@octokit/request");
@@ -246,7 +437,13 @@ createAppAuth({
   </tbody>
 </table>
 
-## `auth(options)`
+## `auth(options)` or `octokit.auth(options)`
+
+The async `auth()` method accepts different options depending on your use case
+
+### JSON Web Token (JWT) Authentication
+
+Authenticate as the GitHub app to list installations, repositories, and create installation access tokens.
 
 <table width="100%">
   <thead align=left>
@@ -271,7 +468,71 @@ createAppAuth({
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Must be either <code>"app"</code>, <code>"installation"</code>, or <code>"oauth-user"</code>.
+        <strong>Required</strong>. Must be either <code>"app"</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### OAuth App authentication
+
+Create, reset, refresh, delete OAuth user-to-server tokens
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <strong>Required</strong>. Must be either <code>"oauth-app"</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### Installation authentication
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <strong>Required</strong>. Must be <code>"installation"</code>.
       </td>
     </tr>
     <tr>
@@ -282,7 +543,7 @@ createAppAuth({
         <code>number</code>
       </th>
       <td>
-        <strong>Required if <code>type</code> is set to <code>"installation"</code> unless a default <code>installationId</code> was passed to <code>createAppAuth()</code></strong>. ID of installation to retrieve authentication for.
+        <strong>Required unless a default <code>installationId</code> was passed to <code>createAppAuth()</code></strong>. ID of installation to retrieve authentication for.
       </td>
     </tr>
     <tr>
@@ -293,8 +554,6 @@ createAppAuth({
         <code>array of string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
-        <br>
         The `id`s of the repositories that the installation token can access.
       </td>
     </tr>
@@ -306,8 +565,6 @@ createAppAuth({
         <code>object</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
-        <br>
         The permissions granted to the access token. The permissions object includes the permission names and their access type. For a complete list of permissions and allowable values, see <a href="https://docs.github.com/en/developers/apps/creating-a-github-app-using-url-parameters#github-app-permissions">GitHub App permissions</a>.
       </td>
     </tr>
@@ -320,9 +577,7 @@ createAppAuth({
       </th>
       <td>
 
-Only relevant if `type` is set to `"installation"`.
-
-When the `factory` option is, the `auth({type: "installation", installationId, factory })` call with resolve with whatever the factory function returns. The `factory` function will be called with all the strategy option that `auth` was created with, plus the additional options passed to `auth`, besides `type` and `factory`.
+The `auth({type: "installation", installationId, factory })` call with resolve with whatever the factory function returns. The `factory` function will be called with all the strategy option that `auth` was created with, plus the additional options passed to `auth`, besides `type` and `factory`.
 
 For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
 
@@ -349,12 +604,84 @@ const installationAuth123 = await appAuth({
         <code>boolean</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"installation"</code>.<br>
-        <br>
-        Installation tokens expire after one hour. By default, tokens are cached and returned from cache until expired. To bypass and update a cached token for the given <code>installationId</code>, set <code>refresh</code> to <code>true</code>.<br>
-        <br>
-        Defaults to <code>false</code>.
+
+Installation tokens expire after one hour. By default, tokens are cached and returned from cache until expired. To bypass and update a cached token for the given `installationId`, set `refresh` to `true`.
+
+Defaults to `false`.
+
+</td>
+    </tr>
+  </tbody>
+</table>
+
+### User authentication (web flow)
+
+Exchange code received from the web flow redirect described in [step 2 of GitHub's OAuth web flow](https://docs.github.com/en/developers/apps/authorizing-oauth-apps#web-application-flow)
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <strong>Required</strong>. Must be <code>"oauth-user"</code>.
       </td>
+    </tr>
+    <tr>
+      <th>
+        <code>factory</code>
+      </th>
+      <th>
+        <code>function</code>
+      </th>
+      <td>
+
+The `auth({type: "oauth-user", factory })` call with resolve with whatever the factory function returns. The `factory` function will be called with all the strategy option that `auth` was created with, plus the additional options passed to `auth`, besides `type` and `factory`.
+
+For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
+
+```js
+const {
+  createAppAuth,
+  createOAuthUserAuth,
+} = require("@octokit/auth-oauth-app");
+
+const appAuth = createAppAuth({
+  appId: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+  clientId: "lv1.1234567890abcdef",
+  clientSecret: "1234567890abcdef1234567890abcdef12345678",
+});
+
+const userAuth = await appAuth({
+  type: "oauth-user",
+  code,
+  factory: createOAuthUserAuth,
+});
+
+// will create token upon first call, then cache authentication for successive calls,
+// until token needs to be refreshed (if enabled for the GitHub App)
+const authentication = await userAuth();
+```
+
+</td>
     </tr>
     <tr>
       <th>
@@ -364,8 +691,6 @@ const installationAuth123 = await appAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"oauth-user"</code>.<br>
-        <br>
         The authorization <code>code</code> which was passed as query parameter to the callback URL from the <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
     </tr>
@@ -377,8 +702,6 @@ const installationAuth123 = await appAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"oauth-user"</code>.<br>
-        <br>
         The URL in your application where users are sent after authorization. See <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#redirect-urls">redirect urls</a>.
       </td>
     </tr>
@@ -390,21 +713,133 @@ const installationAuth123 = await appAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"oauth-user"</code>.<br>
-        <br>
         The unguessable random string you provided in Step 1 of the <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
     </tr>
   </tbody>
 </table>
 
+### User authentication (device flow)
+
+Create a token using [GitHub's device flow](https://docs.github.com/en/developers/apps/authorizing-oauth-apps#device-flow).
+
+The device flow does not require a client secret, but it is required as strategy option for `@octokit/auth-app`, even for the device flow. If you want to implement the device flow without requiring a client secret, use [`@octokit/auth-oauth-device`](https://github.com/octokit/auth-oauth-device.js#readme).
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <strong>Required</strong>. Must be <code>"oauth-user"</code>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>onVerification</code>
+      </th>
+      <th>
+        <code>function</code>
+      </th>
+      <td>
+
+**Required**. A function that is called once the device and user codes were retrieved.
+
+The `onVerification()` callback can be used to pause until the user completes step 2, which might result in a better user experience.
+
+```js
+const auth = auth({
+  type: "oauth-user",
+  onVerification(verification) {
+    console.log("Open %s", verification.verification_uri);
+    console.log("Enter code: %s", verification.user_code);
+
+    await prompt("press enter when you are ready to continue")
+  },
+});
+```
+
+</td>
+    </tr>
+    <tr>
+      <th>
+        <code>scopes</code>
+      </th>
+      <th>
+        <code>array of strings</code>
+      </th>
+      <td>
+        Only relevant if the <code>clientType</code> strategy option is set to <code>"oauth-app"</code>.Array of OAuth scope names that the user access token should be granted. Defaults to no scopes (<code>[]</code>).
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>factory</code>
+      </th>
+      <th>
+        <code>function</code>
+      </th>
+      <td>
+
+The `auth({type: "oauth-user", factory })` call with resolve with whatever the factory function returns. The `factory` function will be called with all the strategy option that `auth` was created with, plus the additional options passed to `auth`, besides `type` and `factory`.
+
+For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
+
+```js
+const {
+  createAppAuth,
+  createOAuthUserAuth,
+} = require("@octokit/auth-oauth-app");
+
+const appAuth = createAppAuth({
+  appId: 1,
+  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
+  clientId: "lv1.1234567890abcdef",
+  clientSecret: "1234567890abcdef1234567890abcdef12345678",
+});
+
+const userAuth = await appAuth({
+  type: "oauth-user",
+  code,
+  factory: createOAuthUserAuth,
+});
+
+// will create token upon first call, then cache authentication for successive calls,
+// until token needs to be refreshed (if enabled for the GitHub App)
+const authentication = await userAuth();
+```
+
+</td>
+    </tr>
+  </tbody>
+</table>
+
 ## Authentication object
 
-There are three possible results
+Depending on on the `auth()` call, the resulting authentication object can be one of
 
 1. JSON Web Token (JWT) authentication
-2. Installation access token authentication
-3. OAuth access token authentication
+1. OAuth App authentication
+1. Installation access token authentication
+1. GitHub APP user authentication token with expiring disabled
+1. GitHub APP user authentication token with expiring enabled
 
 ### JSON Web Token (JWT) authentication
 
@@ -465,6 +900,81 @@ There are three possible results
       </th>
       <td>
         Timestamp in UTC format, e.g. <code>"2018-07-07T00:09:30.000Z"</code>. A Date object can be created using <code>new Date(authentication.expiresAt)</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### OAuth App authentication
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"oauth-app"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientType</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"oauth-app"</code> or <code>"github-app"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientId</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The client ID as passed to the constructor.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientSecret</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The client secret as passed to the constructor.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>headers</code>
+      </th>
+      <th>
+        <code>object</code>
+      </th>
+      <td>
+        <code>{ authorization }</code>.
       </td>
     </tr>
   </tbody>
@@ -589,7 +1099,7 @@ There are three possible results
   </tbody>
 </table>
 
-### OAuth access token authentication
+### GitHub APP user authentication token with expiring disabled
 
 <table width="100%">
   <thead align=left>
@@ -619,13 +1129,88 @@ There are three possible results
     </tr>
     <tr>
       <th>
+        <code>tokenType</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"oauth"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientType</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"github-app"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientId</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The app's <code>Client ID</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientSecret</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        One of the app's client secrets
+      </td>
+    </tr>
+    <tr>
+      <th>
         <code>token</code>
       </th>
       <th>
         <code>string</code>
       </th>
       <td>
-        The personal access token
+        The user access token
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### GitHub APP user authentication token with expiring enabled
+
+<table width="100%">
+  <thead align=left>
+    <tr>
+      <th width=150>
+        name
+      </th>
+      <th width=70>
+        type
+      </th>
+      <th>
+        description
+      </th>
+    </tr>
+  </thead>
+  <tbody align=left valign=top>
+    <tr>
+      <th>
+        <code>type</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"token"</code>
       </td>
     </tr>
     <tr>
@@ -637,6 +1222,83 @@ There are three possible results
       </th>
       <td>
         <code>"oauth"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientType</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        <code>"github-app"</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientId</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The app's <code>Client ID</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>clientSecret</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        One of the app's client secrets
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>token</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The user access token
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>refreshToken</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        The refresh token
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>expiresAt</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        Date timestamp in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString">ISO 8601</a> standard. Example: <code>2022-01-01T08:00:0.000Z</code>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>refreshTokenExpiresAt</code>
+      </th>
+      <th>
+        <code>string</code>
+      </th>
+      <td>
+        Date timestamp in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString">ISO 8601</a> standard. Example: <code>2021-07-01T00:00:0.000Z</code>
       </td>
     </tr>
   </tbody>
@@ -688,6 +1350,8 @@ const requestWithAuth = request.defaults({
 When creating a JSON Web Token, it sets the "issued at time" (iat) to 30s in the past as we have seen people running situations where the GitHub API claimed the iat would be in future. It turned out the clocks on the different machine were not in sync.
 
 Installation access tokens are valid for 60 minutes. This library invalidates them after 59 minutes to account for request delays.
+
+All OAuth features are implemented internally using [@octokit/auth-oauth-app](https://github.com/octokit/auth-oauth-app.js/#readme).
 
 ## License
 
