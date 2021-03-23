@@ -3,6 +3,11 @@ import LRUCache from "lru-cache";
 import {
   GitHubAuthInterface,
   AppAuthentication as OAuthAppAuthentication,
+  GitHubAppUserAuthentication,
+  GitHubAppUserAuthenticationWithExpiration,
+  AppAuthOptions as OAuthAppAuthOptions,
+  WebFlowAuthOptions,
+  GitHubAppDeviceFlowAuthOptions,
 } from "@octokit/auth-oauth-app";
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
@@ -65,17 +70,12 @@ export type InstallationAccessTokenAuthentication = InstallationAccessTokenData 
   tokenType: INSTALLATION_TOKEN_TYPE;
 };
 
-export type OAuthAccesTokenAuthentication = {
-  type: TOKEN_TYPE;
-  tokenType: OAUTH_TOKEN_TYPE;
-  token: ACCESS_TOKEN;
-};
-
 export type Authentication =
   | AppAuthentication
   | OAuthAppAuthentication
   | InstallationAccessTokenAuthentication
-  | OAuthAccesTokenAuthentication;
+  | GitHubAppUserAuthentication
+  | GitHubAppUserAuthenticationWithExpiration;
 
 type OAuthStrategyOptions = {
   clientId?: string;
@@ -115,20 +115,35 @@ type CommonAuthOptions = {
   [key: string]: unknown;
 };
 
-export type InstallationAuthOptions = CommonAuthOptions & {
+export type AuthType =
+  | "app"
+  | "installation"
+  | "oauth"
+  | "oauth-app"
+  | "oauth-user";
+
+export type AppAuthOptions = {
+  type: "app";
+};
+
+export type InstallationAuthOptions = {
   type: "installation";
+  installationId?: number | string;
+  repositoryIds?: number[];
+  permissions?: Permissions;
+  refresh?: boolean;
+  // TODO: return type of `auth({ type: "installation", installationId, factory })`
+  //       should be Promise<ReturnType<factory>>
+  factory?: (options: FactoryOptions) => unknown;
+  [key: string]: unknown;
 };
 
-export type OAuthOptions = {
-  code?: string;
-  redirectUrl?: string;
-  state?: string;
-};
-
-export type AuthOptions = CommonAuthOptions &
-  OAuthOptions & {
-    type: "app" | "installation" | "oauth" | "oauth-app" | "oauth-user";
-  };
+export type AuthOptions =
+  | AppAuthOptions
+  | OAuthAppAuthOptions
+  | InstallationAuthOptions
+  | WebFlowAuthOptions
+  | GitHubAppDeviceFlowAuthOptions;
 
 export type WithInstallationId = {
   installationId: number;

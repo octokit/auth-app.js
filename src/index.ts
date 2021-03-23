@@ -1,5 +1,5 @@
 import { getUserAgent } from "universal-user-agent";
-import { request } from "@octokit/request";
+import { request as defaultRequest } from "@octokit/request";
 import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 
 import { auth } from "./auth";
@@ -19,14 +19,17 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
     },
     options.log
   );
+  const request =
+    options.request ||
+    defaultRequest.defaults({
+      headers: {
+        "user-agent": `octokit-auth-app.js/${VERSION} ${getUserAgent()}`,
+      },
+    });
 
   const state: State = Object.assign(
     {
-      request: request.defaults({
-        headers: {
-          "user-agent": `octokit-auth-app.js/${VERSION} ${getUserAgent()}`,
-        },
-      }),
+      request,
       cache: getCache(),
     },
     options,
@@ -39,6 +42,7 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
         clientType: "github-app",
         clientId: options.clientId || "",
         clientSecret: options.clientSecret || "",
+        request,
       }),
     }
   );

@@ -3,23 +3,23 @@ import { Deprecation } from "deprecation";
 import { AuthOptions, Authentication, State } from "./types";
 import { getAppAuthentication } from "./get-app-authentication";
 import { getInstallationAuthentication } from "./get-installation-authentication";
-import { getOAuthAuthentication } from "./get-oauth-authentication";
 
 export async function auth(
   state: State,
   options: AuthOptions
 ): Promise<Authentication> {
-  switch (options.type) {
+  const { type, ...authOptions } = options;
+  switch (type) {
     case "app":
       return getAppAuthentication(state);
     case "oauth-app":
       return state.oauthApp({ type: "oauth-app" });
     case "installation":
       return getInstallationAuthentication(state, {
-        ...options,
-        // TypeScript is making us do this
+        ...authOptions,
         type: "installation",
       });
+    // @ts-expect-error
     case "oauth":
       state.log.warn(
         // @ts-expect-error
@@ -28,8 +28,9 @@ export async function auth(
         )
       );
     case "oauth-user":
-      return getOAuthAuthentication(state, options);
+      // @ts-expect-error TODO: infer correct auth options type based on type. authOptions should be typed as "WebFlowAuthOptions | GitHubAppDeviceFlowAuthOptions"
+      return state.oauthApp(authOptions);
     default:
-      throw new Error(`Invalid auth type: ${options.type}`);
+      throw new Error(`Invalid auth type: ${type}`);
   }
 }

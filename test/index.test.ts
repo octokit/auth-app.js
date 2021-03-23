@@ -210,11 +210,16 @@ test("README example for oauth", async () => {
     code: "123456",
   });
 
-  expect(authentication).toEqual({
-    type: "token",
-    token: "secret123",
-    tokenType: "oauth",
-  });
+  expect(authentication).toMatchInlineSnapshot(`
+    Object {
+      "clientId": "lv1.1234567890abcdef",
+      "clientSecret": "1234567890abcdef1234567890abcdef12345678",
+      "clientType": "github-app",
+      "token": "secret123",
+      "tokenType": "oauth",
+      "type": "token",
+    }
+  `);
 });
 
 test("installationId strategy option", async () => {
@@ -731,7 +736,7 @@ test("refresh option", async () => {
   expect(authentication2).toEqual(EXPECTED);
 });
 
-test("oauth with `code`, `redirectUrl` and `state`", async () => {
+test("oauth-user web flow", async () => {
   const matchCreateOAuthAccessToken: MockMatcherFunction = (
     url,
     { body, headers }
@@ -786,53 +791,16 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
     redirectUrl: "https://example.com/login",
   });
 
-  expect(authentication).toEqual({
-    type: "token",
-    token: "secret123",
-    tokenType: "oauth",
-  });
-});
-
-test("oauth with custom baseUrl (GHE)", async () => {
-  const createOAuthAccessTokenResponseData = {
-    access_token: "secret123",
-    scope: "",
-    token_type: "bearer",
-  };
-
-  const auth = createAppAuth({
-    appId: APP_ID,
-    privateKey: PRIVATE_KEY,
-    clientId: "lv1.1234567890abcdef",
-    clientSecret: "1234567890abcdef1234567890abcdef12345678",
-    request: request.defaults({
-      baseUrl: "https://github.acme-inc.com/api/v3",
-      headers: {
-        "user-agent": "test",
-      },
-      request: {
-        fetch: fetchMock
-          .sandbox()
-          .postOnce(
-            "https://github.acme-inc.com/login/oauth/access_token",
-            createOAuthAccessTokenResponseData
-          ),
-      },
-    }),
-  });
-
-  const authentication = await auth({
-    type: "oauth-user",
-    code: "123456",
-    state: "mystate123",
-    redirectUrl: "https://example.com/login",
-  });
-
-  expect(authentication).toEqual({
-    type: "token",
-    token: "secret123",
-    tokenType: "oauth",
-  });
+  expect(authentication).toMatchInlineSnapshot(`
+    Object {
+      "clientId": "lv1.1234567890abcdef",
+      "clientSecret": "1234567890abcdef1234567890abcdef12345678",
+      "clientType": "github-app",
+      "token": "secret123",
+      "tokenType": "oauth",
+      "type": "token",
+    }
+  `);
 });
 
 test("caches based on installation id", async () => {
