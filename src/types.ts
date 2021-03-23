@@ -118,7 +118,7 @@ export type OAuthOptions = {
 
 export type AuthOptions = InstallationAuthOptions &
   OAuthOptions & {
-    type: "app" | "installation" | "oauth";
+    type: "app" | "installation" | "oauth" | "oauth-user";
   };
 
 export type WithInstallationId = {

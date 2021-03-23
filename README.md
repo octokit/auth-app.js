@@ -94,7 +94,7 @@ const installationAuthentication = await auth({ type: "installation" });
 // }
 
 // Retrieve an oauth-access token
-const oauthAuthentication = await auth({ type: "oauth", code: "123456" });
+const oauthAuthentication = await auth({ type: "oauth-user", code: "123456" });
 // resolves with
 // {
 //   type: 'token',
@@ -271,7 +271,7 @@ createAppAuth({
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Must be either <code>"app"</code>, <code>"installation"</code>, or <code>"oauth"</code>.
+        <strong>Required</strong>. Must be either <code>"app"</code>, <code>"installation"</code>, or <code>"oauth-user"</code>.
       </td>
     </tr>
     <tr>
@@ -364,7 +364,7 @@ const installationAuth123 = await appAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"oauth-user"</code>.<br>
         <br>
         The authorization <code>code</code> which was passed as query parameter to the callback URL from the <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
@@ -377,7 +377,7 @@ const installationAuth123 = await appAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"oauth-user"</code>.<br>
         <br>
         The URL in your application where users are sent after authorization. See <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#redirect-urls">redirect urls</a>.
       </td>
@@ -390,7 +390,7 @@ const installationAuth123 = await appAuth({
         <code>string</code>
       </th>
       <td>
-        Only relevant if <code>type</code> is set to <code>"oauth"</code>.<br>
+        Only relevant if <code>type</code> is set to <code>"oauth-user"</code>.<br>
         <br>
         The unguessable random string you provided in Step 1 of the <a href="https://docs.github.com/en/developers/apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github">OAuth web application flow</a>.
       </td>
@@ -673,7 +673,7 @@ Note that `auth.hook()` does not create and set an OAuth authentication token. B
 
 ```js
 const { token } = await auth({
-  type: "oauth",
+  type: "oauth-user",
   code: "123456",
 });
 const requestWithAuth = request.defaults({
