@@ -40,6 +40,12 @@ Load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev
 </script>
 ```
 
+⚠️ The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
+
+```shell
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
+```
+
 </td></tr>
 <tr><th>
 Node
@@ -51,17 +57,6 @@ Install with <code>npm install @octokit/auth-app</code>
 const { createAppAuth } = require("@octokit/auth-app");
 // or: import { createAppAuth } from "@octokit/auth-app";
 ```
-
-</td></tr>
-<tr><td colspan=2>
-
-⚠️ For usage in browsers: The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
-
-```shell
-openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
-```
-
-No conversation is needed in Node, both `PKCS#1` and `PKCS#8` format will work.
 
 </td></tr>
 </tbody>
