@@ -4,20 +4,10 @@ import { request } from "@octokit/request";
 import { auth } from "./auth";
 import { hook } from "./hook";
 import { getCache } from "./cache";
-import {
-  StrategyInterface,
-  State,
-  StrategyOptions,
-  AuthOptions,
-  Authentication,
-} from "./types";
+import { StrategyInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
-export type Types = {
-  StrategyOptions: StrategyOptions;
-  AuthOptions: AuthOptions;
-  Authentication: Authentication;
-};
+export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
 
 export const createAppAuth: StrategyInterface = function createAppAuth(
   options: StrategyOptions
