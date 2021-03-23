@@ -183,7 +183,7 @@ test("README example for oauth", async () => {
   });
 
   const authentication = await auth({
-    type: "oauth",
+    type: "oauth-user",
     code: "123456",
   });
 
@@ -757,7 +757,7 @@ test("oauth with `code`, `redirectUrl` and `state`", async () => {
   });
 
   const authentication = await auth({
-    type: "oauth",
+    type: "oauth-user",
     code: "123456",
     state: "mystate123",
     redirectUrl: "https://example.com/login",
@@ -799,7 +799,7 @@ test("oauth with custom baseUrl (GHE)", async () => {
   });
 
   const authentication = await auth({
-    type: "oauth",
+    type: "oauth-user",
     code: "123456",
     state: "mystate123",
     redirectUrl: "https://example.com/login",
@@ -1720,7 +1720,7 @@ test("oauth endpoint error", async () => {
 
   await expect(
     auth({
-      type: "oauth",
+      type: "oauth-user",
       code: "12345678901234567890",
       redirectUrl: "https://example.com/login",
     })
