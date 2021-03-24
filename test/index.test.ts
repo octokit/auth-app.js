@@ -3,7 +3,7 @@ import fetchMock, { MockMatcherFunction } from "fetch-mock";
 import { request } from "@octokit/request";
 import { install } from "@sinonjs/fake-timers";
 
-import { createAppAuth } from "../src/index";
+import { createAppAuth, createOAuthUserAuth } from "../src/index";
 
 const APP_ID = 1;
 const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
@@ -887,6 +887,64 @@ test("oauth-user device flow", async () => {
     interval: 0.005,
     user_code: "usercode123",
     verification_uri: "https://github.com/login/device",
+  });
+});
+
+test("oauth-user witth `factory` option", async () => {
+  const mock = fetchMock.sandbox().postOnce(
+    "https://github.com/login/oauth/access_token",
+    {
+      access_token: "secret123",
+      scope: "",
+      token_type: "bearer",
+    },
+    {
+      headers: {
+        accept: "application/json",
+        "user-agent": "test",
+        "content-type": "application/json; charset=utf-8",
+      },
+      body: {
+        client_id: "lv1.1234567890abcdef",
+        client_secret: "1234567890abcdef1234567890abcdef12345678",
+        code: "random123",
+      },
+    }
+  );
+
+  const appAuth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientType: "oauth-app",
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
+    request: request.defaults({
+      headers: {
+        "user-agent": "test",
+      },
+      request: {
+        fetch: mock,
+      },
+    }),
+  });
+
+  const userAuth = await appAuth({
+    type: "oauth-user",
+    code: "random123",
+    // @ts-expect-error TBD: set `factory` options correctly
+    factory: (options) => createOAuthUserAuth(options),
+  });
+
+  // @ts-expect-error TBD: set appAuth() return types correctly when `factory` is set
+  const authentication = await userAuth();
+
+  expect(authentication).toEqual({
+    clientId: "lv1.1234567890abcdef",
+    clientSecret: "1234567890abcdef1234567890abcdef12345678",
+    clientType: "github-app",
+    type: "token",
+    tokenType: "oauth",
+    token: "secret123",
   });
 });
 
