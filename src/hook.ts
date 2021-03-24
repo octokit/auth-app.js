@@ -1,3 +1,6 @@
+import { requiresBasicAuth } from "@octokit/auth-oauth-user";
+import { RequestError } from "@octokit/request-error";
+
 import { getAppAuthentication } from "./get-app-authentication";
 import { getInstallationAuthentication } from "./get-installation-authentication";
 import { requiresAppAuth } from "./requires-app-auth";
@@ -9,7 +12,6 @@ import {
   Route,
   State,
 } from "./types";
-import { RequestError } from "@octokit/request-error";
 
 const FIVE_SECONDS_IN_MS = 5 * 1000;
 
@@ -30,13 +32,10 @@ export async function hook(
   route: Route | EndpointOptions,
   parameters?: RequestParameters
 ): Promise<AnyResponse> {
-  let endpoint = request.endpoint.merge(route as string, parameters);
+  const endpoint = request.endpoint.merge(route as string, parameters);
+  const url = endpoint.url as string;
 
-  if (
-    requiresAppAuth(
-      (endpoint.url as string).replace(request.endpoint.DEFAULTS.baseUrl, "")
-    )
-  ) {
+  if (requiresAppAuth(url.replace(request.endpoint.DEFAULTS.baseUrl, ""))) {
     const { token } = await getAppAuthentication(state);
     endpoint.headers.authorization = `bearer ${token}`;
 
@@ -77,8 +76,15 @@ export async function hook(
     return response;
   }
 
+  if (requiresBasicAuth(url)) {
+    const authentication = await state.oauthApp({ type: "oauth-app" });
+    endpoint.headers.authorization = authentication.headers.authorization;
+    return request(endpoint as EndpointOptions);
+  }
+
   const { token, createdAt } = await getInstallationAuthentication(
     state,
+    // @ts-expect-error TBD
     {},
     request
   );
