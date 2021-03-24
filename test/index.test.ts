@@ -1359,6 +1359,50 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
   expect(mock.done()).toBe(true);
 });
 
+test("auth.hook() uses client ID/client secret Basic Authentication for /applications/* requests", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://github.com/login/oauth/access_token", {
+      access_token: "secret123",
+      scope: "",
+    })
+    .postOnce(
+      "https://api.github.com/applications/123/token",
+      {
+        token: "secret123",
+      },
+      {
+        body: {
+          access_token: "secret123",
+        },
+      }
+    );
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientId: "123",
+    clientSecret: "secret",
+  });
+
+  const requestWithAuth = request.defaults({
+    request: {
+      fetch: mock,
+      hook: auth.hook,
+    },
+  });
+
+  const response = await requestWithAuth(
+    "POST /applications/{client_id}/token",
+    {
+      client_id: "123",
+      access_token: "secret123",
+    }
+  );
+
+  expect(response.data.token).toEqual("secret123");
+});
+
 test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => {
   const mock = fetchMock
     .sandbox()
