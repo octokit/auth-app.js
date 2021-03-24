@@ -29,6 +29,7 @@
   - [GitHub APP user authentication token with expiring disabled](#github-app-user-authentication-token-with-expiring-disabled)
   - [GitHub APP user authentication token with expiring enabled](#github-app-user-authentication-token-with-expiring-enabled)
 - [`auth.hook(request, route, parameters)` or `auth.hook(request, options)`](#authhookrequest-route-parameters-or-authhookrequest-options)
+- [Types](#types)
 - [Implementation details](#implementation-details)
 - [License](#license)
 
@@ -1347,6 +1348,29 @@ const requestWithAuth = request.defaults({
     authentication: `token ${token}`,
   },
 });
+```
+
+## Types
+
+```ts
+import {
+  // strategy options
+  StrategyOptions,
+  // auth options
+  AuthOptions,
+  AppAuthOptions,
+  OAuthAppAuthOptions,
+  InstallationAuthOptions,
+  OAuthWebFlowAuthOptions,
+  OAuthDeviceFlowAuthOptions,
+  // authentication objects
+  Authentication,
+  AppAuthentication,
+  OAuthAppAuthentication,
+  InstallationAccessTokenAuthentication,
+  GitHubAppUserAuthentication,
+  GitHubAppUserAuthenticationWithExpiration,
+} from "@octokit/auth-app";
 ```
 
 ## Implementation details
