@@ -42,21 +42,21 @@
 Browsers
 </th><td width=100%>
 
-Load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev)
+⚠️ `@octokit/auth-app` is not meant for usage in the browser. A private key and client secret must not be exposed to users.
+
+The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
+
+```shell
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
+```
+
+If you know what you are doing, load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev)
 
 ```html
 <script type="module">
   import { createAppAuth } from "https://cdn.skypack.dev/@octokit/auth-app";
 </script>
 ```
-
-⚠️ The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
-
-```shell
-openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
-```
-
-Also creating and refreshing OAuth user-to-server tokens is not possible due to CORS restrictions.
 
 </td></tr>
 <tr><th>
@@ -193,7 +193,15 @@ Browsers
 
 </th><td width=100%>
 
-Load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly from [cdn.skypack.dev](https://cdn.skypack.dev)
+⚠️ `@octokit/auth-app` is not meant for usage in the browser. A private key and client secret must not be exposed to users.
+
+The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
+
+```shell
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
+```
+
+If you know what you are doing, load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly from [cdn.skypack.dev](https://cdn.skypack.dev)
 
 ```html
 <script type="module">
@@ -201,14 +209,6 @@ Load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly f
   import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
 </script>
 ```
-
-⚠️ The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto API only supports `PKCS#8`. You need to convert it first:
-
-```shell
-openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
-```
-
-Also creating and refreshing OAuth user-to-server tokens is not possible due to CORS restrictions.
 
 </td></tr>
 <tr><th>
