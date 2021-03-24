@@ -50,6 +50,8 @@ The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto AP
 openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
 ```
 
+The OAuth APIs to create user-to-server tokens cannot be used because they do not have CORS enabled.
+
 If you know what you are doing, load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev)
 
 ```html
@@ -200,6 +202,8 @@ The private keys provided by GitHub are in `PKCS#1` format, but the WebCrypto AP
 ```shell
 openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out private-key-pkcs8.key
 ```
+
+The OAuth APIs to create user-to-server tokens cannot be used because they do not have CORS enabled.
 
 If you know what you are doing, load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly from [cdn.skypack.dev](https://cdn.skypack.dev)
 
