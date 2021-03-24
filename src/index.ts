@@ -9,6 +9,24 @@ import { StrategyInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
+export {
+  // strategy options
+  StrategyOptions,
+  // auth options
+  AuthOptions,
+  AppAuthOptions,
+  OAuthAppAuthOptions,
+  InstallationAuthOptions,
+  OAuthWebFlowAuthOptions,
+  OAuthDeviceFlowAuthOptions,
+  // authentication objects
+  Authentication,
+  AppAuthentication,
+  OAuthAppAuthentication,
+  InstallationAccessTokenAuthentication,
+  GitHubAppUserAuthentication,
+  GitHubAppUserAuthenticationWithExpiration,
+} from "./types";
 
 export const createAppAuth: StrategyInterface = function createAppAuth(
   options: StrategyOptions

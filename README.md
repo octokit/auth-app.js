@@ -1349,6 +1349,29 @@ const requestWithAuth = request.defaults({
 });
 ```
 
+## Types
+
+```ts
+import {
+  // strategy options
+  StrategyOptions,
+  // auth options
+  AuthOptions,
+  AppAuthOptions,
+  OAuthAppAuthOptions,
+  InstallationAuthOptions,
+  OAuthWebFlowAuthOptions,
+  OAuthDeviceFlowAuthOptions,
+  // authentication objects
+  Authentication,
+  AppAuthentication,
+  OAuthAppAuthentication,
+  InstallationAccessTokenAuthentication,
+  GitHubAppUserAuthentication,
+  GitHubAppUserAuthenticationWithExpiration,
+} from "@octokit/auth-app";
+```
+
 ## Implementation details
 
 When creating a JSON Web Token, it sets the "issued at time" (iat) to 30s in the past as we have seen people running situations where the GitHub API claimed the iat would be in future. It turned out the clocks on the different machine were not in sync.

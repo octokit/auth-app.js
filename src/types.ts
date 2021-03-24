@@ -1,14 +1,15 @@
 import * as OctokitTypes from "@octokit/types";
 import LRUCache from "lru-cache";
-import {
-  GitHubAuthInterface,
-  AppAuthentication as OAuthAppAuthentication,
-  GitHubAppUserAuthentication,
-  GitHubAppUserAuthenticationWithExpiration,
-  AppAuthOptions as OAuthAppAuthOptions,
-  WebFlowAuthOptions,
-  GitHubAppDeviceFlowAuthOptions,
-} from "@octokit/auth-oauth-app";
+// import {
+//   GitHubAuthInterface as OAuthAppGitHubAuthInterface,
+//   AppAuthentication as OAuthAppAuthentication,
+//   GitHubAppUserAuthentication,
+//   GitHubAppUserAuthenticationWithExpiration,
+//   AppAuthOptions as OAuthAppAuthOptions,
+//   WebFlowAuthOptions,
+//   GitHubAppDeviceFlowAuthOptions,
+// } from "@octokit/auth-oauth-app";
+import * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
 export type EndpointDefaults = OctokitTypes.EndpointDefaults;
@@ -70,6 +71,10 @@ export type InstallationAccessTokenAuthentication = InstallationAccessTokenData 
   tokenType: INSTALLATION_TOKEN_TYPE;
 };
 
+export type OAuthAppAuthentication = OAuthAppAuth.AppAuthentication;
+export type GitHubAppUserAuthentication = OAuthAppAuth.GitHubAppUserAuthentication;
+export type GitHubAppUserAuthenticationWithExpiration = OAuthAppAuth.GitHubAppUserAuthenticationWithExpiration;
+
 export type Authentication =
   | AppAuthentication
   | OAuthAppAuthentication
@@ -104,17 +109,6 @@ export type Permissions = {
   [name: string]: string;
 };
 
-type CommonAuthOptions = {
-  installationId?: number | string;
-  repositoryIds?: number[];
-  permissions?: Permissions;
-  refresh?: boolean;
-  // TODO: return type of `auth({ type: "installation", installationId, factory })`
-  //       should be Promise<ReturnType<factory>>
-  factory?: (options: FactoryOptions) => unknown;
-  [key: string]: unknown;
-};
-
 export type AuthType =
   | "app"
   | "installation"
@@ -138,12 +132,16 @@ export type InstallationAuthOptions = {
   [key: string]: unknown;
 };
 
+export type OAuthAppAuthOptions = OAuthAppAuth.AppAuthOptions;
+export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
+export type OAuthDeviceFlowAuthOptions = OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
+
 export type AuthOptions =
   | AppAuthOptions
   | OAuthAppAuthOptions
   | InstallationAuthOptions
-  | WebFlowAuthOptions
-  | GitHubAppDeviceFlowAuthOptions;
+  | OAuthWebFlowAuthOptions
+  | OAuthDeviceFlowAuthOptions;
 
 export type WithInstallationId = {
   installationId: number;
@@ -152,5 +150,5 @@ export type WithInstallationId = {
 export type State = Required<Omit<CommonStrategyOptions, "installationId">> & {
   installationId?: number;
 } & OAuthStrategyOptions & {
-    oauthApp: GitHubAuthInterface;
+    oauthApp: OAuthAppAuth.GitHubAuthInterface;
   };
