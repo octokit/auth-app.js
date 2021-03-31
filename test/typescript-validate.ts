@@ -4,6 +4,8 @@
 
 import { createAppAuth } from "../src";
 
+function expectType<T>(what: T) {}
+
 export async function readmeExample() {
   const auth = createAppAuth({
     appId: 1,
@@ -13,5 +15,7 @@ export async function readmeExample() {
   });
 
   // Retrieve an oauth-access token
-  await auth({ type: "oauth-user", code: "123456" });
+  const userAuthentication = await auth({ type: "oauth-user", code: "123456" });
+
+  expectType<"token">(userAuthentication.type);
 }
