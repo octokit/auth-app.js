@@ -11,7 +11,7 @@
     "lint:fix": "prettier --write '{src,test}/**/*.{ts,md}' README.md *.json",
     "pretest": "npm run -s lint",
     "test": "jest --coverage",
-    "semantic-release": "semantic-release"
+    "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict test/typescript-validate.ts"
   },
   "repository": "github:octokit/auth-app.js",
   "keywords": [
