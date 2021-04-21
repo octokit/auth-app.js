@@ -559,7 +559,7 @@ Create, reset, refresh, delete OAuth user-to-server tokens
         <code>array of numbers</code>
       </th>
       <td>
-        The `id` of the repositories that the installation token can access. Also known as a `databaseID` when querying to repository object in GitHub's v4 API.
+        The <code>id</code> of the repositories that the installation token can access. Also known as a <code>databaseID<code> when querying the repository object in GitHub's v4 API.
       </td>
     </tr>
     <tr>
