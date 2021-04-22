@@ -61,6 +61,7 @@ export type InstallationAccessTokenData = {
   permissions: Permissions;
   repositorySelection: REPOSITORY_SELECTION;
   repositoryIds?: number[];
+  repositoryNames?: string[];
   singleFileName?: string;
 };
 
@@ -124,6 +125,7 @@ export type InstallationAuthOptions = {
   type: "installation";
   installationId?: number | string;
   repositoryIds?: number[];
+  repositoryNames?: string[];
   permissions?: Permissions;
   refresh?: boolean;
   // TODO: return type of `auth({ type: "installation", installationId, factory })`

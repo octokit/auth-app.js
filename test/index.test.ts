@@ -317,6 +317,71 @@ test("repositoryIds auth option", async () => {
     { body }
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
+      repositories: ["repoOne", "repoTwo", "repoThree"],
+    });
+    return true;
+  };
+
+  const createInstallationAccessTokenResponseData = {
+    token: "secret123",
+    expires_at: "1970-01-01T01:00:00.000Z",
+    permissions: {
+      metadata: "read",
+    },
+    repositories: [
+      { id: 1, name: "repoOne" },
+      { id: 2, name: "repoTwo" },
+      { id: 3, name: "repoThree" },
+    ],
+    repository_selection: "all",
+  };
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    request: request.defaults({
+      headers: {
+        "user-agent": "test",
+      },
+      request: {
+        fetch: fetchMock
+          .sandbox()
+          .postOnce(
+            matchCreateInstallationAccessToken,
+            createInstallationAccessTokenResponseData
+          ),
+      },
+    }),
+  });
+
+  const authentication = await auth({
+    type: "installation",
+    installationId: 123,
+    repositoryNames: ["repoOne", "repoTwo", "repoThree"],
+  });
+
+  expect(authentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read",
+    },
+    createdAt: "1970-01-01T00:00:00.000Z",
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositoryIds: [1, 2, 3],
+    repositoryNames: ["repoOne", "repoTwo", "repoThree"],
+    repositorySelection: "all",
+  });
+});
+
+test("repositoryNames auth option", async () => {
+  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+    url,
+    { body }
+  ) => {
+    expect(JSON.parse(String(body))).toStrictEqual({
       repository_ids: [1, 2, 3],
     });
     return true;
@@ -328,7 +393,11 @@ test("repositoryIds auth option", async () => {
     permissions: {
       metadata: "read",
     },
-    repositories: [{ id: 1 }, { id: 2 }, { id: 3 }],
+    repositories: [
+      { id: 1, name: "repoOne" },
+      { id: 2, name: "repoTwo" },
+      { id: 3, name: "repoThree" },
+    ],
     repository_selection: "all",
   };
 
@@ -367,6 +436,7 @@ test("repositoryIds auth option", async () => {
     createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositoryIds: [1, 2, 3],
+    repositoryNames: ["repoOne", "repoTwo", "repoThree"],
     repositorySelection: "all",
   });
 });
@@ -503,7 +573,11 @@ test("installation auth with selected repositories from cache", async () => {
             metadata: "read",
           },
           repository_selection: "all",
-          repositories: [{ id: 1 }, { id: 2 }, { id: 3 }],
+          repositories: [
+            { id: 1, name: "repoOne" },
+            { id: 2, name: "repoTwo" },
+            { id: 3, name: "repoThree" },
+          ],
         }),
     },
   });
@@ -523,6 +597,7 @@ test("installation auth with selected repositories from cache", async () => {
       metadata: "read",
     },
     repositoryIds: [1, 2, 3],
+    repositoryNames: ["repoOne", "repoTwo", "repoThree"],
     createdAt: "1970-01-01T00:00:00.000Z",
     expiresAt: "1970-01-01T01:00:00.000Z",
     repositorySelection: "all",
@@ -532,11 +607,13 @@ test("installation auth with selected repositories from cache", async () => {
     type: "installation",
     installationId: 123,
     repositoryIds: [1, 2, 3],
+    repositoryNames: ["repoOne", "repoTwo", "repoThree"],
   });
   const authentication2 = await auth({
     type: "installation",
     installationId: 123,
     repositoryIds: [1, 2, 3],
+    repositoryNames: ["repoOne", "repoTwo", "repoThree"],
   });
 
   expect(authentication1).toEqual(EXPECTED);
@@ -1958,6 +2035,7 @@ test("auth.hook() and custom cache", async () => {
     installationId: 123,
     cache: { get, set },
   });
+
   const auth2 = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,

@@ -47,6 +47,7 @@ export async function getInstallationAuthentication(
         expiresAt,
         permissions,
         repositoryIds,
+        repositoryNames,
         singleFileName,
         repositorySelection,
       } = result;
@@ -59,6 +60,7 @@ export async function getInstallationAuthentication(
         permissions,
         repositorySelection,
         repositoryIds,
+        repositoryNames,
         singleFileName,
       });
     }
@@ -81,6 +83,7 @@ export async function getInstallationAuthentication(
   } = await request("POST /app/installations/{installation_id}/access_tokens", {
     installation_id: installationId,
     repository_ids: options.repositoryIds,
+    repositories: options.repositoryNames,
     permissions: options.permissions,
     mediaType: {
       previews: ["machine-man"],
@@ -94,6 +97,10 @@ export async function getInstallationAuthentication(
     ? repositories.map((r: { id: number }) => r.id)
     : void 0;
 
+  const repositoryNames = repositories
+    ? repositories.map((repo: { name: string }) => repo.name)
+    : void 0;
+
   const createdAt = new Date().toISOString();
   await set(state.cache, optionsWithInstallationTokenFromState, {
     token,
@@ -102,6 +109,7 @@ export async function getInstallationAuthentication(
     repositorySelection,
     permissions,
     repositoryIds,
+    repositoryNames,
     singleFileName,
   });
 
@@ -113,6 +121,7 @@ export async function getInstallationAuthentication(
     repositorySelection,
     permissions,
     repositoryIds,
+    repositoryNames,
     singleFileName,
   });
 }
