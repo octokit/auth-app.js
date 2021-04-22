@@ -31,6 +31,18 @@ export {
 export const createAppAuth: StrategyInterface = function createAppAuth(
   options: StrategyOptions
 ) {
+  if (!options.appId) {
+    throw new Error("[@octokit/auth-app] appId option is required");
+  }
+  if (!options.privateKey) {
+    throw new Error("[@octokit/auth-app] privateKey option is required");
+  }
+  if ("installationId" in options && !options.installationId) {
+    throw new Error(
+      "[@octokit/auth-app] installationId is set to a falsy value"
+    );
+  }
+
   const log = Object.assign(
     {
       warn: console.warn.bind(console),
