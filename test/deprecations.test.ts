@@ -33,7 +33,7 @@ describe("deprecations", () => {
     const warn = jest.fn();
     const auth = createAppAuth({
       appId: "1",
-      privateKey: "",
+      privateKey: "1",
       clientId: "12345678901234567890",
       clientSecret: "1234567890123456789012345678901234567890",
       log: { warn },

@@ -2213,3 +2213,33 @@ test("factory auth option", async () => {
     })
   );
 });
+
+it("throws helpful error if `appId` is not set properly (#184)", async () => {
+  expect(() => {
+    createAppAuth({
+      // @ts-ignore
+      appId: undefined,
+      privateKey: PRIVATE_KEY,
+    });
+  }).toThrowError("[@octokit/auth-app] appId option is required");
+});
+
+it("throws helpful error if `privateKey` is not set properly (#184)", async () => {
+  expect(() => {
+    createAppAuth({
+      appId: APP_ID,
+      // @ts-ignore
+      privateKey: undefined,
+    });
+  }).toThrowError("[@octokit/auth-app] privateKey option is required");
+});
+
+it("throws helpful error if `installationId` is set to a falsy value in createAppAuth() (#184)", async () => {
+  expect(() => {
+    createAppAuth({
+      appId: APP_ID,
+      privateKey: PRIVATE_KEY,
+      installationId: "",
+    });
+  }).toThrowError("[@octokit/auth-app] installationId is set to a falsy value");
+});
