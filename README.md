@@ -559,7 +559,7 @@ Create, reset, refresh, delete OAuth user-to-server tokens
         <code>array of numbers</code>
       </th>
       <td>
-        The <code>id</code> of the repositories that the installation token can access. Also known as a <code>databaseID</code> when querying the repository object in GitHub's GraphQL API.
+        The <code>id</code> of the repositories that the installation token can access. Also known as a <code>databaseID</code> when querying the repository object in GitHub's GraphQL API.
       </td>
     </tr>
     <tr>
@@ -786,7 +786,6 @@ const auth = auth({
   onVerification(verification) {
     console.log("Open %s", verification.verification_uri);
     console.log("Enter code: %s", verification.user_code);
-
     await prompt("press enter when you are ready to continue")
   },
 });
