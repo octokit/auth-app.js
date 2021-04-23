@@ -121,6 +121,12 @@ export type AppAuthOptions = {
   type: "app";
 };
 
+/**
+Users SHOULD only enter repositoryIds || repositoryNames.
+However, this moduke still passes both to the backend API to
+let the API decide how to handle the logic. We just throw the
+reponse back to the client making the request.
+**/
 export type InstallationAuthOptions = {
   type: "installation";
   installationId?: number | string;
