@@ -61,6 +61,7 @@ export type InstallationAccessTokenData = {
   permissions: Permissions;
   repositorySelection: REPOSITORY_SELECTION;
   repositoryIds?: number[];
+  repositoryNames?: string[];
   singleFileName?: string;
 };
 
@@ -120,10 +121,17 @@ export type AppAuthOptions = {
   type: "app";
 };
 
+/**
+Users SHOULD only enter repositoryIds || repositoryNames.
+However, this moduke still passes both to the backend API to
+let the API decide how to handle the logic. We just throw the
+reponse back to the client making the request.
+**/
 export type InstallationAuthOptions = {
   type: "installation";
   installationId?: number | string;
   repositoryIds?: number[];
+  repositoryNames?: string[];
   permissions?: Permissions;
   refresh?: boolean;
   // TODO: return type of `auth({ type: "installation", installationId, factory })`

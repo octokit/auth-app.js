@@ -58,6 +58,7 @@ export async function get(
     expiresAt,
     permissions,
     repositoryIds: options.repositoryIds,
+    repositoryNames: options.repositoryNames,
     singleFileName,
     repositorySelection: repositorySelection as REPOSITORY_SELECTION,
   };
@@ -93,6 +94,7 @@ function optionsToCacheKey({
   installationId,
   permissions = {},
   repositoryIds = [],
+  repositoryNames = [],
 }: InstallationAuthOptions) {
   const permissionsString = Object.keys(permissions)
     .sort()
@@ -100,8 +102,14 @@ function optionsToCacheKey({
     .join(",");
 
   const repositoryIdsString = repositoryIds.sort().join(",");
+  const repositoryNamesString = repositoryNames.join(",");
 
-  return [installationId, repositoryIdsString, permissionsString]
+  return [
+    installationId,
+    repositoryIdsString,
+    repositoryNamesString,
+    permissionsString,
+  ]
     .filter(Boolean)
     .join("|");
 }

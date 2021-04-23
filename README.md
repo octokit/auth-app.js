@@ -559,7 +559,18 @@ Create, reset, refresh, delete OAuth user-to-server tokens
         <code>array of numbers</code>
       </th>
       <td>
-        The <code>id</code> of the repositories that the installation token can access. Also known as a <code>databaseID</code> when querying the repository object in GitHub's GraphQL API.
+        The <code>id</code> of the repositories that the installation token can access. Also known as a <code>databaseID</code> when querying the repository object in GitHub's GraphQL API. This option is **(recommended)** over <code>repositoryNames</code> when needing to limit the scope of the access token, due to <code>repositoryNames</code> having the possibility of changing. Additionally, you should only include either <code>repositoryIds</code> or <code>repositoryNames</code>, but not both.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>repositoryNames</code>
+      </th>
+      <th>
+        <code>array of strings</code>
+      </th>
+      <td>
+        The <code>name</code> of the repositories that the installation token can access. As mentioned in the <code>repositoryIds</code> description, you should only include either <code>repositoryIds</code> or <code>repositoryNames</code>, but not both.
       </td>
     </tr>
     <tr>
@@ -1076,6 +1087,17 @@ Depending on on the `auth()` call, the resulting authentication object can be on
       </th>
       <td>
         Only present if <code>repositoryIds</code> option passed to <code>auth(options)</code>.
+      </td>
+    </tr>
+    <tr>
+      <th>
+        <code>repositoryNames</code>
+      </th>
+      <th>
+        <code>array of strings</code>
+      </th>
+      <td>
+        Only present if <code>repositoryNames</code> option passed to <code>auth(options)</code>.
       </td>
     </tr>
     <tr>

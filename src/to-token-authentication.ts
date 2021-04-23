@@ -14,6 +14,7 @@ export function toTokenAuthentication({
   repositorySelection,
   permissions,
   repositoryIds,
+  repositoryNames,
   singleFileName,
 }: CacheData & WithInstallationId): InstallationAccessTokenAuthentication {
   return Object.assign(
@@ -28,6 +29,7 @@ export function toTokenAuthentication({
       repositorySelection,
     },
     repositoryIds ? { repositoryIds } : null,
+    repositoryNames ? { repositoryNames } : null,
     singleFileName ? { singleFileName } : null
   );
 }
