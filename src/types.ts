@@ -67,14 +67,17 @@ export type InstallationAccessTokenData = {
 
 export type CacheData = InstallationAccessTokenData;
 
-export type InstallationAccessTokenAuthentication = InstallationAccessTokenData & {
-  type: TOKEN_TYPE;
-  tokenType: INSTALLATION_TOKEN_TYPE;
-};
+export type InstallationAccessTokenAuthentication =
+  InstallationAccessTokenData & {
+    type: TOKEN_TYPE;
+    tokenType: INSTALLATION_TOKEN_TYPE;
+  };
 
 export type OAuthAppAuthentication = OAuthAppAuth.AppAuthentication;
-export type GitHubAppUserAuthentication = OAuthAppAuth.GitHubAppUserAuthentication;
-export type GitHubAppUserAuthenticationWithExpiration = OAuthAppAuth.GitHubAppUserAuthenticationWithExpiration;
+export type GitHubAppUserAuthentication =
+  OAuthAppAuth.GitHubAppUserAuthentication;
+export type GitHubAppUserAuthenticationWithExpiration =
+  OAuthAppAuth.GitHubAppUserAuthenticationWithExpiration;
 
 export type Authentication =
   | AppAuthentication
@@ -142,7 +145,8 @@ export type InstallationAuthOptions = {
 
 export type OAuthAppAuthOptions = OAuthAppAuth.AppAuthOptions;
 export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
-export type OAuthDeviceFlowAuthOptions = OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
+export type OAuthDeviceFlowAuthOptions =
+  OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
 
 export type AuthOptions =
   | AppAuthOptions
