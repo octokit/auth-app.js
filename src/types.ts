@@ -1,15 +1,69 @@
 import * as OctokitTypes from "@octokit/types";
 import LRUCache from "lru-cache";
-// import {
-//   GitHubAuthInterface as OAuthAppGitHubAuthInterface,
-//   AppAuthentication as OAuthAppAuthentication,
-//   GitHubAppUserAuthentication,
-//   GitHubAppUserAuthenticationWithExpiration,
-//   AppAuthOptions as OAuthAppAuthOptions,
-//   WebFlowAuthOptions,
-//   GitHubAppDeviceFlowAuthOptions,
-// } from "@octokit/auth-oauth-app";
 import * as OAuthAppAuth from "@octokit/auth-oauth-app";
+
+// STRATEGY OPTIONS
+
+export type StrategyOptions = OAuthStrategyOptions &
+  CommonStrategyOptions & { [key: string]: unknown };
+
+// AUTH OPTIONS
+
+export type AuthOptions =
+  | AppAuthOptions
+  | OAuthAppAuthOptions
+  | InstallationAuthOptions
+  | OAuthWebFlowAuthOptions
+  | OAuthDeviceFlowAuthOptions;
+
+// AUTHENTICATION OBJECT
+
+export type Authentication =
+  | AppAuthentication
+  | OAuthAppAuthentication
+  | InstallationAccessTokenAuthentication
+  | GitHubAppUserAuthentication
+  | GitHubAppUserAuthenticationWithExpiration;
+
+// AUTH INTERFACE
+
+export interface AppAuthInterface {
+  (options: AppAuthOptions): Promise<AppAuthentication>;
+
+  hook(
+    request: RequestInterface,
+    route: Route | EndpointOptions,
+    parameters?: RequestParameters
+  ): Promise<OctokitTypes.OctokitResponse<any>>;
+}
+
+export interface OAuthAppAuthInterface {
+  (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
+
+  hook(
+    request: RequestInterface,
+    route: Route | EndpointOptions,
+    parameters?: RequestParameters
+  ): Promise<OctokitTypes.OctokitResponse<any>>;
+}
+
+export interface Auth {
+  (options: AppAuthOptions): Promise<AppAuthentication>;
+  (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
+  (
+    options: InstallationAuthOptions
+  ): Promise<InstallationAccessTokenAuthentication>;
+  (options: OAuthWebFlowAuthOptions): Promise<GitHubAppUserAuthentication>;
+  (
+    options: OAuthDeviceFlowAuthOptions
+  ): Promise<GitHubAppUserAuthenticationWithExpiration>;
+
+  hook(
+    request: RequestInterface,
+    route: Route | EndpointOptions,
+    parameters?: RequestParameters
+  ): Promise<OctokitTypes.OctokitResponse<any>>;
+}
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
 export type EndpointDefaults = OctokitTypes.EndpointDefaults;
@@ -17,11 +71,6 @@ export type EndpointOptions = OctokitTypes.EndpointOptions;
 export type RequestParameters = OctokitTypes.RequestParameters;
 export type Route = OctokitTypes.Route;
 export type RequestInterface = OctokitTypes.RequestInterface;
-export type StrategyInterface = OctokitTypes.StrategyInterface<
-  [StrategyOptions],
-  [AuthOptions],
-  Authentication
->;
 
 export type Cache =
   | LRUCache<string, string>
@@ -79,13 +128,6 @@ export type GitHubAppUserAuthentication =
 export type GitHubAppUserAuthenticationWithExpiration =
   OAuthAppAuth.GitHubAppUserAuthenticationWithExpiration;
 
-export type Authentication =
-  | AppAuthentication
-  | OAuthAppAuthentication
-  | InstallationAccessTokenAuthentication
-  | GitHubAppUserAuthentication
-  | GitHubAppUserAuthenticationWithExpiration;
-
 type OAuthStrategyOptions = {
   clientId?: string;
   clientSecret?: string;
@@ -102,9 +144,6 @@ type CommonStrategyOptions = {
     [key: string]: any;
   };
 };
-
-export type StrategyOptions = OAuthStrategyOptions &
-  CommonStrategyOptions & { [key: string]: unknown };
 
 export type FactoryOptions = Required<Omit<StrategyOptions, keyof State>> &
   State;
@@ -147,13 +186,6 @@ export type OAuthAppAuthOptions = OAuthAppAuth.AppAuthOptions;
 export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
 export type OAuthDeviceFlowAuthOptions =
   OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
-
-export type AuthOptions =
-  | AppAuthOptions
-  | OAuthAppAuthOptions
-  | InstallationAuthOptions
-  | OAuthWebFlowAuthOptions
-  | OAuthDeviceFlowAuthOptions;
 
 export type WithInstallationId = {
   installationId: number;

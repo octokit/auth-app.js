@@ -28,6 +28,14 @@ export {
   GitHubAppUserAuthenticationWithExpiration,
 } from "./types";
 
+export function createAppAuth(
+  options: OAuthAppStrategyOptions
+): OAuthAppAuthInterface;
+
+export function createAppAuth(
+  options: GitHubAppStrategyOptions
+): GitHubAuthInterface;
+
 export const createAppAuth: StrategyInterface = function createAppAuth(
   options: StrategyOptions
 ) {
