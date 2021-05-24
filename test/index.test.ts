@@ -39,6 +39,7 @@ const BEARER =
 
 let clock: any;
 beforeEach(() => {
+  // @ts-expect-error missing properties: loopLimit, shouldAdvanceTime, advanceTimeDelta
   clock = install({ now: 0, toFake: ["Date", "setTimeout"] });
 });
 
@@ -1621,6 +1622,8 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
 test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 second clock skew", async () => {
   const fakeTimeMs = 1029392939;
   const githubTimeMs = fakeTimeMs + 800000;
+
+  // @ts-expect-error missing properties: loopLimit, shouldAdvanceTime, advanceTimeDelta
   clock = install({ now: fakeTimeMs, toFake: ["Date", "setTimeout"] });
   const mock = fetchMock
     .sandbox()
