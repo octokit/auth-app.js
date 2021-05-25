@@ -1554,7 +1554,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
 
       // By default the mocked time will set the payload to 570 (10 minutes - 30 seconds in seconds)
       // By returning an error for that exp with an API time of 30 seconds in the future,
@@ -1632,7 +1634,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
 
       // The first request will send an expiration that is 200 seconds before GitHub's mocked API time.
       // The second request will send an adjusted expiration claim based on the 800 seconds skew and trigger a 200 response.
@@ -1702,7 +1706,9 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
 
       // By default the mocked time will set the payload.iat to -30.
       // By returning an error for that exp with an API time of 30 seconds in the future,
@@ -2189,7 +2195,9 @@ test("createAppAuth passed with log option", async () => {
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
       if (payload.exp < 600) {
         return {
           status: 401,
