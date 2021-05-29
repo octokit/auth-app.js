@@ -1074,7 +1074,7 @@ test("oauth-user witth `factory` option", async () => {
   const userAuth = await appAuth({
     type: "oauth-user",
     code: "random123",
-    // @ts-expect-error TBD: set `factory` options correctly
+    // TODO `factory` is not present in "WebFlowAuthOptions"
     factory: (options) => createOAuthUserAuth(options),
   });
 
@@ -2181,7 +2181,6 @@ test("id and installationId can be passed as options", async () => {
     installationId: "123",
   });
 
-  // @ts-expect-error TBD
   expect(authentication.token).toEqual("secret123");
 });
 
@@ -2264,7 +2263,6 @@ test("factory auth option", async () => {
     factory,
   });
 
-  // @ts-expect-error TBD
   expect(customAuth.token).toStrictEqual("secret");
 
   const factoryOptions = factory.mock.calls[0][0];

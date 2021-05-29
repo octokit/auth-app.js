@@ -4,10 +4,56 @@ import * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
 // STRATEGY OPTIONS
 
+type OAuthStrategyOptions = {
+  clientId?: string;
+  clientSecret?: string;
+};
+
+type CommonStrategyOptions = {
+  appId: number | string;
+  privateKey: string;
+  installationId?: number | string;
+  request?: OctokitTypes.RequestInterface;
+  cache?: Cache;
+  log?: {
+    warn: (message: string, additionalInfo?: object) => any;
+    [key: string]: any;
+  };
+};
+
 export type StrategyOptions = OAuthStrategyOptions &
-  CommonStrategyOptions & { [key: string]: unknown };
+  CommonStrategyOptions &
+  Record<string, unknown>;
 
 // AUTH OPTIONS
+
+export type AppAuthOptions = {
+  type: "app";
+};
+
+/**
+Users SHOULD only enter repositoryIds || repositoryNames.
+However, this moduke still passes both to the backend API to
+let the API decide how to handle the logic. We just throw the
+reponse back to the client making the request.
+**/
+export type InstallationAuthOptions = {
+  type: "installation";
+  installationId?: number | string;
+  repositoryIds?: number[];
+  repositoryNames?: string[];
+  permissions?: Permissions;
+  refresh?: boolean;
+  // TODO: return type of `auth({ type: "installation", installationId, factory })`
+  //       should be Promise<ReturnType<factory>>
+  factory?: (options: FactoryOptions) => unknown;
+  [key: string]: unknown;
+};
+
+export type OAuthAppAuthOptions = OAuthAppAuth.AppAuthOptions;
+export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
+export type OAuthDeviceFlowAuthOptions =
+  OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
 
 export type AuthOptions =
   | AppAuthOptions
@@ -27,36 +73,18 @@ export type Authentication =
 
 // AUTH INTERFACE
 
-export interface AppAuthInterface {
-  (options: AppAuthOptions): Promise<AppAuthentication>;
-
-  hook(
-    request: RequestInterface,
-    route: Route | EndpointOptions,
-    parameters?: RequestParameters
-  ): Promise<OctokitTypes.OctokitResponse<any>>;
-}
-
-export interface OAuthAppAuthInterface {
-  (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
-
-  hook(
-    request: RequestInterface,
-    route: Route | EndpointOptions,
-    parameters?: RequestParameters
-  ): Promise<OctokitTypes.OctokitResponse<any>>;
-}
-
 export interface Auth {
   (options: AppAuthOptions): Promise<AppAuthentication>;
   (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
   (
     options: InstallationAuthOptions
   ): Promise<InstallationAccessTokenAuthentication>;
-  (options: OAuthWebFlowAuthOptions): Promise<GitHubAppUserAuthentication>;
-  (
-    options: OAuthDeviceFlowAuthOptions
-  ): Promise<GitHubAppUserAuthenticationWithExpiration>;
+  (options: OAuthWebFlowAuthOptions): Promise<
+    GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
+  >;
+  (options: OAuthDeviceFlowAuthOptions): Promise<
+    GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
+  >;
 
   hook(
     request: RequestInterface,
@@ -64,6 +92,8 @@ export interface Auth {
     parameters?: RequestParameters
   ): Promise<OctokitTypes.OctokitResponse<any>>;
 }
+
+// MISC
 
 export type AnyResponse = OctokitTypes.OctokitResponse<any>;
 export type EndpointDefaults = OctokitTypes.EndpointDefaults;
@@ -128,64 +158,10 @@ export type GitHubAppUserAuthentication =
 export type GitHubAppUserAuthenticationWithExpiration =
   OAuthAppAuth.GitHubAppUserAuthenticationWithExpiration;
 
-type OAuthStrategyOptions = {
-  clientId?: string;
-  clientSecret?: string;
-};
-
-type CommonStrategyOptions = {
-  appId: number | string;
-  privateKey: string;
-  installationId?: number | string;
-  request?: OctokitTypes.RequestInterface;
-  cache?: Cache;
-  log?: {
-    warn: (message: string, additionalInfo?: object) => any;
-    [key: string]: any;
-  };
-};
-
 export type FactoryOptions = Required<Omit<StrategyOptions, keyof State>> &
   State;
 
-export type Permissions = {
-  [name: string]: string;
-};
-
-export type AuthType =
-  | "app"
-  | "installation"
-  | "oauth"
-  | "oauth-app"
-  | "oauth-user";
-
-export type AppAuthOptions = {
-  type: "app";
-};
-
-/**
-Users SHOULD only enter repositoryIds || repositoryNames.
-However, this moduke still passes both to the backend API to
-let the API decide how to handle the logic. We just throw the
-reponse back to the client making the request.
-**/
-export type InstallationAuthOptions = {
-  type: "installation";
-  installationId?: number | string;
-  repositoryIds?: number[];
-  repositoryNames?: string[];
-  permissions?: Permissions;
-  refresh?: boolean;
-  // TODO: return type of `auth({ type: "installation", installationId, factory })`
-  //       should be Promise<ReturnType<factory>>
-  factory?: (options: FactoryOptions) => unknown;
-  [key: string]: unknown;
-};
-
-export type OAuthAppAuthOptions = OAuthAppAuth.AppAuthOptions;
-export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
-export type OAuthDeviceFlowAuthOptions =
-  OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
+export type Permissions = Record<string, string>;
 
 export type WithInstallationId = {
   installationId: number;

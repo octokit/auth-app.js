@@ -53,7 +53,6 @@ describe("deprecations", () => {
     });
 
     await auth({
-      // @ts-expect-error type: "oauth" is deprecated
       type: "oauth",
       code: "123456",
     });

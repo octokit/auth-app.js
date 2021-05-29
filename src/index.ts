@@ -5,7 +5,7 @@ import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 import { auth } from "./auth";
 import { hook } from "./hook";
 import { getCache } from "./cache";
-import { StrategyInterface, State, StrategyOptions } from "./types";
+import { Auth, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
@@ -28,17 +28,7 @@ export {
   GitHubAppUserAuthenticationWithExpiration,
 } from "./types";
 
-export function createAppAuth(
-  options: OAuthAppStrategyOptions
-): OAuthAppAuthInterface;
-
-export function createAppAuth(
-  options: GitHubAppStrategyOptions
-): GitHubAuthInterface;
-
-export const createAppAuth: StrategyInterface = function createAppAuth(
-  options: StrategyOptions
-) {
+export function createAppAuth(options: StrategyOptions): Auth {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
@@ -87,5 +77,5 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
 
   return Object.assign(auth.bind(null, state), {
     hook: hook.bind(null, state),
-  });
-};
+  }) as Auth;
+}
