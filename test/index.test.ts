@@ -1056,7 +1056,6 @@ test("oauth-user witth `factory` option", async () => {
   const appAuth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientType: "oauth-app",
     clientId: "lv1.1234567890abcdef",
     clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: request.defaults({
@@ -1072,7 +1071,7 @@ test("oauth-user witth `factory` option", async () => {
   const userAuth = await appAuth({
     type: "oauth-user",
     code: "random123",
-    factory: (options) => createOAuthUserAuth(options),
+    factory: createOAuthUserAuth,
   });
 
   const authentication = await userAuth();

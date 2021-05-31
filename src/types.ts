@@ -67,7 +67,7 @@ export type Authentication =
 // AUTH INTERFACE
 
 export type FactoryInstallationOptions = StrategyOptions &
-  Omit<OAuthWebFlowAuthOptions, "type"> & { clientType: "github-app" };
+  Omit<InstallationAuthOptions, "type">;
 export interface FactoryInstallation<T> {
   (options: FactoryInstallationOptions): T;
 }
