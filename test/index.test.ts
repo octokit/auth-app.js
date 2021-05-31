@@ -39,7 +39,6 @@ const BEARER =
 
 let clock: any;
 beforeEach(() => {
-  // @ts-expect-error missing properties: loopLimit, shouldAdvanceTime, advanceTimeDelta
   clock = install({ now: 0, toFake: ["Date", "setTimeout"] });
 });
 
@@ -89,7 +88,6 @@ test("throws if invalid 'type' is provided", async () => {
   });
 
   // @ts-expect-error TS2322
-  // Details here: https://github.com/octokit/auth-app.js/issues/216#issuecomment-772106164
   await expect(auth({ type: "app2" })).rejects.toEqual(
     new Error("Invalid auth type: app2")
   );
@@ -1074,11 +1072,9 @@ test("oauth-user witth `factory` option", async () => {
   const userAuth = await appAuth({
     type: "oauth-user",
     code: "random123",
-    // TODO `factory` is not present in "WebFlowAuthOptions"
     factory: (options) => createOAuthUserAuth(options),
   });
 
-  // @ts-expect-error TBD: set appAuth() return types correctly when `factory` is set
   const authentication = await userAuth();
 
   expect(authentication).toEqual({
@@ -1625,7 +1621,6 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   const fakeTimeMs = 1029392939;
   const githubTimeMs = fakeTimeMs + 800000;
 
-  // @ts-expect-error missing properties: loopLimit, shouldAdvanceTime, advanceTimeDelta
   clock = install({ now: fakeTimeMs, toFake: ["Date", "setTimeout"] });
   const mock = fetchMock
     .sandbox()

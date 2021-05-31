@@ -55,13 +55,6 @@ export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
 export type OAuthDeviceFlowAuthOptions =
   OAuthAppAuth.GitHubAppDeviceFlowAuthOptions;
 
-export type AuthOptions =
-  | AppAuthOptions
-  | OAuthAppAuthOptions
-  | InstallationAuthOptions
-  | OAuthWebFlowAuthOptions
-  | OAuthDeviceFlowAuthOptions;
-
 // AUTHENTICATION OBJECT
 
 export type Authentication =
@@ -73,18 +66,51 @@ export type Authentication =
 
 // AUTH INTERFACE
 
-export interface Auth {
+export type FactoryInstallationOptions = StrategyOptions &
+  Omit<OAuthWebFlowAuthOptions, "type"> & { clientType: "github-app" };
+export interface FactoryInstallation<T> {
+  (options: FactoryInstallationOptions): T;
+}
+
+export interface AuthInterface {
+  // app auth
   (options: AppAuthOptions): Promise<AppAuthentication>;
   (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
+
+  // installation auth without `factory` potion
   (
     options: InstallationAuthOptions
   ): Promise<InstallationAccessTokenAuthentication>;
+
+  // installation auth with `factory` potion
+  (
+    options: InstallationAuthOptions
+  ): Promise<InstallationAccessTokenAuthentication>;
+  <T = unknown>(
+    options: InstallationAuthOptions & {
+      factory: FactoryInstallation<T>;
+    }
+  ): Promise<T>;
+
+  // user auth without `factory` option
   (options: OAuthWebFlowAuthOptions): Promise<
     GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
   >;
   (options: OAuthDeviceFlowAuthOptions): Promise<
     GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
   >;
+
+  // user auth with `factory` option
+  <T = unknown>(
+    options: OAuthWebFlowAuthOptions & {
+      factory: OAuthAppAuth.FactoryGitHubWebFlow<T>;
+    }
+  ): Promise<T>;
+  <T = unknown>(
+    options: OAuthDeviceFlowAuthOptions & {
+      factory: OAuthAppAuth.FactoryGitHubDeviceFlow<T>;
+    }
+  ): Promise<T>;
 
   hook(
     request: RequestInterface,
@@ -108,14 +134,6 @@ export type Cache =
       get: (key: string) => string;
       set: (key: string, value: string) => any;
     };
-
-export interface AppAuthStrategy {
-  (options?: StrategyOptions): AppAuth;
-}
-
-export interface AppAuth {
-  (options: AuthOptions): Promise<Authentication>;
-}
 
 export type APP_TYPE = "app";
 export type TOKEN_TYPE = "token";
