@@ -39,7 +39,6 @@ const BEARER =
 
 let clock: any;
 beforeEach(() => {
-  // @ts-expect-error missing properties: loopLimit, shouldAdvanceTime, advanceTimeDelta
   clock = install({ now: 0, toFake: ["Date", "setTimeout"] });
 });
 
@@ -89,7 +88,6 @@ test("throws if invalid 'type' is provided", async () => {
   });
 
   // @ts-expect-error TS2322
-  // Details here: https://github.com/octokit/auth-app.js/issues/216#issuecomment-772106164
   await expect(auth({ type: "app2" })).rejects.toEqual(
     new Error("Invalid auth type: app2")
   );
@@ -1058,7 +1056,6 @@ test("oauth-user witth `factory` option", async () => {
   const appAuth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientType: "oauth-app",
     clientId: "lv1.1234567890abcdef",
     clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: request.defaults({
@@ -1074,11 +1071,9 @@ test("oauth-user witth `factory` option", async () => {
   const userAuth = await appAuth({
     type: "oauth-user",
     code: "random123",
-    // @ts-expect-error TBD: set `factory` options correctly
-    factory: (options) => createOAuthUserAuth(options),
+    factory: createOAuthUserAuth,
   });
 
-  // @ts-expect-error TBD: set appAuth() return types correctly when `factory` is set
   const authentication = await userAuth();
 
   expect(authentication).toEqual({
@@ -1625,7 +1620,6 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   const fakeTimeMs = 1029392939;
   const githubTimeMs = fakeTimeMs + 800000;
 
-  // @ts-expect-error missing properties: loopLimit, shouldAdvanceTime, advanceTimeDelta
   clock = install({ now: fakeTimeMs, toFake: ["Date", "setTimeout"] });
   const mock = fetchMock
     .sandbox()
@@ -2181,7 +2175,6 @@ test("id and installationId can be passed as options", async () => {
     installationId: "123",
   });
 
-  // @ts-expect-error TBD
   expect(authentication.token).toEqual("secret123");
 });
 
@@ -2264,7 +2257,6 @@ test("factory auth option", async () => {
     factory,
   });
 
-  // @ts-expect-error TBD
   expect(customAuth.token).toStrictEqual("secret");
 
   const factoryOptions = factory.mock.calls[0][0];
