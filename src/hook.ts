@@ -51,12 +51,13 @@ export async function hook(
 
       // If the date header is missing, we can't correct the system time skew.
       // Throw the error to be handled upstream.
-      if (typeof error.headers.date === "undefined") {
+      if (typeof error.response.headers.date === "undefined") {
         throw error;
       }
 
       const diff = Math.floor(
-        (Date.parse(error.headers.date) - Date.parse(new Date().toString())) /
+        (Date.parse(error.response.headers.date) -
+          Date.parse(new Date().toString())) /
           1000
       );
 
