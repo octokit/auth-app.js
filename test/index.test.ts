@@ -88,7 +88,6 @@ test("throws if invalid 'type' is provided", async () => {
   });
 
   // @ts-expect-error TS2322
-  // Details here: https://github.com/octokit/auth-app.js/issues/216#issuecomment-772106164
   await expect(auth({ type: "app2" })).rejects.toEqual(
     new Error("Invalid auth type: app2")
   );
@@ -1057,7 +1056,6 @@ test("oauth-user witth `factory` option", async () => {
   const appAuth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
-    clientType: "oauth-app",
     clientId: "lv1.1234567890abcdef",
     clientSecret: "1234567890abcdef1234567890abcdef12345678",
     request: request.defaults({
@@ -1073,11 +1071,9 @@ test("oauth-user witth `factory` option", async () => {
   const userAuth = await appAuth({
     type: "oauth-user",
     code: "random123",
-    // @ts-expect-error TBD: set `factory` options correctly
-    factory: (options) => createOAuthUserAuth(options),
+    factory: createOAuthUserAuth,
   });
 
-  // @ts-expect-error TBD: set appAuth() return types correctly when `factory` is set
   const authentication = await userAuth();
 
   expect(authentication).toEqual({
@@ -1553,7 +1549,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
 
       // By default the mocked time will set the payload to 570 (10 minutes - 30 seconds in seconds)
       // By returning an error for that exp with an API time of 30 seconds in the future,
@@ -1621,6 +1619,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
 test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 second clock skew", async () => {
   const fakeTimeMs = 1029392939;
   const githubTimeMs = fakeTimeMs + 800000;
+
   clock = install({ now: fakeTimeMs, toFake: ["Date", "setTimeout"] });
   const mock = fetchMock
     .sandbox()
@@ -1629,7 +1628,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
 
       // The first request will send an expiration that is 200 seconds before GitHub's mocked API time.
       // The second request will send an adjusted expiration claim based on the 800 seconds skew and trigger a 200 response.
@@ -1699,7 +1700,9 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
 
       // By default the mocked time will set the payload.iat to -30.
       // By returning an error for that exp with an API time of 30 seconds in the future,
@@ -2172,7 +2175,6 @@ test("id and installationId can be passed as options", async () => {
     installationId: "123",
   });
 
-  // @ts-expect-error TBD
   expect(authentication.token).toEqual("secret123");
 });
 
@@ -2186,7 +2188,9 @@ test("createAppAuth passed with log option", async () => {
         "authorization"
       ];
       const [_, jwt] = (auth || "").split(" ");
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const payload = JSON.parse(
+        Buffer.from(jwt.split(".")[1], "base64").toString()
+      );
       if (payload.exp < 600) {
         return {
           status: 401,
@@ -2253,7 +2257,6 @@ test("factory auth option", async () => {
     factory,
   });
 
-  // @ts-expect-error TBD
   expect(customAuth.token).toStrictEqual("secret");
 
   const factoryOptions = factory.mock.calls[0][0];

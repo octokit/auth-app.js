@@ -53,9 +53,8 @@ describe("deprecations", () => {
     });
 
     await auth({
-      // @ts-expect-error type: "oauth" is deprecated
+      // @ts-expect-error "oauth" is not supported
       type: "oauth",
-      code: "123456",
     });
 
     expect(warn).toHaveBeenCalledTimes(1);

@@ -5,7 +5,7 @@ import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 import { auth } from "./auth";
 import { hook } from "./hook";
 import { getCache } from "./cache";
-import { StrategyInterface, State, StrategyOptions } from "./types";
+import { AuthInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
@@ -13,7 +13,6 @@ export {
   // strategy options
   StrategyOptions,
   // auth options
-  AuthOptions,
   AppAuthOptions,
   OAuthAppAuthOptions,
   InstallationAuthOptions,
@@ -28,9 +27,7 @@ export {
   GitHubAppUserAuthenticationWithExpiration,
 } from "./types";
 
-export const createAppAuth: StrategyInterface = function createAppAuth(
-  options: StrategyOptions
-) {
+export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
@@ -77,7 +74,8 @@ export const createAppAuth: StrategyInterface = function createAppAuth(
     }
   );
 
+  // @ts-expect-error not worth the extra code to appease TS
   return Object.assign(auth.bind(null, state), {
     hook: hook.bind(null, state),
   });
-};
+}

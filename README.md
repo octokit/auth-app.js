@@ -259,7 +259,7 @@ console.log("token is valid");
 const userOctokit = await appOctokit.auth({
   type: "oauth-user",
   code: "code123",
-  factor: (options) => {
+  factory: (options) => {
     return new Octokit({
       authStrategy: createOAuthUserAuth,
       auth: options,
@@ -786,23 +786,12 @@ const auth = auth({
   onVerification(verification) {
     console.log("Open %s", verification.verification_uri);
     console.log("Enter code: %s", verification.user_code);
-    await prompt("press enter when you are ready to continue")
+    await prompt("press enter when you are ready to continue");
   },
 });
 ```
 
 </td>
-    </tr>
-    <tr>
-      <th>
-        <code>scopes</code>
-      </th>
-      <th>
-        <code>array of strings</code>
-      </th>
-      <td>
-        Only relevant if the <code>clientType</code> strategy option is set to <code>"oauth-app"</code>.Array of OAuth scope names that the user access token should be granted. Defaults to no scopes (<code>[]</code>).
-      </td>
     </tr>
     <tr>
       <th>
@@ -956,7 +945,7 @@ Depending on on the `auth()` call, the resulting authentication object can be on
         <code>string</code>
       </th>
       <td>
-        <code>"oauth-app"</code> or <code>"github-app"</code>
+        <code>"github-app"</code>
       </td>
     </tr>
     <tr>

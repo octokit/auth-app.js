@@ -3,6 +3,7 @@
 // ************************************************************
 
 import { createAppAuth } from "../src";
+function isString(what: string) {}
 
 export async function readmeExample() {
   const auth = createAppAuth({
@@ -14,4 +15,19 @@ export async function readmeExample() {
 
   // Retrieve an oauth-access token
   await auth({ type: "oauth-user", code: "123456" });
+}
+
+// https://github.com/octokit/auth-app.js/issues/282
+export async function issue282() {
+  const auth = createAppAuth({
+    appId: 1,
+    privateKey: "",
+  });
+
+  const authentication = await auth({
+    type: "installation",
+    installationId: 123,
+  });
+
+  isString(authentication.token);
 }
