@@ -35,6 +35,11 @@ export async function hook(
   const endpoint = request.endpoint.merge(route as string, parameters);
   const url = endpoint.url as string;
 
+  // Do not intercept request to retrieve a new token
+  if (/\/login\/oauth\/access_token$/.test(url)) {
+    return request(endpoint as EndpointOptions);
+  }
+
   if (requiresAppAuth(url.replace(request.endpoint.DEFAULTS.baseUrl, ""))) {
     const { token } = await getAppAuthentication(state);
     endpoint.headers.authorization = `bearer ${token}`;

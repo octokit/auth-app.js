@@ -2282,6 +2282,45 @@ test("factory auth option", async () => {
   );
 });
 
+test("Do not intercept auth.hook(request, 'POST https://github.com/login/oauth/access_token') requests (#49)", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://github.com/login/oauth/access_token", {
+      access_token: "secret123",
+      scope: "",
+    });
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    clientId: "123",
+    clientSecret: "secret",
+  });
+
+  const requestWithAuth = request.defaults({
+    request: {
+      fetch: mock,
+      hook: auth.hook,
+    },
+  });
+
+  const result = await requestWithAuth(
+    "POST https://github.com/login/oauth/access_token",
+    {
+      headers: {
+        accept: "application/json",
+      },
+      type: "token",
+      code: "random123",
+      state: "mystate123",
+    }
+  );
+  expect(result.data).toEqual({
+    access_token: "secret123",
+    scope: "",
+  });
+});
+
 it("throws helpful error if `appId` is not set properly (#184)", async () => {
   expect(() => {
     createAppAuth({
