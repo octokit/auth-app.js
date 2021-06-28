@@ -1598,9 +1598,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
   });
 
   const promise = requestWithAuth("GET /app");
-
   const { data } = await promise;
 
+  // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
@@ -1674,9 +1674,9 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   });
 
   const promise = requestWithAuth("GET /app");
-
   const { data } = await promise;
 
+  // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
@@ -1749,6 +1749,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
   const promise = requestWithAuth("GET /app");
   const { data } = await promise;
 
+  // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
@@ -2231,9 +2232,9 @@ test("createAppAuth passed with log option", async () => {
   });
 
   const promise = requestWithAuth("GET /app");
-
   const { data } = await promise;
 
+  // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
   expect(mock.done()).toBe(true);
 
