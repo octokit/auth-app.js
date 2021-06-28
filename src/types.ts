@@ -44,9 +44,17 @@ export type InstallationAuthOptions = {
   repositoryNames?: string[];
   permissions?: Permissions;
   refresh?: boolean;
-  // TODO: return type of `auth({ type: "installation", installationId, factory })`
-  //       should be Promise<ReturnType<factory>>
-  factory?: (options: FactoryOptions) => unknown;
+  factory?: never;
+  [key: string]: unknown;
+};
+export type InstallationAuthOptionsWithFactory<T> = {
+  type: "installation";
+  installationId?: number | string;
+  repositoryIds?: number[];
+  repositoryNames?: string[];
+  permissions?: Permissions;
+  refresh?: boolean;
+  factory: FactoryInstallation<T>;
   [key: string]: unknown;
 };
 
@@ -77,20 +85,13 @@ export interface AuthInterface {
   (options: AppAuthOptions): Promise<AppAuthentication>;
   (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
 
-  // installation auth without `factory` potion
+  // installation auth without `factory` option
   (
     options: InstallationAuthOptions
   ): Promise<InstallationAccessTokenAuthentication>;
 
-  // installation auth with `factory` potion
-  (
-    options: InstallationAuthOptions
-  ): Promise<InstallationAccessTokenAuthentication>;
-  <T = unknown>(
-    options: InstallationAuthOptions & {
-      factory: FactoryInstallation<T>;
-    }
-  ): Promise<T>;
+  // installation auth with `factory` option
+  <T = unknown>(options: InstallationAuthOptionsWithFactory<T>): Promise<T>;
 
   // user auth without `factory` option
   (options: OAuthWebFlowAuthOptions): Promise<
