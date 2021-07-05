@@ -74,10 +74,8 @@ export async function getInstallationAuthentication(
       token,
       expires_at: expiresAt,
       repositories,
-      permissions,
-      // @ts-ignore
-      repository_selection: repositorySelection,
-      // @ts-ignore
+      permissions: permissionsOptional,
+      repository_selection: repositorySelectionOptional,
       single_file: singleFileName,
     },
   } = await request("POST /app/installations/{installation_id}/access_tokens", {
@@ -92,6 +90,11 @@ export async function getInstallationAuthentication(
       authorization: `bearer ${appAuthentication.token}`,
     },
   });
+
+  /* istanbul ignore next - permissions are optional per OpenAPI spec, but we think that is incorrect */
+  const permissions = permissionsOptional || {};
+  /* istanbul ignore next - repositorySelection are optional per OpenAPI spec, but we think that is incorrect */
+  const repositorySelection = repositorySelectionOptional || "all";
 
   const repositoryIds = repositories
     ? repositories.map((r: { id: number }) => r.id)
