@@ -93,6 +93,36 @@ test("throws if invalid 'type' is provided", async () => {
   );
 });
 
+test("throws if invalid Private Key is provided", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: "INVALID_PRIVATE_KEY",
+  });
+
+  const expectedError = new Error();
+  Object.assign(expectedError, {
+    code: "ERR_OSSL_PEM_NO_START_LINE",
+    function: "get_name",
+    library: "PEM routines",
+    reason: "no start line",
+  });
+
+  await expect(auth({ type: "app" })).rejects.toEqual(expectedError);
+});
+
+test("throws if incomplete Private Key is provided", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: "-----BEGIN RSA PRIVATE KEY-----",
+  });
+
+  await expect(auth({ type: "app" })).rejects.toEqual(
+    new Error(
+      "Private key is incomplete. Make sure it is a single line String and newlines have been replaced by '\n'"
+    )
+  );
+});
+
 test("README example for installation auth", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,
