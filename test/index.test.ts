@@ -93,6 +93,28 @@ test("throws if invalid 'type' is provided", async () => {
   );
 });
 
+test("throws if invalid Private Key is provided", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: "INVALID_PRIVATE_KEY",
+  });
+
+  await expect(auth({ type: "app" })).rejects.toEqual(expect.anything());
+});
+
+test("throws if incomplete Private Key is provided", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: "-----BEGIN RSA PRIVATE KEY-----",
+  });
+
+  await expect(auth({ type: "app" })).rejects.toEqual(
+    new Error(
+      "The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'"
+    )
+  );
+});
+
 test("README example for installation auth", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,
