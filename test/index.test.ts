@@ -118,7 +118,7 @@ test("throws if incomplete Private Key is provided", async () => {
 
   await expect(auth({ type: "app" })).rejects.toEqual(
     new Error(
-      "Private key is incomplete. Make sure it is a single line String and newlines have been replaced by '\n'"
+      "The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'"
     )
   );
 });
