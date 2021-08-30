@@ -47,7 +47,7 @@ export async function hook(
     let response;
     try {
       response = await request(endpoint as EndpointOptions);
-    } catch (error) {
+    } catch (error: any) {
       // If there's an issue with the expiration, regenerate the token and try again.
       // Otherwise rethrow the error for upstream handling.
       if (isNotTimeSkewError(error)) {
@@ -123,7 +123,7 @@ async function sendRequestWithRetries(
 
   try {
     return await request(options);
-  } catch (error) {
+  } catch (error: any) {
     if (error.status !== 401) {
       throw error;
     }

@@ -1828,14 +1828,14 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
   try {
     await requestWithAuth("GET /app");
     throw new Error("Should not resolve");
-  } catch (error) {
+  } catch (error: any) {
     expect(error.status).toEqual(401);
   }
 
   try {
     await requestWithAuth("GET /marketplace_listing/plan");
     throw new Error("Should not resolve");
-  } catch (error) {
+  } catch (error: any) {
     expect(error.status).toEqual(401);
   }
 });
@@ -1920,7 +1920,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   try {
     await requestWithAuth("GET /repos/octocat/hello-world2");
     throw new Error("Should not resolve");
-  } catch (error) {
+  } catch (error: any) {
     expect(error.status).toEqual(401);
   }
 
@@ -2026,7 +2026,7 @@ test("auth.hook(): throws on 500 error without retries", async () => {
   try {
     await requestWithAuth("GET /repos/octocat/hello-world");
     throw new Error("Should not resolve");
-  } catch (error) {
+  } catch (error: any) {
     expect(error.status).toEqual(500);
   }
 
