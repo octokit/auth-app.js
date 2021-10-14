@@ -169,6 +169,7 @@ export type InstallationAccessTokenAuthentication =
   InstallationAccessTokenData & {
     type: TOKEN_TYPE;
     tokenType: INSTALLATION_TOKEN_TYPE;
+    installationId: number;
   };
 
 export type OAuthAppAuthentication = OAuthAppAuth.AppAuthentication;
