@@ -915,7 +915,6 @@ test("oauth-user web flow", async () => {
       client_secret: "1234567890abcdef1234567890abcdef12345678",
       code: "123456",
       redirect_uri: "https://example.com/login",
-      state: "mystate123",
     });
 
     return true;
