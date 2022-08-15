@@ -27,7 +27,7 @@
     "@octokit/auth-oauth-user": "^2.0.0",
     "@octokit/request": "^6.0.0",
     "@octokit/request-error": "^3.0.0",
-    "@octokit/types": "^6.0.3",
+    "@octokit/types": "^7.0.0",
     "@types/lru-cache": "^5.1.0",
     "deprecation": "^2.3.1",
     "lru-cache": "^6.0.0",
