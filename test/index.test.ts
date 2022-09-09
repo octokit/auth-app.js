@@ -69,11 +69,11 @@ test("README example for OAuth app auth", async () => {
   const authentication = await auth({ type: "oauth-app" });
 
   expect(authentication).toMatchInlineSnapshot(`
-    Object {
+    {
       "clientId": "lv1.1234567890abcdef",
       "clientSecret": "1234567890abcdef1234567890abcdef12345678",
       "clientType": "github-app",
-      "headers": Object {
+      "headers": {
         "authorization": "basic bHYxLjEyMzQ1Njc4OTBhYmNkZWY6MTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3OA==",
       },
       "type": "oauth-app",
@@ -232,7 +232,7 @@ test("README example for oauth", async () => {
   });
 
   expect(authentication).toMatchInlineSnapshot(`
-    Object {
+    {
       "clientId": "lv1.1234567890abcdef",
       "clientSecret": "1234567890abcdef1234567890abcdef12345678",
       "clientType": "github-app",
@@ -954,7 +954,7 @@ test("oauth-user web flow", async () => {
   });
 
   expect(authentication).toMatchInlineSnapshot(`
-    Object {
+    {
       "clientId": "lv1.1234567890abcdef",
       "clientSecret": "1234567890abcdef1234567890abcdef12345678",
       "clientType": "github-app",
@@ -1033,7 +1033,7 @@ test("oauth-user device flow", async () => {
   });
 
   expect(authentication).toMatchInlineSnapshot(`
-    Object {
+    {
       "clientId": "lv1.1234567890abcdef",
       "clientSecret": "1234567890abcdef1234567890abcdef12345678",
       "clientType": "github-app",
