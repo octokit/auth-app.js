@@ -2343,7 +2343,7 @@ test("Do not intercept auth.hook(request, 'POST https://github.com/login/oauth/a
   });
 });
 
-it("throws helpful error if `appId` is not set properly (#184)", async () => {
+it("throws helpful error if `appId` is not set (#184)", async () => {
   expect(() => {
     createAppAuth({
       // @ts-ignore
@@ -2351,6 +2351,17 @@ it("throws helpful error if `appId` is not set properly (#184)", async () => {
       privateKey: PRIVATE_KEY,
     });
   }).toThrowError("[@octokit/auth-app] appId option is required");
+});
+
+it("throws helpful error if `appId` is not set to a numeric value", async () => {
+  expect(() => {
+    createAppAuth({
+      appId: "not-a-number",
+      privateKey: PRIVATE_KEY,
+    });
+  }).toThrowError(
+    "[@octokit/auth-app] appId option must be a number or numeric string"
+  );
 });
 
 it("throws helpful error if `privateKey` is not set properly (#184)", async () => {
