@@ -1,4 +1,4 @@
-import { githubAppJwt } from "universal-github-app-jwt";
+import githubAppJwt from "universal-github-app-jwt";
 
 import { AppAuthentication, State } from "./types";
 
