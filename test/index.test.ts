@@ -2384,7 +2384,7 @@ it("throws helpful error if `installationId` is set to a falsy value in createAp
   }).toThrowError("[@octokit/auth-app] installationId is set to a falsy value");
 });
 
-test("auth.hook() does not uses installation auth for /orgs/{org}/installations requests (#374)", async () => {
+test("auth.hook() uses installation auth for /orgs/{org}/installations requests (#374)", async () => {
   const mock = fetchMock
     .sandbox()
     .post("https://api.github.com/app/installations/123/access_tokens", {
@@ -2426,5 +2426,41 @@ test("auth.hook() does not uses installation auth for /orgs/{org}/installations 
     org: "octocat",
   });
 
-  expect(mock.done()).toBe(false);
+  expect(mock.done()).toBe(true);
+});
+
+test("auth.hook() uses app auth even for requests with query strings. (#374)", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .getOnce("https://api.github.com/orgs/octocat/installation?per_page=100", {
+      headers: {
+        authorization: `bearer ${BEARER}`,
+      },
+    });
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  await requestWithAuth("GET /orgs/{org}/installation", {
+    org: "octocat",
+    per_page: 100,
+  });
+
+  expect(mock.done()).toBe(true);
 });

@@ -42,10 +42,10 @@ function routeMatcher(paths: string[]) {
       '/repos/(?:.+?)/(?:.+?)/collaborators/(?:.+?)'
   ] */
 
-  const regex = `^(?:${regexes.map((r) => `(?:${r})`).join("|")})[^/]*$`;
+  const regex = `^(?:${regexes.map((r) => `(?:${r})`).join("|")})$`;
   // 'regex' would contain:
   /*
-    ^(?:(?:\/orgs\/(?:.+?)\/invitations)|(?:\/repos\/(?:.+?)\/(?:.+?)\/collaborators\/(?:.+?)))[^\/]*$
+    ^(?:(?:\/orgs\/(?:.+?)\/invitations)|(?:\/repos\/(?:.+?)\/(?:.+?)\/collaborators\/(?:.+?)))$
 
     It may look scary, but paste it into https://www.debuggex.com/
     and it will make a lot more sense!
