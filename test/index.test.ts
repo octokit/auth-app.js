@@ -2383,3 +2383,48 @@ it("throws helpful error if `installationId` is set to a falsy value in createAp
     });
   }).toThrowError("[@octokit/auth-app] installationId is set to a falsy value");
 });
+
+test("auth.hook() does not uses installation auth for /orgs/{org}/installations requests (#374)", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .post("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+      repeat: 2,
+    })
+    .getOnce("https://api.github.com/orgs/octocat/installations", {
+      headers: {
+        authorization: "token secret123",
+      },
+    });
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  await requestWithAuth("GET /orgs/{org}/installations", {
+    org: "octocat",
+  });
+
+  expect(mock.done()).toBe(false);
+});
