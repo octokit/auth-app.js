@@ -2457,9 +2457,8 @@ test("auth.hook() uses app auth even for requests with query strings. (#374)", a
     },
   });
 
-  await requestWithAuth("GET /orgs/{org}/installation", {
+  await requestWithAuth("GET /orgs/{org}/installation?per_page=100", {
     org: "octocat",
-    per_page: 100,
   });
 
   expect(mock.done()).toBe(true);
