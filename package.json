@@ -28,7 +28,6 @@
     "@octokit/request": "^6.0.0",
     "@octokit/request-error": "^3.0.0",
     "@octokit/types": "^9.0.0",
-    "@types/lru-cache": "^5.1.0",
     "deprecation": "^2.3.1",
     "lru-cache": "^9.0.0",
     "universal-github-app-jwt": "^1.1.1",
