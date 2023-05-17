@@ -1,5 +1,5 @@
 import * as OctokitTypes from "@octokit/types";
-import LRUCache from "lru-cache";
+import { LRUCache } from "lru-cache";
 import * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
 // STRATEGY OPTIONS

@@ -1,5 +1,5 @@
 // https://github.com/isaacs/node-lru-cache#readme
-import LRU from "lru-cache";
+import { LRUCache } from "lru-cache";
 
 /* istanbul ignore next */
 import {
@@ -12,11 +12,11 @@ import {
 } from "./types";
 
 export function getCache() {
-  return new LRU<number, string>({
+  return new LRUCache<number, string>({
     // cache max. 15000 tokens, that will use less than 10mb memory
     max: 15000,
     // Cache for 1 minute less than GitHub expiry
-    maxAge: 1000 * 60 * 59,
+    ttl: 1000 * 60 * 59,
   });
 }
 
@@ -42,15 +42,17 @@ export async function get(
 
   const permissions =
     options.permissions ||
-    permissionsString.split(/,/).reduce((permissions: Permissions, string) => {
-      if (/!$/.test(string)) {
-        permissions[string.slice(0, -1)] = "write";
-      } else {
-        permissions[string] = "read";
-      }
+    permissionsString
+      .split(/,/)
+      .reduce((permissions: Permissions, string: string) => {
+        if (/!$/.test(string)) {
+          permissions[string.slice(0, -1)] = "write";
+        } else {
+          permissions[string] = "read";
+        }
 
-      return permissions;
-    }, {} as Permissions);
+        return permissions;
+      }, {} as Permissions);
 
   return {
     token,
