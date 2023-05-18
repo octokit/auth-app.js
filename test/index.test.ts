@@ -334,7 +334,7 @@ test("installationId strategy option fails with no installationId", async () => 
 
 test("repositoryIds auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    url,
+    _url,
     { body }
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
@@ -399,7 +399,7 @@ test("repositoryIds auth option", async () => {
 
 test("repositoryNames auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    url,
+    _url,
     { body }
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
@@ -464,7 +464,7 @@ test("repositoryNames auth option", async () => {
 
 test("Consistenly handling reposID & reposName", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    url,
+    _url,
     { body }
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
@@ -529,7 +529,7 @@ test("Consistenly handling reposID & reposName", async () => {
 
 test("permissions auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    url,
+    _url,
     { body }
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
@@ -764,11 +764,11 @@ test("installation auth with selected permissions from cache", async () => {
 });
 
 test("installation cache with different options", async () => {
-  const matchCreateAccessToken1: MockMatcherFunction = (url, { body }) => {
+  const matchCreateAccessToken1: MockMatcherFunction = (_url, { body }) => {
     expect(body).toBeUndefined();
     return true;
   };
-  const matchCreateAccessToken2: MockMatcherFunction = (url, { body }) => {
+  const matchCreateAccessToken2: MockMatcherFunction = (_url, { body }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
         metadata: "read",
@@ -1786,7 +1786,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
       },
       repository_selection: "all",
     })
-    .get("https://api.github.com/repos/octocat/hello-world", (url) => {
+    .get("https://api.github.com/repos/octocat/hello-world", () => {
       if (Date.now() < FIVE_SECONDS_IN_MS) {
         return {
           status: 401,
@@ -1877,7 +1877,7 @@ test("auth.hook(): throw error with custom message after unsuccessful retries (#
       },
       repository_selection: "all",
     })
-    .get("https://api.github.com/repos/octocat/hello-world", (url) => {
+    .get("https://api.github.com/repos/octocat/hello-world", () => {
       return {
         status: 401,
         body: {
