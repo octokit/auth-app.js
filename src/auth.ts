@@ -1,7 +1,7 @@
 import { Deprecation } from "deprecation";
 import * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
-import {
+import type {
   Authentication,
   State,
   AppAuthOptions,
