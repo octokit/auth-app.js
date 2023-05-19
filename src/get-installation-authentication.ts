@@ -1,7 +1,7 @@
 import { get, set } from "./cache";
 import { getAppAuthentication } from "./get-app-authentication";
 import { toTokenAuthentication } from "./to-token-authentication";
-import {
+import type {
   InstallationAuthOptions,
   InstallationAccessTokenAuthentication,
   RequestInterface,

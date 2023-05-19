@@ -2,7 +2,7 @@
 import { LRUCache } from "lru-cache";
 
 /* istanbul ignore next */
-import {
+import type {
   InstallationAuthOptions,
   Cache,
   CacheData,
