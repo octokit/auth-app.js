@@ -4,7 +4,7 @@ import { RequestError } from "@octokit/request-error";
 import { getAppAuthentication } from "./get-app-authentication";
 import { getInstallationAuthentication } from "./get-installation-authentication";
 import { requiresAppAuth } from "./requires-app-auth";
-import {
+import type {
   AnyResponse,
   EndpointOptions,
   RequestParameters,

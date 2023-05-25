@@ -5,11 +5,11 @@ import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 import { auth } from "./auth";
 import { hook } from "./hook";
 import { getCache } from "./cache";
-import { AuthInterface, State, StrategyOptions } from "./types";
+import type { AuthInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
-export {
+export type {
   // strategy options
   StrategyOptions,
   // auth options
