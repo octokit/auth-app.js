@@ -1,6 +1,7 @@
 import { githubAppJwt } from "universal-github-app-jwt";
 
 import type { AppAuthentication, State } from "./types";
+import { validatePrivatekeyContent } from "./validate-pk-content";
 
 export async function getAppAuthentication({
   appId,
@@ -21,7 +22,7 @@ export async function getAppAuthentication({
       expiresAt: new Date(appAuthentication.expiration * 1000).toISOString(),
     };
   } catch (error) {
-    if (/^-----BEGIN .* PRIVATE KEY-----$/.test(privateKey.trim()) === false) {
+    if (!validatePrivatekeyContent(privateKey)) {
       throw new Error(
         "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
       );

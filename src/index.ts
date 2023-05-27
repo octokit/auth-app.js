@@ -7,6 +7,7 @@ import { hook } from "./hook";
 import { getCache } from "./cache";
 import type { AuthInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
+import { validatePrivatekeyContent } from "./validate-pk-content";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
 export type {
@@ -47,19 +48,12 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
 
   // This check ensures that private key contains the actual content
   // specifically when set using environment variables as multiline string.
-  const privateKey: string[] = options.privateKey.trim().split(" ");
-  if (privateKey.length > 1) {
-    const protocol = privateKey[1];
-    const begin = `-----BEGIN ${protocol} PRIVATE KEY-----`;
-    const end = `-----END ${protocol} PRIVATE KEY----`;
-
-    if (!(privateKey.includes(begin) && privateKey.includes(end))) {
-      throw new Error(
-        "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
-      );
-    }
+  if (!validatePrivatekeyContent(options.privateKey)) {
+    throw new Error(
+      "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
+    );
   }
-  // TODO: tests are failing
+  // TODO: tests are failing... so commenting for now.
   //  else {
   //   throw new Error("[@octokit/auth-app] privateKey content is invalid");
   // }
