@@ -45,6 +45,14 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
     );
   }
 
+  // This check ensures that private key contains the actual content
+  // specifically when set using envirnment variables as multiline string.
+  if (/^-----BEGIN .* PRIVATE KEY-----$/.test(options.privateKey.trim())) {
+    throw new Error(
+      "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n"
+    );
+  }
+
   const log = Object.assign(
     {
       warn: console.warn.bind(console),
