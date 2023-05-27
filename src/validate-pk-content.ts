@@ -6,7 +6,7 @@ export function validatePrivatekeyContent(privateKey: string) {
 
   // second check
   const pk: string[] = privateKey.trim().split(" ");
-  if (pk.length > 2) {
+  if (pk.length > 1) {
     const protocol = pk[1];
     const begin = `-----BEGIN ${protocol} PRIVATE KEY-----`;
     const end = `-----END ${protocol} PRIVATE KEY----`;
