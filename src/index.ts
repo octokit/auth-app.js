@@ -53,10 +53,6 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
       "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
     );
   }
-  // TODO: tests are failing... so commenting for now.
-  //  else {
-  //   throw new Error("[@octokit/auth-app] privateKey content is invalid");
-  // }
 
   const log = Object.assign(
     {

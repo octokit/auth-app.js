@@ -6,7 +6,7 @@ export function validatePrivatekeyContent(privateKey: string) {
 
   // second check
   const pk: string[] = privateKey.trim().split(" ");
-  if (pk.length > 1) {
+  if (pk.length > 2) {
     const protocol = pk[1];
     const begin = `-----BEGIN ${protocol} PRIVATE KEY-----`;
     const end = `-----END ${protocol} PRIVATE KEY----`;
@@ -14,9 +14,10 @@ export function validatePrivatekeyContent(privateKey: string) {
     if (!(privateKey.includes(begin) && privateKey.includes(end))) {
       return false;
     }
+  } else {
+    // there is no whitespace inside private key content and still invalid
+    return false;
   }
 
-  // TODO: tests are failing... so returning true for now.
-  // return false;
   return true;
 }
