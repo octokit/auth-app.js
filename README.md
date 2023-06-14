@@ -53,11 +53,11 @@ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out 
 
 The OAuth APIs to create user-to-server tokens cannot be used because they do not have CORS enabled.
 
-If you know what you are doing, load `@octokit/auth-app` directly from [cdn.skypack.dev](https://cdn.skypack.dev)
+If you know what you are doing, load `@octokit/auth-app` directly from [esm.sh](https://esm.sh)
 
 ```html
 <script type="module">
-  import { createAppAuth } from "https://cdn.skypack.dev/@octokit/auth-app";
+  import { createAppAuth } from "https://esm.sh/@octokit/auth-app";
 </script>
 ```
 
@@ -206,12 +206,12 @@ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in private-key.pem -out 
 
 The OAuth APIs to create user-to-server tokens cannot be used because they do not have CORS enabled.
 
-If you know what you are doing, load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly from [cdn.skypack.dev](https://cdn.skypack.dev)
+If you know what you are doing, load `@octokit/auth-app` and `@octokit/core` (or a compatible module) directly from [esm.sh](https://esm.sh)
 
 ```html
 <script type="module">
-  import { createAppAuth } from "https://cdn.skypack.dev/@octokit/auth-app";
-  import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
+  import { createAppAuth } from "https://esm.sh/@octokit/auth-app";
+  import { Octokit } from "https://esm.sh/@octokit/core";
 </script>
 ```
 
