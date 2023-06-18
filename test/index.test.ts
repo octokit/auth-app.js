@@ -125,7 +125,7 @@ test("README example for installation auth", async () => {
     );
     expect(headers).toStrictEqual(
       expect.objectContaining({
-        accept: "application/vnd.github.machine-man-preview+json",
+        accept: "application/vnd.github.v3+json",
         "user-agent": "test",
         authorization: `bearer ${BEARER}`,
       })
@@ -1338,7 +1338,7 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
       { id: 123 },
       {
         headers: {
-          accept: "application/vnd.github.machine-man-preview+json",
+          accept: "application/vnd.github.v3+json",
           "user-agent": "test",
           authorization: `bearer ${BEARER}`,
         },
@@ -1371,11 +1371,7 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
   await requestWithAuth("GET /repos/octocat/hello-world");
   await requestWithAuth("GET /repos/octocat/hello-world");
 
-  await requestWithAuth("GET /app", {
-    mediaType: {
-      previews: ["machine-man"],
-    },
-  });
+  await requestWithAuth("GET /app");
 
   expect(mock.done()).toBe(true);
 });
