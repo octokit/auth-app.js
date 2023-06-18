@@ -24,9 +24,9 @@
   "license": "MIT",
   "dependencies": {
     "@octokit/auth-oauth-app": "^6.0.1",
-    "@octokit/auth-oauth-user": "^3.0.0",
+    "@octokit/auth-oauth-user": "^3.0.1",
     "@octokit/request": "^7.0.0",
-    "@octokit/request-error": "^4.0.0",
+    "@octokit/request-error": "^4.0.2",
     "@octokit/types": "^10.0.0",
     "deprecation": "^2.3.1",
     "lru-cache": "^10.0.0",
