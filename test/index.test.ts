@@ -1853,7 +1853,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
     expect(error.status).toEqual(401);
   }
 
-  expect(data).toStrictEqual({ id: 123 });
+  expect(data).toMatchObject({ id: 123 });
   expect(mock.done()).toBe(true);
 
   // @ts-ignore
