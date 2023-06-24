@@ -110,7 +110,7 @@ test("throws if incomplete Private Key is provided", async () => {
 
   await expect(auth({ type: "app" })).rejects.toEqual(
     new Error(
-      "The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'"
+      "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
     )
   );
 });

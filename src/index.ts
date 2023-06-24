@@ -7,6 +7,7 @@ import { hook } from "./hook";
 import { getCache } from "./cache";
 import type { AuthInterface, State, StrategyOptions } from "./types";
 import { VERSION } from "./version";
+import { validatePrivatekeyContent } from "./validate-pk-content";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
 export type {
@@ -42,6 +43,14 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   if ("installationId" in options && !options.installationId) {
     throw new Error(
       "[@octokit/auth-app] installationId is set to a falsy value"
+    );
+  }
+
+  // This check ensures that private key contains the actual content
+  // specifically when set using environment variables as multiline string.
+  if (!validatePrivatekeyContent(options.privateKey)) {
+    throw new Error(
+      "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
     );
   }
 

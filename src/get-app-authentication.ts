@@ -1,6 +1,7 @@
 import { githubAppJwt } from "universal-github-app-jwt";
 
 import type { AppAuthentication, State } from "./types";
+import { validatePrivatekeyContent } from "./validate-pk-content";
 
 export async function getAppAuthentication({
   appId,
@@ -21,9 +22,9 @@ export async function getAppAuthentication({
       expiresAt: new Date(appAuthentication.expiration * 1000).toISOString(),
     };
   } catch (error) {
-    if (privateKey === "-----BEGIN RSA PRIVATE KEY-----") {
+    if (!validatePrivatekeyContent(privateKey)) {
       throw new Error(
-        "The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'"
+        "[@octokit/auth-app] privateKey only contains the first line. Try replacing line breaks with \n if you are setting it as multiline string (e.g. environment variable)"
       );
     } else {
       throw error;
