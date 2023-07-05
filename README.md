@@ -1330,7 +1330,7 @@ The `request` option is an instance of [`@octokit/request`](https://github.com/o
 ```js
 const { data: installations } = await auth.hook(
   request,
-  "GET /app/installations"
+  "GET /app/installations",
 );
 ```
 
