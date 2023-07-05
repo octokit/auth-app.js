@@ -33,7 +33,7 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   }
   if (!Number.isFinite(+options.appId)) {
     throw new Error(
-      "[@octokit/auth-app] appId option must be a number or numeric string"
+      "[@octokit/auth-app] appId option must be a number or numeric string",
     );
   }
   if (!options.privateKey) {
@@ -41,7 +41,7 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   }
   if ("installationId" in options && !options.installationId) {
     throw new Error(
-      "[@octokit/auth-app] installationId is set to a falsy value"
+      "[@octokit/auth-app] installationId is set to a falsy value",
     );
   }
 
@@ -49,7 +49,7 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
     {
       warn: console.warn.bind(console),
     },
-    options.log
+    options.log,
   );
   const request =
     options.request ||
@@ -76,7 +76,7 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
         clientSecret: options.clientSecret || "",
         request,
       }),
-    }
+    },
   );
 
   // @ts-expect-error not worth the extra code to appease TS

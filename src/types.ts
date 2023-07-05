@@ -87,17 +87,21 @@ export interface AuthInterface {
 
   // installation auth without `factory` option
   (
-    options: InstallationAuthOptions
+    options: InstallationAuthOptions,
   ): Promise<InstallationAccessTokenAuthentication>;
 
   // installation auth with `factory` option
   <T = unknown>(options: InstallationAuthOptionsWithFactory<T>): Promise<T>;
 
   // user auth without `factory` option
-  (options: OAuthWebFlowAuthOptions): Promise<
+  (
+    options: OAuthWebFlowAuthOptions,
+  ): Promise<
     GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
   >;
-  (options: OAuthDeviceFlowAuthOptions): Promise<
+  (
+    options: OAuthDeviceFlowAuthOptions,
+  ): Promise<
     GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
   >;
 
@@ -105,18 +109,18 @@ export interface AuthInterface {
   <T = unknown>(
     options: OAuthWebFlowAuthOptions & {
       factory: OAuthAppAuth.FactoryGitHubWebFlow<T>;
-    }
+    },
   ): Promise<T>;
   <T = unknown>(
     options: OAuthDeviceFlowAuthOptions & {
       factory: OAuthAppAuth.FactoryGitHubDeviceFlow<T>;
-    }
+    },
   ): Promise<T>;
 
   hook(
     request: RequestInterface,
     route: Route | EndpointOptions,
-    parameters?: RequestParameters
+    parameters?: RequestParameters,
   ): Promise<OctokitTypes.OctokitResponse<any>>;
 }
 
