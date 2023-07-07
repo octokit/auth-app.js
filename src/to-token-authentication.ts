@@ -30,6 +30,6 @@ export function toTokenAuthentication({
     },
     repositoryIds ? { repositoryIds } : null,
     repositoryNames ? { repositoryNames } : null,
-    singleFileName ? { singleFileName } : null
+    singleFileName ? { singleFileName } : null,
   );
 }

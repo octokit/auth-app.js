@@ -18,10 +18,10 @@ const FIVE_SECONDS_IN_MS = 5 * 1000;
 function isNotTimeSkewError(error: RequestError) {
   return !(
     error.message.match(
-      /'Expiration time' claim \('exp'\) must be a numeric value representing the future time at which the assertion expires/
+      /'Expiration time' claim \('exp'\) must be a numeric value representing the future time at which the assertion expires/,
     ) ||
     error.message.match(
-      /'Issued at' claim \('iat'\) must be an Integer representing the time that the assertion was issued/
+      /'Issued at' claim \('iat'\) must be an Integer representing the time that the assertion was issued/,
     )
   );
 }
@@ -30,7 +30,7 @@ export async function hook(
   state: State,
   request: RequestInterface,
   route: Route | EndpointOptions,
-  parameters?: RequestParameters
+  parameters?: RequestParameters,
 ): Promise<AnyResponse> {
   const endpoint = request.endpoint.merge(route as string, parameters);
   const url = endpoint.url as string;
@@ -63,12 +63,12 @@ export async function hook(
       const diff = Math.floor(
         (Date.parse(error.response.headers.date) -
           Date.parse(new Date().toString())) /
-          1000
+          1000,
       );
 
       state.log.warn(error.message);
       state.log.warn(
-        `[@octokit/auth-app] GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`
+        `[@octokit/auth-app] GitHub API time and system time are different by ${diff} seconds. Retrying request with the difference accounted for.`,
       );
 
       const { token } = await getAppAuthentication({
@@ -92,7 +92,7 @@ export async function hook(
     state,
     // @ts-expect-error TBD
     {},
-    request
+    request,
   );
 
   endpoint.headers.authorization = `token ${token}`;
@@ -101,7 +101,7 @@ export async function hook(
     state,
     request,
     endpoint as EndpointOptions,
-    createdAt
+    createdAt,
   );
 }
 
@@ -117,7 +117,7 @@ async function sendRequestWithRetries(
   request: RequestInterface,
   options: EndpointOptions,
   createdAt: string,
-  retries: number = 0
+  retries: number = 0,
 ): Promise<AnyResponse> {
   const timeSinceTokenCreationInMs = +new Date() - +new Date(createdAt);
 
@@ -143,7 +143,7 @@ async function sendRequestWithRetries(
     state.log.warn(
       `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${
         awaitTime / 1000
-      }s)`
+      }s)`,
     );
     await new Promise((resolve) => setTimeout(resolve, awaitTime));
 

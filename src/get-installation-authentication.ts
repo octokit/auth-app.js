@@ -11,13 +11,13 @@ import type {
 export async function getInstallationAuthentication(
   state: State,
   options: InstallationAuthOptions,
-  customRequest?: RequestInterface
+  customRequest?: RequestInterface,
 ): Promise<InstallationAccessTokenAuthentication> {
   const installationId = Number(options.installationId || state.installationId);
 
   if (!installationId) {
     throw new Error(
-      "[@octokit/auth-app] installationId option is required for installation authentication."
+      "[@octokit/auth-app] installationId option is required for installation authentication.",
     );
   }
 
@@ -32,13 +32,13 @@ export async function getInstallationAuthentication(
 
   const optionsWithInstallationTokenFromState = Object.assign(
     { installationId },
-    options
+    options,
   );
 
   if (!options.refresh) {
     const result = await get(
       state.cache,
-      optionsWithInstallationTokenFromState
+      optionsWithInstallationTokenFromState,
     );
     if (result) {
       const {

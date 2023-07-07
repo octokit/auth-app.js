@@ -89,7 +89,7 @@ test("throws if invalid 'type' is provided", async () => {
 
   // @ts-expect-error TS2322
   await expect(auth({ type: "app2" })).rejects.toEqual(
-    new Error("Invalid auth type: app2")
+    new Error("Invalid auth type: app2"),
   );
 });
 
@@ -110,25 +110,25 @@ test("throws if incomplete Private Key is provided", async () => {
 
   await expect(auth({ type: "app" })).rejects.toEqual(
     new Error(
-      "The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'"
-    )
+      "The 'privateKey` option contains only the first line '-----BEGIN RSA PRIVATE KEY-----'. If you are setting it using a `.env` file, make sure it is set on a single line with newlines replaced by '\n'",
+    ),
   );
 });
 
 test("README example for installation auth", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     url,
-    { body, headers }
+    { body, headers },
   ) => {
     expect(url).toEqual(
-      "https://api.github.com/app/installations/123/access_tokens"
+      "https://api.github.com/app/installations/123/access_tokens",
     );
     expect(headers).toStrictEqual(
       expect.objectContaining({
         accept: "application/vnd.github.v3+json",
         "user-agent": "test",
         authorization: `bearer ${BEARER}`,
-      })
+      }),
     );
     expect(body).toBeUndefined();
 
@@ -156,7 +156,7 @@ test("README example for installation auth", async () => {
           .sandbox()
           .postOnce(
             matchCreateInstallationAccessToken,
-            createInstallationAccessTokenResponseData
+            createInstallationAccessTokenResponseData,
           ),
       },
     }),
@@ -184,7 +184,7 @@ test("README example for installation auth", async () => {
 test("README example for oauth", async () => {
   const matchCreateOAuthAccessToken: MockMatcherFunction = (
     url,
-    { body, headers }
+    { body, headers },
   ) => {
     expect(url).toEqual("https://github.com/login/oauth/access_token");
     expect(headers).toStrictEqual({
@@ -220,7 +220,7 @@ test("README example for oauth", async () => {
           .sandbox()
           .postOnce(
             matchCreateOAuthAccessToken,
-            createOAuthAccessTokenResponseData
+            createOAuthAccessTokenResponseData,
           ),
       },
     }),
@@ -260,7 +260,7 @@ test("installationId strategy option", async () => {
               metadata: "read",
             },
             repository_selection: "all",
-          }
+          },
         ),
     },
   });
@@ -307,7 +307,7 @@ test("installationId strategy option fails with no installationId", async () => 
               metadata: "read",
             },
             repository_selection: "all",
-          }
+          },
         ),
     },
   });
@@ -326,8 +326,8 @@ test("installationId strategy option fails with no installationId", async () => 
   } catch (e) {
     expect(e).toEqual(
       new Error(
-        "[@octokit/auth-app] installationId option is required for installation authentication."
-      )
+        "[@octokit/auth-app] installationId option is required for installation authentication.",
+      ),
     );
   }
 });
@@ -335,7 +335,7 @@ test("installationId strategy option fails with no installationId", async () => 
 test("repositoryIds auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     _url,
-    { body }
+    { body },
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repositories: ["repoOne", "repoTwo", "repoThree"],
@@ -369,7 +369,7 @@ test("repositoryIds auth option", async () => {
           .sandbox()
           .postOnce(
             matchCreateInstallationAccessToken,
-            createInstallationAccessTokenResponseData
+            createInstallationAccessTokenResponseData,
           ),
       },
     }),
@@ -400,7 +400,7 @@ test("repositoryIds auth option", async () => {
 test("repositoryNames auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     _url,
-    { body }
+    { body },
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repository_ids: [1, 2, 3],
@@ -434,7 +434,7 @@ test("repositoryNames auth option", async () => {
           .sandbox()
           .postOnce(
             matchCreateInstallationAccessToken,
-            createInstallationAccessTokenResponseData
+            createInstallationAccessTokenResponseData,
           ),
       },
     }),
@@ -465,7 +465,7 @@ test("repositoryNames auth option", async () => {
 test("Consistenly handling reposID & reposName", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     _url,
-    { body }
+    { body },
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repository_ids: [1, 2, 3],
@@ -500,7 +500,7 @@ test("Consistenly handling reposID & reposName", async () => {
           .sandbox()
           .postOnce(
             matchCreateInstallationAccessToken,
-            createInstallationAccessTokenResponseData
+            createInstallationAccessTokenResponseData,
           ),
       },
     }),
@@ -530,7 +530,7 @@ test("Consistenly handling reposID & reposName", async () => {
 test("permissions auth option", async () => {
   const matchCreateInstallationAccessToken: MockMatcherFunction = (
     _url,
-    { body }
+    { body },
   ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
@@ -562,7 +562,7 @@ test("permissions auth option", async () => {
           .sandbox()
           .postOnce(
             matchCreateInstallationAccessToken,
-            createInstallationAccessTokenResponseData
+            createInstallationAccessTokenResponseData,
           ),
       },
     }),
@@ -790,11 +790,11 @@ test("installation cache with different options", async () => {
     .sandbox()
     .postOnce(
       matchCreateAccessToken1,
-      createInstallationAccessTokenResponseData
+      createInstallationAccessTokenResponseData,
     )
     .postOnce(
       matchCreateAccessToken2,
-      createInstallationAccessTokenResponseData
+      createInstallationAccessTokenResponseData,
     );
 
   const requestMock = request.defaults({
@@ -860,7 +860,7 @@ test("refresh option", async () => {
         },
         {
           repeat: 2,
-        }
+        },
       ),
     },
   });
@@ -902,7 +902,7 @@ test("refresh option", async () => {
 test("oauth-user web flow", async () => {
   const matchCreateOAuthAccessToken: MockMatcherFunction = (
     url,
-    { body, headers }
+    { body, headers },
   ) => {
     expect(url).toEqual("https://github.com/login/oauth/access_token");
     expect(headers).toStrictEqual({
@@ -940,7 +940,7 @@ test("oauth-user web flow", async () => {
           .sandbox()
           .postOnce(
             matchCreateOAuthAccessToken,
-            createOAuthAccessTokenResponseData
+            createOAuthAccessTokenResponseData,
           ),
       },
     }),
@@ -988,7 +988,7 @@ test("oauth-user device flow", async () => {
         body: {
           client_id: "lv1.1234567890abcdef",
         },
-      }
+      },
     )
     .postOnce(
       "https://github.com/login/oauth/access_token",
@@ -1008,7 +1008,7 @@ test("oauth-user device flow", async () => {
           grant_type: "urn:ietf:params:oauth:grant-type:device_code",
         },
         overwriteRoutes: false,
-      }
+      },
     );
 
   const auth = createAppAuth({
@@ -1071,7 +1071,7 @@ test("oauth-user witth `factory` option", async () => {
         client_secret: "1234567890abcdef1234567890abcdef12345678",
         code: "random123",
       },
-    }
+    },
   );
 
   const appAuth = createAppAuth({
@@ -1126,13 +1126,13 @@ test("caches based on installation id", async () => {
         .sandbox()
         .postOnce(
           "path:/app/installations/123/access_tokens",
-          createInstallationAccessTokenResponseData
+          createInstallationAccessTokenResponseData,
         )
         .postOnce(
           "path:/app/installations/456/access_tokens",
           Object.assign({}, createInstallationAccessTokenResponseData, {
             token: "secret456",
-          })
+          }),
         ),
     },
   });
@@ -1246,7 +1246,7 @@ test("supports custom cache", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   );
   expect(CACHE).toStrictEqual({
     "123":
@@ -1308,7 +1308,7 @@ test("supports custom cache with async get/set", async () => {
   expect(get).toBeCalledWith("123");
   expect(set).toBeCalledWith(
     "123",
-    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|"
+    "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   );
 });
 
@@ -1331,7 +1331,7 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
           authorization: "token secret123",
         },
         repeat: 4,
-      }
+      },
     )
     .getOnce(
       "https://api.github.com/app",
@@ -1342,7 +1342,7 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
           "user-agent": "test",
           authorization: `bearer ${BEARER}`,
         },
-      }
+      },
     );
 
   const auth = createAppAuth({
@@ -1419,7 +1419,7 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
       headers: {
         authorization: `bearer ${BEARER}`,
       },
-    }
+    },
   );
 
   const auth = createAppAuth({
@@ -1464,7 +1464,7 @@ test("auth.hook() uses client ID/client secret Basic Authentication for /applica
         body: {
           access_token: "secret123",
         },
-      }
+      },
     );
 
   const auth = createAppAuth({
@@ -1486,7 +1486,7 @@ test("auth.hook() uses client ID/client secret Basic Authentication for /applica
     {
       client_id: "123",
       access_token: "secret123",
-    }
+    },
   );
 
   expect(response.data.token).toEqual("secret123");
@@ -1501,7 +1501,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
       ];
       const [_, jwt] = (auth || "").split(" ");
       const payload = JSON.parse(
-        Buffer.from(jwt.split(".")[1], "base64").toString()
+        Buffer.from(jwt.split(".")[1], "base64").toString(),
       );
 
       // By default the mocked time will set the payload to 570 (10 minutes - 30 seconds in seconds)
@@ -1559,11 +1559,11 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
   expect(global.console.warn.mock.calls.length).toEqual(2);
   expect(global.console.warn).toHaveBeenNthCalledWith(
     1,
-    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires."
+    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
-    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
+    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`,
   );
 });
 
@@ -1580,7 +1580,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
       ];
       const [_, jwt] = (auth || "").split(" ");
       const payload = JSON.parse(
-        Buffer.from(jwt.split(".")[1], "base64").toString()
+        Buffer.from(jwt.split(".")[1], "base64").toString(),
       );
 
       // The first request will send an expiration that is 200 seconds before GitHub's mocked API time.
@@ -1635,11 +1635,11 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   expect(global.console.warn.mock.calls.length).toEqual(2);
   expect(global.console.warn).toHaveBeenNthCalledWith(
     1,
-    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires."
+    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
-    `[@octokit/auth-app] GitHub API time and system time are different by 800 seconds. Retrying request with the difference accounted for.`
+    `[@octokit/auth-app] GitHub API time and system time are different by 800 seconds. Retrying request with the difference accounted for.`,
   );
 });
 
@@ -1652,7 +1652,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
       ];
       const [_, jwt] = (auth || "").split(" ");
       const payload = JSON.parse(
-        Buffer.from(jwt.split(".")[1], "base64").toString()
+        Buffer.from(jwt.split(".")[1], "base64").toString(),
       );
 
       // By default the mocked time will set the payload.iat to -30.
@@ -1708,11 +1708,11 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
   expect(global.console.warn.mock.calls.length).toEqual(2);
   expect(global.console.warn).toHaveBeenNthCalledWith(
     1,
-    "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued."
+    "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued.",
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
-    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`
+    `[@octokit/auth-app] GitHub API time and system time are different by 30 seconds. Retrying request with the difference accounted for.`,
   );
 });
 
@@ -1811,7 +1811,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
         headers: {
           authorization: "token secret123",
         },
-      }
+      },
     );
 
   global.console.warn = jest.fn();
@@ -1907,7 +1907,7 @@ test("auth.hook(): throw error with custom message after unsuccessful retries (#
 
   requestWithAuth("GET /repos/octocat/hello-world").catch((error) => {
     expect(error.message).toBe(
-      `After 3 retries within 6s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`
+      `After 3 retries within 6s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`,
     );
   });
 
@@ -2000,7 +2000,7 @@ test("oauth endpoint error", async () => {
       type: "oauth-user",
       code: "lv1.1234567890abcdef",
       redirectUrl: "https://example.com/login",
-    })
+    }),
   ).rejects.toThrow("client_id");
 });
 
@@ -2029,7 +2029,7 @@ test("auth.hook() and custom cache", async () => {
         headers: {
           authorization: "token secret123",
         },
-      }
+      },
     )
     .postOnce("https://api.github.com/app/installations/456/access_tokens", {
       token: "secret456",
@@ -2046,7 +2046,7 @@ test("auth.hook() and custom cache", async () => {
         headers: {
           authorization: "token secret456",
         },
-      }
+      },
     );
 
   const auth1 = createAppAuth({
@@ -2116,7 +2116,7 @@ test("id and installationId can be passed as options", async () => {
           .sandbox()
           .postOnce(
             "https://api.github.com/app/installations/123/access_tokens",
-            createInstallationAccessTokenResponseData
+            createInstallationAccessTokenResponseData,
           ),
       },
     }),
@@ -2141,7 +2141,7 @@ test("createAppAuth passed with log option", async () => {
       ];
       const [_, jwt] = (auth || "").split(" ");
       const payload = JSON.parse(
-        Buffer.from(jwt.split(".")[1], "base64").toString()
+        Buffer.from(jwt.split(".")[1], "base64").toString(),
       );
       if (payload.exp < 600) {
         return {
@@ -2230,7 +2230,7 @@ test("factory auth option", async () => {
       installationId: 123,
       extra1: "auth overide",
       extra2: "value2",
-    })
+    }),
   );
 });
 
@@ -2265,7 +2265,7 @@ test("Do not intercept auth.hook(request, 'POST https://github.com/login/oauth/a
       type: "token",
       code: "random123",
       state: "mystate123",
-    }
+    },
   );
   expect(result.data).toEqual({
     access_token: "secret123",
@@ -2290,7 +2290,7 @@ it("throws helpful error if `appId` is not set to a numeric value", async () => 
       privateKey: PRIVATE_KEY,
     });
   }).toThrowError(
-    "[@octokit/auth-app] appId option must be a number or numeric string"
+    "[@octokit/auth-app] appId option must be a number or numeric string",
   );
 });
 

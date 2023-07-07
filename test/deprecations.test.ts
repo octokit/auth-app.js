@@ -8,7 +8,7 @@ describe("deprecations", () => {
   test("auth({ type: 'oauth' }) - #263", async () => {
     const matchCreateOAuthAccessToken: MockMatcherFunction = (
       url,
-      { body, headers }
+      { body, headers },
     ) => {
       expect(url).toEqual("https://github.com/login/oauth/access_token");
       expect(headers).toStrictEqual({
@@ -46,7 +46,7 @@ describe("deprecations", () => {
             .sandbox()
             .postOnce(
               matchCreateOAuthAccessToken,
-              createOAuthAccessTokenResponseData
+              createOAuthAccessTokenResponseData,
             ),
         },
       }),
@@ -60,8 +60,8 @@ describe("deprecations", () => {
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith(
       new Deprecation(
-        '[@octokit/auth-app] {type: "oauth"} is deprecated. Use {type: "oauth-app"} instead'
-      )
+        '[@octokit/auth-app] {type: "oauth"} is deprecated. Use {type: "oauth-app"} instead',
+      ),
     );
   });
 

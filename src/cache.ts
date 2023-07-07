@@ -22,7 +22,7 @@ export function getCache() {
 
 export async function get(
   cache: Cache,
-  options: InstallationAuthOptions
+  options: InstallationAuthOptions,
 ): Promise<InstallationAccessTokenData | void> {
   const cacheKey = optionsToCacheKey(options);
   const result = await cache.get(cacheKey);
@@ -68,7 +68,7 @@ export async function get(
 export async function set(
   cache: Cache,
   options: InstallationAuthOptions,
-  data: CacheData
+  data: CacheData,
 ): Promise<void> {
   const key = optionsToCacheKey(options);
 
@@ -76,7 +76,7 @@ export async function set(
     ? ""
     : Object.keys(data.permissions)
         .map(
-          (name) => `${name}${data.permissions[name] === "write" ? "!" : ""}`
+          (name) => `${name}${data.permissions[name] === "write" ? "!" : ""}`,
         )
         .join(",");
 

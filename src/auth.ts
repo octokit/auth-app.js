@@ -21,25 +21,25 @@ import { getInstallationAuthentication } from "./get-installation-authentication
 /** GitHub App authentication */
 export async function auth(
   state: State,
-  authOptions: AppAuthOptions
+  authOptions: AppAuthOptions,
 ): Promise<AppAuthentication>;
 
 /** OAuth App authentication */
 export async function auth(
   state: State,
-  authOptions: OAuthAppAuthOptions
+  authOptions: OAuthAppAuthOptions,
 ): Promise<OAuthAppAuthentication>;
 
 /** Installation authentication */
 export async function auth(
   state: State,
-  authOptions: InstallationAuthOptions
+  authOptions: InstallationAuthOptions,
 ): Promise<InstallationAccessTokenAuthentication>;
 
 /** User Authentication via OAuth web flow */
 export async function auth(
   state: State,
-  authOptions: OAuthWebFlowAuthOptions
+  authOptions: OAuthWebFlowAuthOptions,
 ): Promise<
   GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
 >;
@@ -49,13 +49,13 @@ export async function auth<T = unknown>(
   state: State,
   authOptions: OAuthWebFlowAuthOptions & {
     factory: OAuthAppAuth.FactoryGitHubWebFlow<T>;
-  }
+  },
 ): Promise<T>;
 
 /** User Authentication via OAuth Device flow */
 export async function auth(
   state: State,
-  authOptions: OAuthDeviceFlowAuthOptions
+  authOptions: OAuthDeviceFlowAuthOptions,
 ): Promise<
   GitHubAppUserAuthentication | GitHubAppUserAuthenticationWithExpiration
 >;
@@ -65,7 +65,7 @@ export async function auth<T = unknown>(
   state: State,
   authOptions: OAuthDeviceFlowAuthOptions & {
     factory: OAuthAppAuth.FactoryGitHubDeviceFlow<T>;
-  }
+  },
 ): Promise<T>;
 
 export async function auth<T = unknown>(
@@ -81,7 +81,7 @@ export async function auth<T = unknown>(
       })
     | (OAuthDeviceFlowAuthOptions & {
         factory: OAuthAppAuth.FactoryGitHubDeviceFlow<T>;
-      })
+      }),
 ): Promise<Authentication> {
   switch (authOptions.type) {
     case "app":
@@ -91,8 +91,8 @@ export async function auth<T = unknown>(
       state.log.warn(
         // @ts-expect-error `log.warn()` expects string
         new Deprecation(
-          `[@octokit/auth-app] {type: "oauth"} is deprecated. Use {type: "oauth-app"} instead`
-        )
+          `[@octokit/auth-app] {type: "oauth"} is deprecated. Use {type: "oauth-app"} instead`,
+        ),
       );
     case "oauth-app":
       return state.oauthApp({ type: "oauth-app" });
