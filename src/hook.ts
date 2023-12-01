@@ -1,9 +1,9 @@
 import { requiresBasicAuth } from "@octokit/auth-oauth-user";
 import { RequestError } from "@octokit/request-error";
 
-import { getAppAuthentication } from "./get-app-authentication";
-import { getInstallationAuthentication } from "./get-installation-authentication";
-import { requiresAppAuth } from "./requires-app-auth";
+import { getAppAuthentication } from "./get-app-authentication.js";
+import { getInstallationAuthentication } from "./get-installation-authentication.js";
+import { requiresAppAuth } from "./requires-app-auth.js";
 import type {
   AnyResponse,
   EndpointOptions,
@@ -11,7 +11,7 @@ import type {
   RequestInterface,
   Route,
   State,
-} from "./types";
+} from "./types.js";
 
 const FIVE_SECONDS_IN_MS = 5 * 1000;
 

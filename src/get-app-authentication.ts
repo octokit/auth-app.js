@@ -1,6 +1,6 @@
 import { githubAppJwt } from "universal-github-app-jwt";
 
-import type { AppAuthentication, State } from "./types";
+import type { AppAuthentication, State } from "./types.js";
 
 export async function getAppAuthentication({
   appId,

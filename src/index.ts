@@ -2,11 +2,11 @@ import { getUserAgent } from "universal-user-agent";
 import { request as defaultRequest } from "@octokit/request";
 import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 
-import { auth } from "./auth";
-import { hook } from "./hook";
-import { getCache } from "./cache";
-import type { AuthInterface, State, StrategyOptions } from "./types";
-import { VERSION } from "./version";
+import { auth } from "./auth.js";
+import { hook } from "./hook.js";
+import { getCache } from "./cache.js";
+import type { AuthInterface, State, StrategyOptions } from "./types.js";
+import { VERSION } from "./version.js";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
 export type {
@@ -25,7 +25,7 @@ export type {
   InstallationAccessTokenAuthentication,
   GitHubAppUserAuthentication,
   GitHubAppUserAuthenticationWithExpiration,
-} from "./types";
+} from "./types.js";
 
 export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {

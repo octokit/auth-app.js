@@ -14,9 +14,9 @@ import type {
   GitHubAppUserAuthenticationWithExpiration,
   OAuthWebFlowAuthOptions,
   OAuthDeviceFlowAuthOptions,
-} from "./types";
-import { getAppAuthentication } from "./get-app-authentication";
-import { getInstallationAuthentication } from "./get-installation-authentication";
+} from "./types.js";
+import { getAppAuthentication } from "./get-app-authentication.js";
+import { getInstallationAuthentication } from "./get-installation-authentication.js";
 
 /** GitHub App authentication */
 export async function auth(
