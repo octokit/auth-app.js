@@ -3,7 +3,7 @@ import fetchMock, { MockMatcherFunction } from "fetch-mock";
 import { request } from "@octokit/request";
 import { install } from "@sinonjs/fake-timers";
 
-import { createAppAuth, createOAuthUserAuth } from "../src/index";
+import { createAppAuth, createOAuthUserAuth } from "../src/index.ts";
 
 const APP_ID = 1;
 const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----

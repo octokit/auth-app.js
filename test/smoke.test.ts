@@ -1,4 +1,4 @@
-import { createAppAuth, createOAuthUserAuth } from "../src";
+import { createAppAuth, createOAuthUserAuth } from "../src/index.ts";
 
 describe("smoke tests", () => {
   test("createAppAuth() is a function", () => {

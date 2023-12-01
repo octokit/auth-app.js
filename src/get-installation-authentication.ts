@@ -1,12 +1,12 @@
-import { get, set } from "./cache";
-import { getAppAuthentication } from "./get-app-authentication";
-import { toTokenAuthentication } from "./to-token-authentication";
+import { get, set } from "./cache.js";
+import { getAppAuthentication } from "./get-app-authentication.js";
+import { toTokenAuthentication } from "./to-token-authentication.js";
 import type {
   InstallationAuthOptions,
   InstallationAccessTokenAuthentication,
   RequestInterface,
   State,
-} from "./types";
+} from "./types.js";
 
 export async function getInstallationAuthentication(
   state: State,

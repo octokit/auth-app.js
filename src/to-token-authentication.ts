@@ -4,7 +4,7 @@ import type {
   WithInstallationId,
   TOKEN_TYPE,
   INSTALLATION_TOKEN_TYPE,
-} from "./types";
+} from "./types.js";
 
 export function toTokenAuthentication({
   installationId,

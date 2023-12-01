@@ -1,11 +1,12 @@
 {
-	"extends": "../tsconfig.json",
-	"compilerOptions": {
-		"emitDeclarationOnly": false,
-		"noEmit": true,
-		"verbatimModuleSyntax": false
-	},
-	"include": [
-		"src/**/*"
-	]
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
