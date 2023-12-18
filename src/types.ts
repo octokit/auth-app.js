@@ -136,7 +136,7 @@ export type RequestInterface = OctokitTypes.RequestInterface;
 export type Cache =
   | LRUCache<string, string>
   | {
-      get: (key: string) => string;
+      get: (key: string) => string | Promise<string>;
       set: (key: string, value: string) => any;
     };
 
