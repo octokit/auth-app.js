@@ -33,7 +33,7 @@ export type AppAuthOptions = {
 
 /**
 Users SHOULD only enter repositoryIds || repositoryNames.
-However, this moduke still passes both to the backend API to
+However, this module still passes both to the backend API to
 let the API decide how to handle the logic. We just throw the
 reponse back to the client making the request.
 **/
