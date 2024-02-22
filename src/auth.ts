@@ -86,7 +86,7 @@ export async function auth<T = unknown>(
   switch (authOptions.type) {
     case "app":
       return getAppAuthentication(state);
-    // @ts-expect-error "oauth" is not supperted in types
+    // @ts-expect-error "oauth" is not supported in types
     case "oauth":
       state.log.warn(
         // @ts-expect-error `log.warn()` expects string
