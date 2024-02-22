@@ -1559,7 +1559,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
   expect(global.console.warn.mock.calls.length).toEqual(2);
   expect(global.console.warn).toHaveBeenNthCalledWith(
     1,
-    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
+    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires. - https://docs.github.com/",
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
@@ -1635,7 +1635,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   expect(global.console.warn.mock.calls.length).toEqual(2);
   expect(global.console.warn).toHaveBeenNthCalledWith(
     1,
-    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires.",
+    "'Expiration time' claim ('exp') must be a numeric value representing the future time at which the assertion expires. - https://docs.github.com/",
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
@@ -1708,7 +1708,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
   expect(global.console.warn.mock.calls.length).toEqual(2);
   expect(global.console.warn).toHaveBeenNthCalledWith(
     1,
-    "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued.",
+    "'Issued at' claim ('iat') must be an Integer representing the time that the assertion was issued. - https://docs.github.com/",
   );
   expect(global.console.warn).toHaveBeenNthCalledWith(
     2,
