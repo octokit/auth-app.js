@@ -245,7 +245,7 @@ const appOctokit = new Octokit({
 });
 
 // Send requests as GitHub App
-const { slug } = await appOctokit.request("GET /user");
+const { slug } = await appOctokit.request("GET /app");
 console.log("authenticated as %s", slug);
 
 // Send requests as OAuth App
