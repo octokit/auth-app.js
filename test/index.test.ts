@@ -1,4 +1,4 @@
-import fetchMock, { MockMatcherFunction } from "fetch-mock";
+import fetchMock, { type MockMatcherFunction } from "fetch-mock";
 
 import { request } from "@octokit/request";
 import { install } from "@sinonjs/fake-timers";

@@ -3,6 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "version": "0.0.0-development",
   "description": "GitHub App authentication for JavaScript",
   "scripts": {
@@ -25,13 +26,13 @@
   "dependencies": {
     "@octokit/auth-oauth-app": "^7.0.0",
     "@octokit/auth-oauth-user": "^4.0.0",
-    "@octokit/request": "^8.0.2",
-    "@octokit/request-error": "^5.0.0",
+    "@octokit/request": "^9.0.0",
+    "@octokit/request-error": "^6.0.1",
     "@octokit/types": "^12.0.0",
     "deprecation": "^2.3.1",
     "lru-cache": "^10.0.0",
-    "universal-github-app-jwt": "^1.1.2",
-    "universal-user-agent": "^6.0.0"
+    "universal-github-app-jwt": "^2.0.6",
+    "universal-user-agent": "^7.0.0"
   },
   "devDependencies": {
     "@octokit/tsconfig": "^2.0.0",
@@ -50,11 +51,15 @@
     "typescript": "^5.0.0"
   },
   "jest": {
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "transform": {
       "^.+\\.(ts|tsx)$": [
         "ts-jest",
         {
-          "tsconfig": "test/tsconfig.test.json"
+          "tsconfig": "test/tsconfig.test.json",
+          "useESM": true
         }
       ]
     },

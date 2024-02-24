@@ -1,5 +1,5 @@
 import { request } from "@octokit/request";
-import fetchMock, { MockMatcherFunction } from "fetch-mock";
+import fetchMock, { type MockMatcherFunction } from "fetch-mock";
 import { Deprecation } from "deprecation";
 
 import { createAppAuth } from "../src/index.ts";
