@@ -1843,7 +1843,7 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
 
   expect(data).toEqual({ id: 123 });
   expect(mock.done()).toBe(true);
-}, 20000);
+});
 
 test("auth.hook(): fail with 401 after 5 seconds", async () => {
   const mock = fetchMock
@@ -1905,7 +1905,8 @@ test("auth.hook(): fail with 401 after 5 seconds", async () => {
   // it takes 3 retries until a total time of more than 5s pass
   await clock.tickAsync(1000);
   await clock.tickAsync(2000);
-  await clock.tickAsync(4000);
+  await clock.tickAsync(3000);
+  console.log("index.test.ts:1909", "date: " + +new Date());
 
   try {
     await promise;
