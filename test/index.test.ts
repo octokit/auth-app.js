@@ -1898,7 +1898,7 @@ test("auth.hook(): fail with 401 after 5 seconds", async () => {
     },
   });
 
-  const promise = await requestWithAuth("GET /repos/octocat/hello-world2");
+  const promise = requestWithAuth("GET /repos/octocat/hello-world2");
 
   // it takes 3 retries until a total time of more than 5s pass
   await clock.tickAsync(1000);
