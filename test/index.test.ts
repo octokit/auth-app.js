@@ -1856,14 +1856,19 @@ test("auth.hook(): fail with 401 after 5 seconds", async () => {
       },
       repository_selection: "all",
     })
-    .getOnce(
-      "https://api.github.com/repos/octocat/hello-world2",
-      {
-        status: 401,
-        body: {
-          message: "Bad credentials",
-          documentation_url: "https://docs.github.com/",
-        },
+    .get(
+      "https://api.github.com/repos/octocat/hello-world-401",
+      () => {
+        console.debug(
+          "GET /repos/octocat/hello-world-401: 401 Bad credentials",
+        );
+        return {
+          status: 401,
+          body: {
+            message: "Bad credentials",
+            documentation_url: "https://docs.github.com/",
+          },
+        };
       },
       {
         headers: {
@@ -1895,7 +1900,7 @@ test("auth.hook(): fail with 401 after 5 seconds", async () => {
     },
   });
 
-  const promise = requestWithAuth("GET /repos/octocat/hello-world2");
+  const promise = requestWithAuth("GET /repos/octocat/hello-world-401");
 
   // it takes 3 retries until a total time of more than 5s pass
   await clock.tickAsync(1000);
