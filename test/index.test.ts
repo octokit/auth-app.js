@@ -1,9 +1,11 @@
-import fetchMock, { MockMatcherFunction } from "fetch-mock";
+import fetchMock, { type MockMatcherFunction } from "fetch-mock";
 
 import { request } from "@octokit/request";
-import { install } from "@sinonjs/fake-timers";
+import { install, type InstalledClock } from "@sinonjs/fake-timers";
+import { jest } from "@jest/globals";
 
 import { createAppAuth, createOAuthUserAuth } from "../src/index.ts";
+import type { FactoryInstallation } from "../src/types.ts";
 
 const APP_ID = 1;
 const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
@@ -37,7 +39,7 @@ x//0u+zd/R/QRUzLOw4N72/Hu+UG6MNt5iDZFCtapRaKt6OvSBwy8w==
 const BEARER =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOi0zMCwiZXhwIjo1NzAsImlzcyI6MX0.q3foRa78U3WegM5PrWLEh5N0bH1SD62OqW66ZYzArp95JBNiCbo8KAlGtiRENCIfBZT9ibDUWy82cI4g3F09mdTq3bD1xLavIfmTksIQCz5EymTWR5v6gL14LSmQdWY9lSqkgUG0XCFljWUglEP39H4yeHbFgdjvAYg3ifDS12z9oQz2ACdSpvxPiTuCC804HkPVw8Qoy0OSXvCkFU70l7VXCVUxnuhHnk8-oCGcKUspmeP6UdDnXk-Aus-eGwDfJbU2WritxxaXw6B4a3flTPojkYLSkPBr6Pi0H2-mBsW_Nvs0aLPVLKobQd4gqTkosX3967DoAG8luUMhrnxe8Q";
 
-let clock: any;
+let clock: InstalledClock;
 beforeEach(() => {
   clock = install({ now: 0, toFake: ["Date", "setTimeout"] });
 });
@@ -1176,10 +1178,14 @@ test("caches based on installation id", async () => {
 
 test("supports custom cache", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest.fn().mockImplementation((key) => CACHE[key]);
-  const set = jest.fn().mockImplementation((key, value) => {
-    CACHE[key] = value;
-  });
+  const get = jest
+    .fn<(key: string) => string>()
+    .mockImplementation((key) => CACHE[key]);
+  const set = jest
+    .fn<(key: string, value: string) => void>()
+    .mockImplementation((key, value) => {
+      CACHE[key] = value;
+    });
 
   const requestMock = request.defaults({
     headers: {
@@ -1243,8 +1249,8 @@ test("supports custom cache", async () => {
 
   expect(get).toHaveBeenCalledTimes(4);
   expect(set).toHaveBeenCalledTimes(3);
-  expect(get).toBeCalledWith("123");
-  expect(set).toBeCalledWith(
+  expect(get).toHaveBeenCalledWith("123");
+  expect(set).toHaveBeenCalledWith(
     "123",
     "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   );
@@ -1260,10 +1266,14 @@ test("supports custom cache", async () => {
 
 test("supports custom cache with async get/set", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest.fn().mockImplementation(async (key) => CACHE[key]);
-  const set = jest.fn().mockImplementation(async (key, value) => {
-    CACHE[key] = value;
-  });
+  const get = jest
+    .fn<(key: string) => Promise<string>>()
+    .mockImplementation(async (key) => CACHE[key]);
+  const set = jest
+    .fn<(key: string, value: string) => Promise<void>>()
+    .mockImplementation(async (key, value) => {
+      CACHE[key] = value;
+    });
 
   const requestMock = request.defaults({
     headers: {
@@ -1305,8 +1315,8 @@ test("supports custom cache with async get/set", async () => {
 
   expect(get).toHaveBeenCalledTimes(2);
   expect(set).toHaveBeenCalledTimes(1);
-  expect(get).toBeCalledWith("123");
-  expect(set).toBeCalledWith(
+  expect(get).toHaveBeenCalledWith("123");
+  expect(set).toHaveBeenCalledWith(
     "123",
     "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
   );
@@ -2006,10 +2016,14 @@ test("oauth endpoint error", async () => {
 
 test("auth.hook() and custom cache", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest.fn().mockImplementation(async (key) => CACHE[key]);
-  const set = jest.fn().mockImplementation(async (key, value) => {
-    CACHE[key] = value;
-  });
+  const get = jest
+    .fn<(key: string) => Promise<string>>()
+    .mockImplementation(async (key) => CACHE[key]);
+  const set = jest
+    .fn<(key: string, value: string) => Promise<void>>()
+    .mockImplementation(async (key, value) => {
+      CACHE[key] = value;
+    });
 
   const mock = fetchMock
     .sandbox()
@@ -2200,7 +2214,9 @@ test("factory auth option", async () => {
     extra2: "value2",
   });
 
-  const factory = jest.fn().mockReturnValue({ token: "secret" });
+  const factory = jest
+    .fn<FactoryInstallation<any>>()
+    .mockReturnValue({ token: "secret" });
 
   const customAuth = await appAuth({
     type: "installation",

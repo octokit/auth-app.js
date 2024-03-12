@@ -69,8 +69,7 @@ Node
 Install with <code>npm install @octokit/auth-app</code>
 
 ```js
-const { createAppAuth } = require("@octokit/auth-app");
-// or: import { createAppAuth } from "@octokit/auth-app";
+import { createAppAuth } from "@octokit/auth-app";
 ```
 
 </td></tr>
@@ -225,8 +224,8 @@ Node
 Install with `npm install @octokit/core @octokit/auth-app`. Optionally replace `@octokit/core` with a compatible module
 
 ```js
-const { Octokit } = require("@octokit/core");
-const { createAppAuth, createOAuthUserAuth } = require("@octokit/auth-app");
+import { Octokit } from "@octokit/core";
+import { createAppAuth, createOAuthUserAuth } from "@octokit/auth-app";
 ```
 
 </td></tr>
@@ -382,7 +381,7 @@ Automatically set to `octokit.request` when using with an `Octokit` constructor.
 For standalone usage, you can pass in your own [`@octokit/request`](https://github.com/octokit/request.js) instance. For usage with enterprise, set `baseUrl` to the hostname + `/api/v3`. Example:
 
 ```js
-const { request } = require("@octokit/request");
+import { request } from "@octokit/request";
 createAppAuth({
   appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
@@ -431,10 +430,11 @@ createAppAuth({
         You can pass in your preferred logging tool by passing <code>option.log</code> to the constructor. If you would like to make the log level configurable using an environment variable or external option, we recommend the console-log-level package. For example:
 
 ```js
+import consoleLogLevel from "console-log-level";
 createAppAuth({
   appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
-  log: require("console-log-level")({ level: "info" }),
+  log: consoleLogLevel({ level: "info" }),
 });
 ```
 
@@ -674,10 +674,7 @@ The `auth({type: "oauth-user", factory })` call with resolve with whatever the f
 For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
 
 ```js
-const {
-  createAppAuth,
-  createOAuthUserAuth,
-} = require("@octokit/auth-oauth-app");
+import { createAppAuth, createOAuthUserAuth } from "@octokit/auth-oauth-app";
 
 const appAuth = createAppAuth({
   appId: 1,
@@ -807,10 +804,7 @@ The `auth({type: "oauth-user", factory })` call with resolve with whatever the f
 For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
 
 ```js
-const {
-  createAppAuth,
-  createOAuthUserAuth,
-} = require("@octokit/auth-oauth-app");
+import { createAppAuth, createOAuthUserAuth } from "@octokit/auth-oauth-app";
 
 const appAuth = createAppAuth({
   appId: 1,

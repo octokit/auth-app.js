@@ -1,4 +1,4 @@
-import { githubAppJwt } from "universal-github-app-jwt";
+import githubAppJwt from "universal-github-app-jwt";
 
 import type { AppAuthentication, State } from "./types.js";
 

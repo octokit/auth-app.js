@@ -9,7 +9,7 @@ import type {
   Permissions,
   InstallationAccessTokenData,
   REPOSITORY_SELECTION,
-} from "./types";
+} from "./types.js";
 
 export function getCache() {
   return new LRUCache<number, string>({
