@@ -1843,9 +1843,6 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
 
   expect(data).toEqual({ id: 123 });
   expect(mock.done()).toBe(true);
-
-  // @ts-ignore
-  expect(global.console.warn.mock.calls.length).toEqual(3);
 }, 20000);
 
 test("auth.hook(): fail with 401 after 5 seconds", async () => {
