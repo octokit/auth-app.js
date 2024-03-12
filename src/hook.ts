@@ -120,6 +120,13 @@ async function sendRequestWithRetries(
   retries: number = 0,
 ): Promise<AnyResponse> {
   const timeSinceTokenCreationInMs = +new Date() - +new Date(createdAt);
+  console.log(
+    "hooks.ts:123",
+    "date: " + +new Date() + ",",
+    "createdAt:" + +new Date(createdAt) + ",",
+    "timeSince: " + timeSinceTokenCreationInMs + ",",
+    ">=5s: " + (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS),
+  );
 
   try {
     return await request(options);
