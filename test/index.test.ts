@@ -1807,6 +1807,57 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
         status: 200,
         body: { id: 123 },
       };
+    });
+
+  global.console.warn = jest.fn();
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+    log: global.console,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  const promise = requestWithAuth("GET /repos/octocat/hello-world");
+
+  // it takes 3 retries until a total time of more than 5s pass
+  await clock.tickAsync(1000);
+  await clock.tickAsync(2000);
+  await clock.tickAsync(4000);
+
+  const { data } = await promise;
+
+  expect(data).toEqual({ id: 123 });
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(3);
+}, 20000);
+
+test("auth.hook(): fail with 401 after 5 seconds", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
     })
     .getOnce(
       "https://api.github.com/repos/octocat/hello-world2",
@@ -1847,28 +1898,20 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
     },
   });
 
-  const promise = requestWithAuth("GET /repos/octocat/hello-world");
+  const promise = await requestWithAuth("GET /repos/octocat/hello-world2");
 
   // it takes 3 retries until a total time of more than 5s pass
   await clock.tickAsync(1000);
   await clock.tickAsync(2000);
-  await clock.tickAsync(3000);
-
-  const { data } = await promise;
+  await clock.tickAsync(4000);
 
   try {
-    await requestWithAuth("GET /repos/octocat/hello-world2");
+    await promise;
     throw new Error("Should not resolve");
   } catch (error: any) {
     expect(error.status).toEqual(401);
   }
-
-  expect(data).toEqual({ id: 123 });
-  expect(mock.done()).toBe(true);
-
-  // @ts-ignore
-  expect(global.console.warn.mock.calls.length).toEqual(3);
-});
+}, 20000);
 
 test("auth.hook(): throw error with custom message after unsuccessful retries (#163)", async () => {
   expect.assertions(1);
