@@ -8,6 +8,7 @@ const PATHS = [
   "/app/installations/{installation_id}",
   "/app/installations/{installation_id}/access_tokens",
   "/app/installations/{installation_id}/suspended",
+  "/app/installation-requests",
   "/marketplace_listing/accounts/{account_id}",
   "/marketplace_listing/plan",
   "/marketplace_listing/plans",
