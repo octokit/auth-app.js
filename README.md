@@ -337,7 +337,7 @@ await installationOctokit.request("POST /repos/{owner}/{repo}/issues", {
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed.
+        <strong>Required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed. If your private key contains escaped newlines (`\\n`), they will be automatically replaced with actual newlines.
       </td>
     </tr>
     <tr>
