@@ -1778,6 +1778,162 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
   }
 });
 
+test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
+  const FIVE_SECONDS_IN_MS = 1000 * 5;
+
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", () => {
+      if (Date.now() < FIVE_SECONDS_IN_MS) {
+        return {
+          status: 401,
+          body: {
+            message: "Bad credentials",
+            documentation_url: "https://docs.github.com/",
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        body: { id: 123 },
+      };
+    })
+    .getOnce(
+      "https://api.github.com/repos/octocat/hello-world2",
+      {
+        status: 401,
+        body: {
+          message: "Bad credentials",
+          documentation_url: "https://docs.github.com/",
+        },
+      },
+      {
+        headers: {
+          authorization: "token secret123",
+        },
+      },
+    );
+
+  global.console.warn = jest.fn();
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+    log: global.console,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  const promise = requestWithAuth("GET /repos/octocat/hello-world");
+
+  // it takes 3 retries until a total time of more than 5s pass
+  // Note sure why the first advance is needed, but it helped unblock https://github.com/octokit/auth-app.js/pull/580
+  await jest.advanceTimersByTimeAsync(100);
+  await jest.advanceTimersByTimeAsync(1000);
+  await jest.advanceTimersByTimeAsync(2000);
+  await jest.advanceTimersByTimeAsync(3000);
+
+  const { data } = await promise;
+
+  try {
+    await requestWithAuth("GET /repos/octocat/hello-world2");
+    throw new Error("Should not resolve");
+  } catch (error: any) {
+    expect(error.status).toEqual(401);
+  }
+
+  expect(data).toEqual({ id: 123 });
+  expect(mock.done()).toBe(true);
+
+  // @ts-ignore
+  expect(global.console.warn.mock.calls.length).toEqual(3);
+});
+
+test("auth.hook(): throw error with custom message after unsuccessful retries (#163)", async () => {
+  expect.assertions(1);
+  global.console.warn = jest.fn();
+
+  const mock = fetchMock
+    .sandbox()
+    .postOnce("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .get("https://api.github.com/repos/octocat/hello-world", () => {
+      return {
+        status: 401,
+        body: {
+          message: "Bad credentials",
+          documentation_url: "https://docs.github.com/",
+        },
+      };
+    });
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  const promise = requestWithAuth("GET /repos/octocat/hello-world");
+
+  promise.catch((error) => {
+    expect(error.message).toBe(
+      `After 3 retries within 6s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`,
+    );
+  });
+
+  // it takes 3 retries until a total time of more than 5s pass
+  // Note sure why the first advance is needed, but it helped unblock https://github.com/octokit/auth-app.js/pull/580
+  await jest.advanceTimersByTimeAsync(100);
+  await jest.advanceTimersByTimeAsync(1000);
+  await jest.advanceTimersByTimeAsync(2000);
+  await jest.advanceTimersByTimeAsync(3000);
+  await jest.runAllTimersAsync();
+
+  await promise;
+});
+
 test("auth.hook(): throws on 500 error without retries", async () => {
   const mock = fetchMock
     .sandbox()
