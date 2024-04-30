@@ -1,4 +1,4 @@
-import * as OAuthAppAuth from "@octokit/auth-oauth-app";
+import type * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
 import type {
   Authentication,
