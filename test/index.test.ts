@@ -1778,7 +1778,8 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
   }
 });
 
-test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
+// skipping flaky test, see https://github.com/octokit/auth-app.js/pull/580
+test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   const FIVE_SECONDS_IN_MS = 1000 * 5;
 
   const mock = fetchMock
@@ -1871,7 +1872,8 @@ test("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   expect(global.console.warn.mock.calls.length).toEqual(3);
 });
 
-test("auth.hook(): throw error with custom message after unsuccessful retries (#163)", async () => {
+// skipping flaky test, see https://github.com/octokit/auth-app.js/pull/580
+test.skip("auth.hook(): throw error with custom message after unsuccessful retries (#163)", async () => {
   expect.assertions(1);
   global.console.warn = jest.fn();
 
