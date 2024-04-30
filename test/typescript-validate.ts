@@ -2,7 +2,7 @@
 // THIS CODE IS NOT EXECUTED. IT IS JUST FOR TYPECHECKING
 // ************************************************************
 
-import { createAppAuth } from "../src";
+import { createAppAuth } from "../src/index.js";
 function isString(what: string) {}
 
 export async function readmeExample() {

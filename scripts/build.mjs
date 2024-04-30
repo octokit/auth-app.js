@@ -45,8 +45,8 @@ async function main() {
     outdir: "pkg/dist-node",
     bundle: true,
     platform: "node",
-    target: "node14",
-    format: "cjs",
+    target: "node18",
+    format: "esm",
     ...sharedOptions,
   });
 
@@ -69,7 +69,14 @@ async function main() {
         files: ["dist-*/**", "bin/**"],
         main: "dist-node/index.js",
         types: "dist-types/index.d.ts",
-        source: "dist-src/index.js",
+        exports: {
+          ".": {
+            types: "./dist-types/index.d.ts",
+            import: "./dist-node/index.js",
+            // Tooling currently are having issues with the "exports" field when there is no "default", ex: TypeScript, eslint
+            default: "./dist-node/index.js",
+          },
+        },
         sideEffects: false,
       },
       null,

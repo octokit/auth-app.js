@@ -1,5 +1,4 @@
-import { Deprecation } from "deprecation";
-import * as OAuthAppAuth from "@octokit/auth-oauth-app";
+import type * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
 import type {
   Authentication,
@@ -86,14 +85,6 @@ export async function auth<T = unknown>(
   switch (authOptions.type) {
     case "app":
       return getAppAuthentication(state);
-    // @ts-expect-error "oauth" is not supported in types
-    case "oauth":
-      state.log.warn(
-        // @ts-expect-error `log.warn()` expects string
-        new Deprecation(
-          `[@octokit/auth-app] {type: "oauth"} is deprecated. Use {type: "oauth-app"} instead`,
-        ),
-      );
     case "oauth-app":
       return state.oauthApp({ type: "oauth-app" });
     case "installation":

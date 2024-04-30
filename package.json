@@ -4,15 +4,16 @@
     "access": "public",
     "provenance": true
   },
+  "type": "module",
   "version": "0.0.0-development",
   "description": "GitHub App authentication for JavaScript",
   "scripts": {
     "build": "node scripts/build.mjs && tsc -p tsconfig.json",
-    "lint": "prettier --check '{src,test}/**/*.{ts,md}' README.md *.json",
-    "lint:fix": "prettier --write '{src,test}/**/*.{ts,md}' README.md *.json",
+    "lint": "prettier --check '{src,test,scripts}/**/*.{ts,md}' README.md *.json",
+    "lint:fix": "prettier --write '{src,test,scripts}/**/*.{ts,md}' README.md *.json",
     "pretest": "npm run -s lint",
-    "test": "jest --coverage",
-    "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2018 --moduleResolution node test/typescript-validate.ts"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --coverage",
+    "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2022 --module node16 --moduleResolution node16 test/typescript-validate.ts"
   },
   "repository": "github:octokit/auth-app.js",
   "keywords": [
@@ -24,23 +25,20 @@
   "author": "Gregor Martynus (https://github.com/gr2m)",
   "license": "MIT",
   "dependencies": {
-    "@octokit/auth-oauth-app": "^7.1.0",
-    "@octokit/auth-oauth-user": "^4.1.0",
-    "@octokit/request": "^8.3.1",
-    "@octokit/request-error": "^5.1.0",
-    "@octokit/types": "^13.1.0",
-    "deprecation": "^2.3.1",
+    "@octokit/auth-oauth-app": "^8.1.0",
+    "@octokit/auth-oauth-user": "^5.1.0",
+    "@octokit/request": "^9.1.1",
+    "@octokit/request-error": "^6.1.1",
+    "@octokit/types": "^13.4.1",
     "lru-cache": "^10.0.0",
-    "universal-github-app-jwt": "^1.1.2",
-    "universal-user-agent": "^6.0.0"
+    "universal-github-app-jwt": "^2.0.6",
+    "universal-user-agent": "^7.0.0"
   },
   "devDependencies": {
-    "@octokit/tsconfig": "^2.0.0",
-    "@sinonjs/fake-timers": "^8.0.0",
+    "@octokit/tsconfig": "^3.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^29.0.0",
     "@types/node": "^20.0.0",
-    "@types/sinonjs__fake-timers": "^8.0.0",
     "esbuild": "^0.20.0",
     "fetch-mock": "npm:@gr2m/fetch-mock@9.11.0-pull-request-644.1",
     "glob": "^10.2.5",
@@ -51,11 +49,15 @@
     "typescript": "^5.0.0"
   },
   "jest": {
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "transform": {
       "^.+\\.(ts|tsx)$": [
         "ts-jest",
         {
-          "tsconfig": "test/tsconfig.test.json"
+          "tsconfig": "test/tsconfig.test.json",
+          "useESM": true
         }
       ]
     },

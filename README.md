@@ -69,13 +69,18 @@ Node
 Install with <code>npm install @octokit/auth-app</code>
 
 ```js
-const { createAppAuth } = require("@octokit/auth-app");
-// or: import { createAppAuth } from "@octokit/auth-app";
+import { createAppAuth } from "@octokit/auth-app";
 ```
 
 </td></tr>
 </tbody>
 </table>
+
+> [!IMPORTANT]
+> As we use [conditional exports](https://nodejs.org/api/packages.html#conditional-exports), you will need to adapt your `tsconfig.json` by setting `"moduleResolution": "node16", "module": "node16"`.
+>
+> See the TypeScript docs on [package.json "exports"](https://www.typescriptlang.org/docs/handbook/modules/reference.html#packagejson-exports).<br>
+> See this [helpful guide on transitioning to ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) from [@sindresorhus](https://github.com/sindresorhus)
 
 ### Authenticate as GitHub App (JSON Web Token)
 
@@ -225,8 +230,8 @@ Node
 Install with `npm install @octokit/core @octokit/auth-app`. Optionally replace `@octokit/core` with a compatible module
 
 ```js
-const { Octokit } = require("@octokit/core");
-const { createAppAuth, createOAuthUserAuth } = require("@octokit/auth-app");
+import { Octokit } from "@octokit/core";
+import { createAppAuth, createOAuthUserAuth } from "@octokit/auth-app";
 ```
 
 </td></tr>
@@ -332,7 +337,7 @@ await installationOctokit.request("POST /repos/{owner}/{repo}/issues", {
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed.
+        <strong>Required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed. If your private key contains escaped newlines (`\\n`), they will be automatically replaced with actual newlines.
       </td>
     </tr>
     <tr>
@@ -382,7 +387,7 @@ Automatically set to `octokit.request` when using with an `Octokit` constructor.
 For standalone usage, you can pass in your own [`@octokit/request`](https://github.com/octokit/request.js) instance. For usage with enterprise, set `baseUrl` to the hostname + `/api/v3`. Example:
 
 ```js
-const { request } = require("@octokit/request");
+import { request } from "@octokit/request";
 createAppAuth({
   appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
@@ -431,10 +436,11 @@ createAppAuth({
         You can pass in your preferred logging tool by passing <code>option.log</code> to the constructor. If you would like to make the log level configurable using an environment variable or external option, we recommend the console-log-level package. For example:
 
 ```js
+import consoleLogLevel from "console-log-level";
 createAppAuth({
   appId: 1,
   privateKey: "-----BEGIN PRIVATE KEY-----\n...",
-  log: require("console-log-level")({ level: "info" }),
+  log: consoleLogLevel({ level: "info" }),
 });
 ```
 
@@ -674,10 +680,7 @@ The `auth({type: "oauth-user", factory })` call with resolve with whatever the f
 For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
 
 ```js
-const {
-  createAppAuth,
-  createOAuthUserAuth,
-} = require("@octokit/auth-oauth-app");
+import { createAppAuth, createOAuthUserAuth } from "@octokit/auth-oauth-app";
 
 const appAuth = createAppAuth({
   appId: 1,
@@ -807,10 +810,7 @@ The `auth({type: "oauth-user", factory })` call with resolve with whatever the f
 For example, you can create a new `auth` instance for an installation which shares the internal state (especially the access token cache) with the calling `auth` instance:
 
 ```js
-const {
-  createAppAuth,
-  createOAuthUserAuth,
-} = require("@octokit/auth-oauth-app");
+import { createAppAuth, createOAuthUserAuth } from "@octokit/auth-oauth-app";
 
 const appAuth = createAppAuth({
   appId: 1,
