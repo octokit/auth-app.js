@@ -24,10 +24,10 @@
   "author": "Gregor Martynus (https://github.com/gr2m)",
   "license": "MIT",
   "dependencies": {
-    "@octokit/auth-oauth-app": "^7.1.0",
-    "@octokit/auth-oauth-user": "^4.1.0",
-    "@octokit/request": "^8.3.1",
-    "@octokit/request-error": "^5.1.0",
+    "@octokit/auth-oauth-app": "^8.0.0",
+    "@octokit/auth-oauth-user": "^5.0.0",
+    "@octokit/request": "^9.0.0",
+    "@octokit/request-error": "^6.0.0",
     "@octokit/types": "^13.1.0",
     "deprecation": "^2.3.1",
     "lru-cache": "^10.0.0",
@@ -35,7 +35,7 @@
     "universal-user-agent": "^6.0.0"
   },
   "devDependencies": {
-    "@octokit/tsconfig": "^2.0.0",
+    "@octokit/tsconfig": "^3.0.0",
     "@sinonjs/fake-timers": "^8.0.0",
     "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^29.0.0",
