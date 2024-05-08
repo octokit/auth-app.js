@@ -2,7 +2,12 @@
 // THIS CODE IS NOT EXECUTED. IT IS JUST FOR TYPECHECKING
 // ************************************************************
 
+import { getAppAuthentication } from "../src/get-app-authentication.js";
+import { request } from "@octokit/request";
 import { createAppAuth } from "../src/index.js";
+import { State, StrategyOptions } from "../src/types.js";
+import { getCache } from "../src/cache.js";
+import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 function isString(what: string) {}
 
 export async function readmeExample() {
@@ -30,4 +35,41 @@ export async function issue282() {
   });
 
   isString(authentication.token);
+}
+
+// https://github.com/octokit/auth-app.js/issues/603
+export async function issue603() {
+  createAppAuth({
+    appId: "1",
+    privateKey: "",
+  });
+
+  const options: StrategyOptions = {
+    appId: "1",
+    privateKey: "",
+  };
+
+  const state: State = Object.assign(
+    {
+      request,
+      cache: getCache(),
+    },
+    options,
+    options.installationId
+      ? { installationId: Number(options.installationId) }
+      : {},
+    {
+      log: {
+        warn: console.warn.bind(console),
+      },
+      oauthApp: createOAuthAppAuth({
+        clientType: "github-app",
+        clientId: options.clientId || "",
+        clientSecret: options.clientSecret || "",
+        request,
+      }),
+    },
+  );
+
+  getAppAuthentication(state);
 }
