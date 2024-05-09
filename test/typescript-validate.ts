@@ -40,12 +40,12 @@ export async function issue282() {
 // https://github.com/octokit/auth-app.js/issues/603
 export async function issue603() {
   createAppAuth({
-    appId: "1",
+    appId: "Iv1.0123456789abcdef",
     privateKey: "",
   });
 
   const options: StrategyOptions = {
-    appId: "1",
+    appId: "Iv1.0123456789abcdef",
     privateKey: "",
   };
 
