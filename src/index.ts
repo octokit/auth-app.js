@@ -31,11 +31,7 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
-  if (!Number.isFinite(+options.appId)) {
-    throw new Error(
-      "[@octokit/auth-app] appId option must be a number or numeric string",
-    );
-  }
+
   if (!options.privateKey) {
     throw new Error("[@octokit/auth-app] privateKey option is required");
   }

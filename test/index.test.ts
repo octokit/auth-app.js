@@ -2308,15 +2308,13 @@ it("throws helpful error if `appId` is not set (#184)", async () => {
   }).toThrowError("[@octokit/auth-app] appId option is required");
 });
 
-it("throws helpful error if `appId` is not set to a numeric value", async () => {
+it("allows passing an `appId` as a non numeric value", async () => {
   expect(() => {
     createAppAuth({
-      appId: "not-a-number",
+      appId: "Iv1.0123456789abcdef",
       privateKey: PRIVATE_KEY,
     });
-  }).toThrowError(
-    "[@octokit/auth-app] appId option must be a number or numeric string",
-  );
+  }).not.toThrow();
 });
 
 it("throws helpful error if `privateKey` is not set properly (#184)", async () => {

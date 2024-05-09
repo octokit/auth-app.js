@@ -31,7 +31,7 @@
     "@octokit/request-error": "^6.1.1",
     "@octokit/types": "^13.4.1",
     "lru-cache": "^10.0.0",
-    "universal-github-app-jwt": "^2.0.6",
+    "universal-github-app-jwt": "^2.2.0",
     "universal-user-agent": "^7.0.0"
   },
   "devDependencies": {
@@ -74,15 +74,6 @@
     }
   },
   "release": {
-    "branches": [
-      "+([0-9]).x",
-      "main",
-      "next",
-      {
-        "name": "beta",
-        "prerelease": true
-      }
-    ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",

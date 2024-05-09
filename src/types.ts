@@ -152,7 +152,7 @@ export type UTC_TIMESTAMP = string;
 export type AppAuthentication = {
   type: APP_TYPE;
   token: JWT;
-  appId: number;
+  appId: number | string;
   expiresAt: string;
 };
 
