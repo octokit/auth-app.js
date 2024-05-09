@@ -2308,7 +2308,7 @@ it("throws helpful error if `appId` is not set (#184)", async () => {
   }).toThrowError("[@octokit/auth-app] appId option is required");
 });
 
-it("throws helpful error if `appId` is not set to a numeric value", async () => {
+it("allows passing an `appId` as a non numeric value", async () => {
   expect(() => {
     createAppAuth({
       appId: "Iv1.0123456789abcdef",
