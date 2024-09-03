@@ -63,7 +63,7 @@ export async function hook(
       const diff = Math.floor(
         (Date.parse(error.response.headers.date) -
           Date.parse(new Date().toString())) /
-        1000,
+          1000,
       );
 
       state.log.warn(error.message);
@@ -92,7 +92,8 @@ export async function hook(
     state,
     // @ts-expect-error TBD
     {},
-    request.defaults({ baseUrl: endpoint.baseUrl }),
+    // request.defaults({ baseUrl: endpoint.baseUrl }),
+    request,
   );
 
   endpoint.headers.authorization = `token ${token}`;
@@ -131,8 +132,9 @@ async function sendRequestWithRetries(
 
     if (timeSinceTokenCreationInMs >= FIVE_SECONDS_IN_MS) {
       if (retries > 0) {
-        error.message = `After ${retries} retries within ${timeSinceTokenCreationInMs / 1000
-          }s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`;
+        error.message = `After ${retries} retries within ${
+          timeSinceTokenCreationInMs / 1000
+        }s of creating the installation access token, the response remains 401. At this point, the cause may be an authentication problem or a system outage. Please check https://www.githubstatus.com for status information`;
       }
       throw error;
     }
@@ -141,7 +143,8 @@ async function sendRequestWithRetries(
 
     const awaitTime = retries * 1000;
     state.log.warn(
-      `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${awaitTime / 1000
+      `[@octokit/auth-app] Retrying after 401 response to account for token replication delay (retry: ${retries}, wait: ${
+        awaitTime / 1000
       }s)`,
     );
     await new Promise((resolve) => setTimeout(resolve, awaitTime));
