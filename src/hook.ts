@@ -92,8 +92,7 @@ export async function hook(
     state,
     // @ts-expect-error TBD
     {},
-    // request.defaults({ baseUrl: endpoint.baseUrl }),
-    request,
+    request.defaults({ baseUrl: endpoint.baseUrl }),
   );
 
   endpoint.headers.authorization = `token ${token}`;
