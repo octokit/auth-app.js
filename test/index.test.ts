@@ -2393,3 +2393,55 @@ test("auth.hook() uses app auth even for requests with query strings. (#374)", a
 
   expect(mock.done()).toBe(true);
 });
+
+test("auth.hook() respects `baseUrl` passed as part of request parameters #640", async () => {
+  const mock = fetchMock
+    .sandbox()
+    .postOnce(
+      "https://not-api.github.com/app/installations/123/access_tokens",
+      {
+        token: "secret123",
+        expires_at: "1970-01-01T01:00:00.000Z",
+        permissions: {
+          metadata: "read",
+        },
+        repository_selection: "all",
+      },
+    )
+    .get(
+      "https://not-api.github.com/repos/octocat/hello-world",
+      { id: 123 },
+      {
+        headers: {
+          authorization: "token secret123",
+        },
+        repeat: 4,
+      },
+    );
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+  });
+
+  const requestWithMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: mock,
+    },
+  });
+  const requestWithAuth = requestWithMock.defaults({
+    request: {
+      hook: auth.hook,
+    },
+  });
+
+  const { data } = await requestWithAuth("GET /repos/octocat/hello-world", {
+    baseUrl: "https://not-api.github.com",
+  });
+
+  expect(data).toEqual({ id: 123 });
+});
