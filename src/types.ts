@@ -162,9 +162,9 @@ export type InstallationAccessTokenData = {
   expiresAt: UTC_TIMESTAMP;
   permissions: Permissions;
   repositorySelection: REPOSITORY_SELECTION;
-  repositoryIds?: number[];
-  repositoryNames?: string[];
-  singleFileName?: string;
+  repositoryIds?: number[] | undefined;
+  repositoryNames?: string[] | undefined;
+  singleFileName?: string | undefined;
 };
 
 export type CacheData = InstallationAccessTokenData;

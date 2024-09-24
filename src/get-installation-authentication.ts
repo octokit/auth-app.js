@@ -40,6 +40,7 @@ export async function getInstallationAuthentication(
       state.cache,
       optionsWithInstallationTokenFromState,
     );
+
     if (result) {
       const {
         token,
@@ -69,6 +70,30 @@ export async function getInstallationAuthentication(
   const appAuthentication = await getAppAuthentication(state);
   const request = customRequest || state.request;
 
+  const payload = {
+    installation_id: installationId,
+    mediaType: {
+      previews: ["machine-man"],
+    },
+    headers: {
+      authorization: `bearer ${appAuthentication.token}`,
+    },
+  };
+
+  if (options.repositoryIds) {
+    Object.assign(payload, { repository_ids: options.repositoryIds });
+  }
+
+  if (options.repositoryNames) {
+    Object.assign(payload, {
+      repositories: options.repositoryNames,
+    });
+  }
+
+  if (options.permissions) {
+    Object.assign(payload, { permissions: options.permissions });
+  }
+
   const {
     data: {
       token,
@@ -78,18 +103,10 @@ export async function getInstallationAuthentication(
       repository_selection: repositorySelectionOptional,
       single_file: singleFileName,
     },
-  } = await request("POST /app/installations/{installation_id}/access_tokens", {
-    installation_id: installationId,
-    repository_ids: options.repositoryIds,
-    repositories: options.repositoryNames,
-    permissions: options.permissions,
-    mediaType: {
-      previews: ["machine-man"],
-    },
-    headers: {
-      authorization: `bearer ${appAuthentication.token}`,
-    },
-  });
+  } = await request(
+    "POST /app/installations/{installation_id}/access_tokens",
+    payload,
+  );
 
   /* istanbul ignore next - permissions are optional per OpenAPI spec, but we think that is incorrect */
   const permissions = permissionsOptional || {};
@@ -105,7 +122,7 @@ export async function getInstallationAuthentication(
     : void 0;
 
   const createdAt = new Date().toISOString();
-  await set(state.cache, optionsWithInstallationTokenFromState, {
+  const cacheOptions = {
     token,
     createdAt,
     expiresAt,
@@ -113,10 +130,15 @@ export async function getInstallationAuthentication(
     permissions,
     repositoryIds,
     repositoryNames,
-    singleFileName,
-  });
+  };
 
-  return toTokenAuthentication({
+  if (singleFileName) {
+    Object.assign(payload, { singleFileName });
+  }
+
+  await set(state.cache, optionsWithInstallationTokenFromState, cacheOptions);
+
+  const cacheData = {
     installationId,
     token,
     createdAt,
@@ -125,6 +147,11 @@ export async function getInstallationAuthentication(
     permissions,
     repositoryIds,
     repositoryNames,
-    singleFileName,
-  });
+  };
+
+  if (singleFileName) {
+    Object.assign(cacheData, { singleFileName });
+  }
+
+  return toTokenAuthentication(cacheData);
 }
