@@ -162,8 +162,8 @@ export type InstallationAccessTokenData = {
   expiresAt: UTC_TIMESTAMP;
   permissions: Permissions;
   repositorySelection: REPOSITORY_SELECTION;
-  repositoryIds?: number[];
-  repositoryNames?: string[];
+  repositoryIds: number[] | undefined;
+  repositoryNames: string[] | undefined;
   singleFileName?: string;
 };
 
