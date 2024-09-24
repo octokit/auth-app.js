@@ -7,19 +7,21 @@ export async function getAppAuthentication({
   privateKey,
   timeDifference,
 }: State & {
-  timeDifference?: number;
+  timeDifference?: number | undefined;
 }): Promise<AppAuthentication> {
   try {
-    const appAuthentication = timeDifference
-      ? await githubAppJwt({
-          id: appId,
-          privateKey,
-          now: timeDifference && Math.floor(Date.now() / 1000) + timeDifference,
-        })
-      : await githubAppJwt({
-          id: appId,
-          privateKey,
-        });
+    const authOptions = {
+      id: appId,
+      privateKey,
+    };
+
+    if (timeDifference) {
+      Object.assign(authOptions, {
+        now: Math.floor(Date.now() / 1000) + timeDifference,
+      });
+    }
+
+    const appAuthentication = await githubAppJwt(authOptions);
 
     return {
       type: "app",

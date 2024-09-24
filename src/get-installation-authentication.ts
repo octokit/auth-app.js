@@ -40,6 +40,7 @@ export async function getInstallationAuthentication(
       state.cache,
       optionsWithInstallationTokenFromState,
     );
+
     if (result) {
       const {
         token,
@@ -52,7 +53,7 @@ export async function getInstallationAuthentication(
         repositorySelection,
       } = result;
 
-      const authParams = {
+      return toTokenAuthentication({
         installationId,
         token,
         createdAt,
@@ -61,15 +62,8 @@ export async function getInstallationAuthentication(
         repositorySelection,
         repositoryIds,
         repositoryNames,
-      };
-
-      if (singleFileName) {
-        Object.assign(authParams, {
-          singleFileName,
-        });
-      }
-
-      return toTokenAuthentication(authParams);
+        singleFileName,
+      });
     }
   }
 
