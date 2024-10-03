@@ -1,7 +1,7 @@
 import fetchMock, { type MockMatcherFunction } from "fetch-mock";
 
 import { request } from "@octokit/request";
-import { jest } from "@jest/globals";
+import { vi, beforeEach, test, expect } from "vitest";
 
 import { createAppAuth, createOAuthUserAuth } from "../src/index.ts";
 import type { FactoryInstallation } from "../src/types.ts";
@@ -39,7 +39,7 @@ const BEARER =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOi0zMCwiZXhwIjo1NzAsImlzcyI6MX0.q3foRa78U3WegM5PrWLEh5N0bH1SD62OqW66ZYzArp95JBNiCbo8KAlGtiRENCIfBZT9ibDUWy82cI4g3F09mdTq3bD1xLavIfmTksIQCz5EymTWR5v6gL14LSmQdWY9lSqkgUG0XCFljWUglEP39H4yeHbFgdjvAYg3ifDS12z9oQz2ACdSpvxPiTuCC804HkPVw8Qoy0OSXvCkFU70l7VXCVUxnuhHnk8-oCGcKUspmeP6UdDnXk-Aus-eGwDfJbU2WritxxaXw6B4a3flTPojkYLSkPBr6Pi0H2-mBsW_Nvs0aLPVLKobQd4gqTkosX3967DoAG8luUMhrnxe8Q";
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(0);
+  vi.useFakeTimers().setSystemTime(0);
 });
 
 test("README example for app auth", async () => {
@@ -976,7 +976,7 @@ test("oauth-user device flow", async () => {
         user_code: "usercode123",
         verification_uri: "https://github.com/login/device",
         expires_in: 900,
-        // use low number because jest.useFakeTimers() & jest.runAllTimers() didn't work for me
+        // use low number because vi.useFakeTimers() & vi.runAllTimers() didn't work for me
         interval: 0.005,
       },
       {
@@ -1026,7 +1026,7 @@ test("oauth-user device flow", async () => {
     }),
   });
 
-  const onVerification = jest.fn();
+  const onVerification = vi.fn();
   const authentication = await auth({
     type: "oauth-user",
     onVerification,
@@ -1176,10 +1176,10 @@ test("caches based on installation id", async () => {
 
 test("supports custom cache", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest
+  const get = vi
     .fn<(key: string) => string>()
     .mockImplementation((key) => CACHE[key]);
-  const set = jest
+  const set = vi
     .fn<(key: string, value: string) => void>()
     .mockImplementation((key, value) => {
       CACHE[key] = value;
@@ -1264,10 +1264,10 @@ test("supports custom cache", async () => {
 
 test("supports custom cache with async get/set", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest
+  const get = vi
     .fn<(key: string) => Promise<string>>()
     .mockImplementation(async (key) => CACHE[key]);
-  const set = jest
+  const set = vi
     .fn<(key: string, value: string) => Promise<void>>()
     .mockImplementation(async (key, value) => {
       CACHE[key] = value;
@@ -1537,7 +1537,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
       };
     });
 
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   const auth = createAppAuth({
     appId: APP_ID,
@@ -1579,7 +1579,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   const fakeTimeMs = 1029392939;
   const githubTimeMs = fakeTimeMs + 800000;
 
-  jest.setSystemTime(fakeTimeMs);
+  vi.setSystemTime(fakeTimeMs);
 
   const mock = fetchMock
     .sandbox()
@@ -1614,7 +1614,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
       };
     });
 
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   const auth = createAppAuth({
     appId: APP_ID,
@@ -1687,7 +1687,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
       };
     });
 
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   const auth = createAppAuth({
     appId: APP_ID,
@@ -1744,7 +1744,7 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
       },
     });
 
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   const auth = createAppAuth({
     appId: APP_ID,
@@ -1824,7 +1824,7 @@ test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
       },
     );
 
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   const auth = createAppAuth({
     appId: APP_ID,
@@ -1851,10 +1851,10 @@ test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
 
   // it takes 3 retries until a total time of more than 5s pass
   // Note sure why the first advance is needed, but it helped unblock https://github.com/octokit/auth-app.js/pull/580
-  await jest.advanceTimersByTimeAsync(100);
-  await jest.advanceTimersByTimeAsync(1000);
-  await jest.advanceTimersByTimeAsync(2000);
-  await jest.advanceTimersByTimeAsync(3000);
+  await vi.advanceTimersByTimeAsync(100);
+  await vi.advanceTimersByTimeAsync(1000);
+  await vi.advanceTimersByTimeAsync(2000);
+  await vi.advanceTimersByTimeAsync(3000);
 
   const { data } = await promise;
 
@@ -1875,7 +1875,7 @@ test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
 // skipping flaky test, see https://github.com/octokit/auth-app.js/pull/580
 test.skip("auth.hook(): throw error with custom message after unsuccessful retries (#163)", async () => {
   expect.assertions(1);
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   const mock = fetchMock
     .sandbox()
@@ -1927,11 +1927,11 @@ test.skip("auth.hook(): throw error with custom message after unsuccessful retri
 
   // it takes 3 retries until a total time of more than 5s pass
   // Note sure why the first advance is needed, but it helped unblock https://github.com/octokit/auth-app.js/pull/580
-  await jest.advanceTimersByTimeAsync(100);
-  await jest.advanceTimersByTimeAsync(1000);
-  await jest.advanceTimersByTimeAsync(2000);
-  await jest.advanceTimersByTimeAsync(3000);
-  await jest.runAllTimersAsync();
+  await vi.advanceTimersByTimeAsync(100);
+  await vi.advanceTimersByTimeAsync(1000);
+  await vi.advanceTimersByTimeAsync(2000);
+  await vi.advanceTimersByTimeAsync(3000);
+  await vi.runAllTimersAsync();
 
   await promise;
 });
@@ -1969,7 +1969,7 @@ test("auth.hook(): throws on 500 error without retries", async () => {
     },
   });
 
-  global.console.warn = jest.fn();
+  global.console.warn = vi.fn();
 
   try {
     await requestWithAuth("GET /repos/octocat/hello-world");
@@ -2025,10 +2025,10 @@ test("oauth endpoint error", async () => {
 
 test("auth.hook() and custom cache", async () => {
   const CACHE: { [key: string]: string } = {};
-  const get = jest
+  const get = vi
     .fn<(key: string) => Promise<string>>()
     .mockImplementation(async (key) => CACHE[key]);
-  const set = jest
+  const set = vi
     .fn<(key: string, value: string) => Promise<void>>()
     .mockImplementation(async (key, value) => {
       CACHE[key] = value;
@@ -2223,7 +2223,7 @@ test("factory auth option", async () => {
     extra2: "value2",
   });
 
-  const factory = jest
+  const factory = vi
     .fn<FactoryInstallation<any>>()
     .mockReturnValue({ token: "secret" });
 
@@ -2298,7 +2298,7 @@ test("Do not intercept auth.hook(request, 'POST https://github.com/login/oauth/a
   });
 });
 
-it("throws helpful error if `appId` is not set (#184)", async () => {
+test("throws helpful error if `appId` is not set (#184)", async () => {
   expect(() => {
     createAppAuth({
       // @ts-ignore
@@ -2308,7 +2308,7 @@ it("throws helpful error if `appId` is not set (#184)", async () => {
   }).toThrowError("[@octokit/auth-app] appId option is required");
 });
 
-it("allows passing an `appId` as a non numeric value", async () => {
+test("allows passing an `appId` as a non numeric value", async () => {
   expect(() => {
     createAppAuth({
       appId: "Iv1.0123456789abcdef",
@@ -2317,7 +2317,7 @@ it("allows passing an `appId` as a non numeric value", async () => {
   }).not.toThrow();
 });
 
-it("throws helpful error if `privateKey` is not set properly (#184)", async () => {
+test("throws helpful error if `privateKey` is not set properly (#184)", async () => {
   expect(() => {
     createAppAuth({
       appId: APP_ID,
@@ -2327,7 +2327,7 @@ it("throws helpful error if `privateKey` is not set properly (#184)", async () =
   }).toThrowError("[@octokit/auth-app] privateKey option is required");
 });
 
-it("throws helpful error if `installationId` is set to a falsy value in createAppAuth() (#184)", async () => {
+test("throws helpful error if `installationId` is set to a falsy value in createAppAuth() (#184)", async () => {
   expect(() => {
     createAppAuth({
       appId: APP_ID,
