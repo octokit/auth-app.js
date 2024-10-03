@@ -12,7 +12,7 @@
     "lint": "prettier --check '{src,test,scripts}/**/*.{ts,md}' README.md *.json",
     "lint:fix": "prettier --write '{src,test,scripts}/**/*.{ts,md}' README.md *.json",
     "pretest": "npm run -s lint",
-    "test": "vitest --run --coverage",
+    "test": "vitest run --coverage",
     "test:ui": "vitest --ui --coverage",
     "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2022 --module node16 --moduleResolution node16 --exactOptionalPropertyTypes test/typescript-validate.ts"
   },
