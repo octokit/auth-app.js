@@ -121,7 +121,7 @@ async function sendRequestWithRetries(
 ): Promise<AnyResponse> {
   const timeSinceTokenCreationInMs = +new Date() - +new Date(createdAt);
 
-  /* istanbul ignore next - due to skipped tests, see https://github.com/octokit/auth-app.js/pull/580 */
+  /* v8 ignore next - due to skipped tests, see https://github.com/octokit/auth-app.js/pull/580 */
   try {
     return await request(options);
   } catch (error: any) {

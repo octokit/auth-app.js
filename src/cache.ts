@@ -1,7 +1,7 @@
 // https://github.com/isaacs/node-lru-cache#readme
 import { LRUCache } from "lru-cache";
 
-/* istanbul ignore next */
+/* v8 ignore next */
 import type {
   InstallationAuthOptions,
   Cache,
