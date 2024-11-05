@@ -31,7 +31,7 @@
     "@octokit/request": "^9.1.1",
     "@octokit/request-error": "^6.1.1",
     "@octokit/types": "^13.4.1",
-    "lru-cache": "^10.0.0",
+    "lru-cache": "npm:@wolfy1339/lru-cache@^11.0.2-patch.1",
     "universal-github-app-jwt": "^2.2.0",
     "universal-user-agent": "^7.0.0"
   },
