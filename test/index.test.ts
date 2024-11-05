@@ -1,4 +1,4 @@
-import fetchMock, { MockMatcherFunction } from "fetch-mock";
+import fetchMock from "fetch-mock";
 
 import { request } from "@octokit/request";
 import { install } from "@sinonjs/fake-timers";
@@ -116,7 +116,7 @@ test("throws if incomplete Private Key is provided", async () => {
 });
 
 test("README example for installation auth", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: fetchMock.MockMatcherFunction = (
     url,
     { body, headers },
   ) => {
@@ -182,7 +182,7 @@ test("README example for installation auth", async () => {
 });
 
 test("README example for oauth", async () => {
-  const matchCreateOAuthAccessToken: MockMatcherFunction = (
+  const matchCreateOAuthAccessToken: fetchMock.MockMatcherFunction = (
     url,
     { body, headers },
   ) => {
@@ -333,7 +333,7 @@ test("installationId strategy option fails with no installationId", async () => 
 });
 
 test("repositoryIds auth option", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: fetchMock.MockMatcherFunction = (
     _url,
     { body },
   ) => {
@@ -398,7 +398,7 @@ test("repositoryIds auth option", async () => {
 });
 
 test("repositoryNames auth option", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: fetchMock.MockMatcherFunction = (
     _url,
     { body },
   ) => {
@@ -463,7 +463,7 @@ test("repositoryNames auth option", async () => {
 });
 
 test("Consistenly handling reposID & reposName", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: fetchMock.MockMatcherFunction = (
     _url,
     { body },
   ) => {
@@ -528,7 +528,7 @@ test("Consistenly handling reposID & reposName", async () => {
 });
 
 test("permissions auth option", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: fetchMock.MockMatcherFunction = (
     _url,
     { body },
   ) => {
@@ -764,11 +764,17 @@ test("installation auth with selected permissions from cache", async () => {
 });
 
 test("installation cache with different options", async () => {
-  const matchCreateAccessToken1: MockMatcherFunction = (_url, { body }) => {
+  const matchCreateAccessToken1: fetchMock.MockMatcherFunction = (
+    _url,
+    { body },
+  ) => {
     expect(body).toBeUndefined();
     return true;
   };
-  const matchCreateAccessToken2: MockMatcherFunction = (_url, { body }) => {
+  const matchCreateAccessToken2: fetchMock.MockMatcherFunction = (
+    _url,
+    { body },
+  ) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
         metadata: "read",
@@ -900,7 +906,7 @@ test("refresh option", async () => {
 });
 
 test("oauth-user web flow", async () => {
-  const matchCreateOAuthAccessToken: MockMatcherFunction = (
+  const matchCreateOAuthAccessToken: fetchMock.MockMatcherFunction = (
     url,
     { body, headers },
   ) => {

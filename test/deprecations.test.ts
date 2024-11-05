@@ -1,12 +1,12 @@
 import { request } from "@octokit/request";
-import fetchMock, { MockMatcherFunction } from "fetch-mock";
+import fetchMock from "fetch-mock";
 import { Deprecation } from "deprecation";
 
 import { createAppAuth } from "../src/index.ts";
 
 describe("deprecations", () => {
   test("auth({ type: 'oauth' }) - #263", async () => {
-    const matchCreateOAuthAccessToken: MockMatcherFunction = (
+    const matchCreateOAuthAccessToken: fetchMock.MockMatcherFunction = (
       url,
       { body, headers },
     ) => {
