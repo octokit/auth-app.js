@@ -30,7 +30,7 @@
     "@octokit/request-error": "^5.1.0",
     "@octokit/types": "^13.1.0",
     "deprecation": "^2.3.1",
-    "lru-cache": "^10.0.0",
+    "lru-cache": "npm:@wolfy1339/lru-cache@^11.0.2-patch.1",
     "universal-github-app-jwt": "^1.1.2",
     "universal-user-agent": "^6.0.0"
   },
