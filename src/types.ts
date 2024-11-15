@@ -1,5 +1,5 @@
 import type * as OctokitTypes from "@octokit/types";
-import type { LRUCache } from "lru-cache";
+import type { Lru } from "toad-cache";
 import type * as OAuthAppAuth from "@octokit/auth-oauth-app";
 
 // STRATEGY OPTIONS
@@ -134,7 +134,7 @@ export type Route = OctokitTypes.Route;
 export type RequestInterface = OctokitTypes.RequestInterface;
 
 export type Cache =
-  | LRUCache<string, string>
+  | Lru<string>
   | {
       get: (key: string) => string | Promise<string>;
       set: (key: string, value: string) => any;
