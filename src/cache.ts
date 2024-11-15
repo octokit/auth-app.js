@@ -1,5 +1,4 @@
-// https://github.com/isaacs/node-lru-cache#readme
-import { LRUCache } from "lru-cache";
+import { Lru } from "toad-cache";
 
 /* v8 ignore next */
 import type {
@@ -12,12 +11,12 @@ import type {
 } from "./types.js";
 
 export function getCache() {
-  return new LRUCache<number, string>({
+  return new Lru<string>(
     // cache max. 15000 tokens, that will use less than 10mb memory
-    max: 15000,
+    15000,
     // Cache for 1 minute less than GitHub expiry
-    ttl: 1000 * 60 * 59,
-  });
+    1000 * 60 * 59,
+  );
 }
 
 export async function get(
