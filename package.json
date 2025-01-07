@@ -26,11 +26,11 @@
   "author": "Gregor Martynus (https://github.com/gr2m)",
   "license": "MIT",
   "dependencies": {
-    "@octokit/auth-oauth-app": "^8.1.0",
-    "@octokit/auth-oauth-user": "^5.1.0",
-    "@octokit/request": "^9.1.1",
-    "@octokit/request-error": "^6.1.1",
-    "@octokit/types": "^13.4.1",
+    "@octokit/auth-oauth-app": "^8.1.2",
+    "@octokit/auth-oauth-user": "^5.1.2",
+    "@octokit/request": "^9.1.4",
+    "@octokit/request-error": "^6.1.6",
+    "@octokit/types": "^13.6.2",
     "toad-cache": "^3.7.0",
     "universal-github-app-jwt": "^2.2.0",
     "universal-user-agent": "^7.0.0"
