@@ -10,6 +10,11 @@ import type {
   REPOSITORY_SELECTION,
 } from "./types.js";
 
+export type CacheableInstallationAuthOptions = InstallationAuthOptions & {
+  installationId: number;
+  // TODO: consider baseUrl and appId too, so that we don't incorrectly cache tokens across them
+};
+
 export function getCache() {
   return new Lru<string>(
     // cache max. 15000 tokens, that will use less than 10mb memory
@@ -21,7 +26,7 @@ export function getCache() {
 
 export async function get(
   cache: Cache,
-  options: InstallationAuthOptions,
+  options: CacheableInstallationAuthOptions,
 ): Promise<InstallationAccessTokenData | void> {
   const cacheKey = optionsToCacheKey(options);
   const result = await cache.get(cacheKey);
@@ -66,7 +71,7 @@ export async function get(
 }
 export async function set(
   cache: Cache,
-  options: InstallationAuthOptions,
+  options: CacheableInstallationAuthOptions,
   data: CacheData,
 ): Promise<void> {
   const key = optionsToCacheKey(options);
@@ -91,12 +96,12 @@ export async function set(
   await cache.set(key, value);
 }
 
-function optionsToCacheKey({
+export function optionsToCacheKey({
   installationId,
   permissions = {},
   repositoryIds = [],
   repositoryNames = [],
-}: InstallationAuthOptions) {
+}: CacheableInstallationAuthOptions) {
   const permissionsString = Object.keys(permissions)
     .sort()
     .map((name) => (permissions[name] === "read" ? name : `${name}!`))
