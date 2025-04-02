@@ -58,6 +58,11 @@ export type InstallationAuthOptionsWithFactory<T> = {
   [key: string]: unknown;
 };
 
+// normalized installation auth options that can be used for caching
+export type CacheableInstallationAuthOptions = InstallationAuthOptions & {
+  installationId: number;
+};
+
 export type OAuthAppAuthOptions = OAuthAppAuth.AppAuthOptions;
 export type OAuthWebFlowAuthOptions = OAuthAppAuth.WebFlowAuthOptions;
 export type OAuthDeviceFlowAuthOptions =

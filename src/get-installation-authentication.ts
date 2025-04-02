@@ -1,9 +1,4 @@
-import {
-  get,
-  optionsToCacheKey,
-  set,
-  type CacheableInstallationAuthOptions,
-} from "./cache.js";
+import { get, optionsToCacheKey, set } from "./cache.js";
 import { getAppAuthentication } from "./get-app-authentication.js";
 import { toTokenAuthentication } from "./to-token-authentication.js";
 import type {
@@ -11,6 +6,7 @@ import type {
   InstallationAccessTokenAuthentication,
   RequestInterface,
   State,
+  CacheableInstallationAuthOptions,
 } from "./types.js";
 
 export async function getInstallationAuthentication(

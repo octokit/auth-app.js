@@ -2,18 +2,13 @@ import { Lru } from "toad-cache";
 
 /* v8 ignore next */
 import type {
-  InstallationAuthOptions,
+  CacheableInstallationAuthOptions,
   Cache,
   CacheData,
   Permissions,
   InstallationAccessTokenData,
   REPOSITORY_SELECTION,
 } from "./types.js";
-
-export type CacheableInstallationAuthOptions = InstallationAuthOptions & {
-  installationId: number;
-  // TODO: consider baseUrl and appId too, so that we don't incorrectly cache tokens across them
-};
 
 export function getCache() {
   return new Lru<string>(
@@ -96,6 +91,7 @@ export async function set(
   await cache.set(key, value);
 }
 
+// TODO: consider baseUrl and appId too, so that we don't incorrectly cache tokens across them
 export function optionsToCacheKey({
   installationId,
   permissions = {},
