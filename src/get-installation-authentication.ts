@@ -1,4 +1,4 @@
-import { get, set } from "./cache.js";
+import { get, optionsToCacheKey, set } from "./cache.js";
 import { getAppAuthentication } from "./get-app-authentication.js";
 import { toTokenAuthentication } from "./to-token-authentication.js";
 import type {
@@ -6,6 +6,7 @@ import type {
   InstallationAccessTokenAuthentication,
   RequestInterface,
   State,
+  CacheableInstallationAuthOptions,
 } from "./types.js";
 
 export async function getInstallationAuthentication(
@@ -30,16 +31,45 @@ export async function getInstallationAuthentication(
     return factory(factoryAuthOptions);
   }
 
-  const optionsWithInstallationTokenFromState = Object.assign(
-    { installationId },
-    options,
-  );
+  const request = customRequest || state.request;
 
+  return getInstallationAuthenticationConcurrently(
+    state,
+    { ...options, installationId },
+    request,
+  );
+}
+
+const pendingPromises = new Map<
+  string,
+  Promise<InstallationAccessTokenAuthentication>
+>();
+
+function getInstallationAuthenticationConcurrently(
+  state: State,
+  options: CacheableInstallationAuthOptions,
+  request: RequestInterface,
+) {
+  const cacheKey = optionsToCacheKey(options);
+  if (pendingPromises.has(cacheKey)) {
+    return pendingPromises.get(cacheKey)!;
+  }
+  const promise = getInstallationAuthenticationImpl(
+    state,
+    options,
+    request,
+  ).finally(() => pendingPromises.delete(cacheKey));
+  pendingPromises.set(cacheKey, promise);
+  return promise;
+}
+
+async function getInstallationAuthenticationImpl(
+  state: State,
+  options: CacheableInstallationAuthOptions,
+  request: RequestInterface,
+) {
   if (!options.refresh) {
-    const result = await get(
-      state.cache,
-      optionsWithInstallationTokenFromState,
-    );
+    const result = await get(state.cache, options);
 
     if (result) {
       const {
@@ -54,7 +84,7 @@ export async function getInstallationAuthentication(
       } = result;
 
       return toTokenAuthentication({
-        installationId,
+        installationId: options.installationId,
         token,
         createdAt,
         expiresAt,
@@ -68,10 +98,9 @@ export async function getInstallationAuthentication(
   }
 
   const appAuthentication = await getAppAuthentication(state);
-  const request = customRequest || state.request;
 
   const payload = {
-    installation_id: installationId,
+    installation_id: options.installationId,
     mediaType: {
       previews: ["machine-man"],
     },
@@ -136,10 +165,10 @@ export async function getInstallationAuthentication(
     Object.assign(payload, { singleFileName });
   }
 
-  await set(state.cache, optionsWithInstallationTokenFromState, cacheOptions);
+  await set(state.cache, options, cacheOptions);
 
   const cacheData = {
-    installationId,
+    installationId: options.installationId,
     token,
     createdAt,
     expiresAt,

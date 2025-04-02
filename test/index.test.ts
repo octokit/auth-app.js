@@ -1,10 +1,12 @@
-import fetchMock, { type MockMatcherFunction } from "fetch-mock";
+import fetchMock from "fetch-mock";
 
 import { request } from "@octokit/request";
 import { vi, beforeEach, test, expect } from "vitest";
 
 import { createAppAuth, createOAuthUserAuth } from "../src/index.ts";
 import type { FactoryInstallation } from "../src/types.ts";
+
+type MockMatcherFunction = fetchMock.MockMatcherFunction;
 
 const APP_ID = 1;
 const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
@@ -395,6 +397,111 @@ test("repositoryIds auth option", async () => {
     repositoryNames: ["repoOne", "repoTwo", "repoThree"],
     repositorySelection: "all",
   });
+});
+
+test("installationId strategy option coalesces concurrent calls with the same options", async () => {
+  const sandbox = fetchMock
+    .sandbox()
+    .post("https://api.github.com/app/installations/123/access_tokens", {
+      token: "secret123",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    })
+    .postOnce("https://api.github.com/app/installations/234/access_tokens", {
+      token: "secret234",
+      expires_at: "1970-01-01T01:00:00.000Z",
+      permissions: {
+        metadata: "read",
+      },
+      repository_selection: "all",
+    });
+  const requestMock = request.defaults({
+    headers: {
+      "user-agent": "test",
+    },
+    request: {
+      fetch: sandbox,
+    },
+  });
+
+  const auth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 123,
+    request: requestMock,
+  });
+  const unrelatedAuth = createAppAuth({
+    appId: APP_ID,
+    privateKey: PRIVATE_KEY,
+    installationId: 234,
+    request: requestMock,
+  });
+
+  const authentications = await Promise.all([
+    auth({ type: "installation", refresh: true }),
+    auth({ type: "installation", refresh: true }),
+    unrelatedAuth({ type: "installation", refresh: true }),
+  ]);
+  expect(authentications[0]).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read",
+    },
+    createdAt: "1970-01-01T00:00:00.000Z",
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositorySelection: "all",
+  });
+  // same result as the first one
+  expect(authentications[1]).toBe(authentications[0]);
+  // and only request was made
+  expect(
+    sandbox.calls("https://api.github.com/app/installations/123/access_tokens")
+      .length,
+  ).toBe(1);
+
+  // whereas the auth for the unrelated installation got a different token
+  expect(authentications[2]).toEqual({
+    type: "token",
+    token: "secret234",
+    tokenType: "installation",
+    installationId: 234,
+    permissions: {
+      metadata: "read",
+    },
+    createdAt: "1970-01-01T00:00:00.000Z",
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositorySelection: "all",
+  });
+
+  // now that the original auth call has resolved, if we do it again it will actually run
+  const laterAuthentication = await auth({
+    type: "installation",
+    refresh: true,
+  });
+  expect(laterAuthentication).toEqual({
+    type: "token",
+    token: "secret123",
+    tokenType: "installation",
+    installationId: 123,
+    permissions: {
+      metadata: "read",
+    },
+    createdAt: "1970-01-01T00:00:00.000Z",
+    expiresAt: "1970-01-01T01:00:00.000Z",
+    repositorySelection: "all",
+  });
+
+  // a fresh request was made
+  expect(
+    sandbox.calls("https://api.github.com/app/installations/123/access_tokens")
+      .length,
+  ).toBe(2);
 });
 
 test("repositoryNames auth option", async () => {

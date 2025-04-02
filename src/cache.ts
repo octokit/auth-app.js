@@ -2,7 +2,7 @@ import { Lru } from "toad-cache";
 
 /* v8 ignore next */
 import type {
-  InstallationAuthOptions,
+  CacheableInstallationAuthOptions,
   Cache,
   CacheData,
   Permissions,
@@ -21,7 +21,7 @@ export function getCache() {
 
 export async function get(
   cache: Cache,
-  options: InstallationAuthOptions,
+  options: CacheableInstallationAuthOptions,
 ): Promise<InstallationAccessTokenData | void> {
   const cacheKey = optionsToCacheKey(options);
   const result = await cache.get(cacheKey);
@@ -66,7 +66,7 @@ export async function get(
 }
 export async function set(
   cache: Cache,
-  options: InstallationAuthOptions,
+  options: CacheableInstallationAuthOptions,
   data: CacheData,
 ): Promise<void> {
   const key = optionsToCacheKey(options);
@@ -91,12 +91,13 @@ export async function set(
   await cache.set(key, value);
 }
 
-function optionsToCacheKey({
+// TODO: consider baseUrl and appId too, so that we don't incorrectly cache tokens across them
+export function optionsToCacheKey({
   installationId,
   permissions = {},
   repositoryIds = [],
   repositoryNames = [],
-}: InstallationAuthOptions) {
+}: CacheableInstallationAuthOptions) {
   const permissionsString = Object.keys(permissions)
     .sort()
     .map((name) => (permissions[name] === "read" ? name : `${name}!`))
