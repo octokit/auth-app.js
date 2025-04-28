@@ -16,7 +16,9 @@ import type {
 const FIVE_SECONDS_IN_MS = 5 * 1000;
 
 function isNotTimeSkewError(error: RequestError) {
-  return !(
+  return !(error.message.match(
+      /'Expiration time' claim \('exp'\) is too far in the future/,
+    ) ||
     error.message.match(
       /'Expiration time' claim \('exp'\) must be a numeric value representing the future time at which the assertion expires/,
     ) ||
