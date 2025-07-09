@@ -406,7 +406,7 @@ createAppAuth({
         <code>object</code>
       </th>
       <td>
-        Installation tokens expire after an hour. By default, <code>@octokit/auth-app</code> is caching up to 15000 tokens simultaneously using <a href="https://github.com/isaacs/node-lru-cache">lru-cache</a>. You can pass your own cache implementation by passing <code>options.cache.{get,set}</code> to the constructor. Example:
+        Installation tokens expire after an hour. By default, <code>@octokit/auth-app</code> is caching up to 15000 tokens simultaneously using <a href="https://github.com/kibertoad/toad-cache">toad-cache</a>. You can pass your own cache implementation by passing <code>options.cache.{get,set}</code> to the constructor. Example:
 
 ```js
 const CACHE = {};
