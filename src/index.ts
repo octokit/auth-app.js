@@ -44,7 +44,7 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   /**
    * Mutate the logger to ensure it has a `warn` method.
    *
-   * Some Loggers like pino need that the this reference point
+   * Some Loggers like pino need that the `this` reference points
    * to the original object, so we cannot use `Object.assign` here.
    */
   const log = options.log || ({} as NonNullable<StrategyOptions["log"]>);
