@@ -42,7 +42,7 @@
     "@vitest/ui": "^3.0.0",
     "esbuild": "^0.25.0",
     "fetch-mock": "^11.0.0",
-    "prettier": "3.5.3",
+    "prettier": "3.6.2",
     "semantic-release-plugin-update-version-in-files": "^2.0.0",
     "tinyglobby": "^0.2.13",
     "typescript": "^5.0.0",
