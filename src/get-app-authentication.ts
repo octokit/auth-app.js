@@ -17,13 +17,13 @@ export async function getAppAuthentication({
         type: "app",
         token: jwt,
         appId,
-        expiresAt: expiresAt.toISOString(),
+        expiresAt,
       };
     }
 
     const authOptions = {
       id: appId,
-      privateKey,
+      privateKey: privateKey as string,
     };
 
     if (timeDifference) {

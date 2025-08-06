@@ -36,9 +36,12 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
-  const appOnlyOptions = options as unknown as AppAuthOptions;
-  if (!options.privateKey && !appOnlyOptions.externalSignJwt) {
+  if (!options.privateKey && !options.externalSignJwt) {
     throw new Error("[@octokit/auth-app] privateKey option is required");
+  } else if (options.privateKey && options.externalSignJwt) {
+    throw new Error(
+      "[@octokit/auth-app] privateKey and externalSignJwt options are mutually exclusive",
+    );
   }
   if ("installationId" in options && !options.installationId) {
     throw new Error(
