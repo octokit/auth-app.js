@@ -28,6 +28,9 @@ export type StrategyOptions = OAuthStrategyOptions &
 // AUTH OPTIONS
 
 export type AppAuthOptions = {
+  externalSignJwt?: (
+    clientIdOrAppId: string | number,
+  ) => Promise<{ jwt: string; expiresAt: Date }>;
   type: "app";
 };
 
@@ -196,8 +199,9 @@ export type WithInstallationId = {
   installationId: number;
 };
 
-export type State = Required<Omit<CommonStrategyOptions, "installationId">> & {
-  installationId?: number;
-} & OAuthStrategyOptions & {
+export type State = Required<Omit<CommonStrategyOptions, "installationId">> &
+  Pick<AppAuthOptions, "externalSignJwt"> & {
+    installationId?: number;
+  } & OAuthStrategyOptions & {
     oauthApp: OAuthAppAuth.GitHubAuthInterface;
   };

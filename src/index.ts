@@ -5,7 +5,12 @@ import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 import { auth } from "./auth.js";
 import { hook } from "./hook.js";
 import { getCache } from "./cache.js";
-import type { AuthInterface, State, StrategyOptions } from "./types.js";
+import type {
+  AppAuthOptions,
+  AuthInterface,
+  State,
+  StrategyOptions,
+} from "./types.js";
 import { VERSION } from "./version.js";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";
@@ -31,8 +36,8 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
-
-  if (!options.privateKey) {
+  const appOnlyOptions = options as unknown as AppAuthOptions;
+  if (!options.privateKey && !appOnlyOptions.externalSignJwt) {
     throw new Error("[@octokit/auth-app] privateKey option is required");
   }
   if ("installationId" in options && !options.installationId) {
