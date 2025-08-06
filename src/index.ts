@@ -5,12 +5,7 @@ import { createOAuthAppAuth } from "@octokit/auth-oauth-app";
 import { auth } from "./auth.js";
 import { hook } from "./hook.js";
 import { getCache } from "./cache.js";
-import type {
-  AppAuthOptions,
-  AuthInterface,
-  State,
-  StrategyOptions,
-} from "./types.js";
+import type { AuthInterface, State, StrategyOptions } from "./types.js";
 import { VERSION } from "./version.js";
 
 export { createOAuthUserAuth } from "@octokit/auth-oauth-user";

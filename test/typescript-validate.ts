@@ -22,6 +22,17 @@ export async function readmeExample() {
   await auth({ type: "oauth-user", code: "123456" });
 }
 
+export async function readmeExternalJwtSigningExample() {
+  const auth = createAppAuth({
+    appId: 1,
+    externalSignJwt: async (clientId: string | number) => {
+      return { jwt: "", expiresAt: "" };
+    },
+  });
+
+  await auth({ type: "app" });
+}
+
 // https://github.com/octokit/auth-app.js/issues/282
 export async function issue282() {
   const auth = createAppAuth({
