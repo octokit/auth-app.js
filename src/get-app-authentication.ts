@@ -6,13 +6,24 @@ export async function getAppAuthentication({
   appId,
   privateKey,
   timeDifference,
+  externalSignJwt,
 }: State & {
   timeDifference?: number | undefined;
 }): Promise<AppAuthentication> {
   try {
+    if (externalSignJwt) {
+      const { jwt, expiresAt } = await externalSignJwt(appId);
+      return {
+        type: "app",
+        token: jwt,
+        appId,
+        expiresAt,
+      };
+    }
+
     const authOptions = {
       id: appId,
-      privateKey,
+      privateKey: privateKey as string,
     };
 
     if (timeDifference) {
