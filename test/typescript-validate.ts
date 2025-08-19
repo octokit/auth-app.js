@@ -22,10 +22,13 @@ export async function readmeExample() {
   await auth({ type: "oauth-user", code: "123456" });
 }
 
-export async function readmeExternalJwtSigningExample() {
+export async function readmeJwtSigningExample() {
   const auth = createAppAuth({
     appId: 1,
-    externalSignJwt: async (clientId: string | number) => {
+    signJwt: async (
+      clientId: string | number,
+      timeDifference: number | undefined,
+    ) => {
       return { jwt: "", expiresAt: "" };
     },
   });

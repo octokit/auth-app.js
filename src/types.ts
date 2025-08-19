@@ -13,9 +13,10 @@ type AppAuthStrategyOptions = {
   privateKey: string;
 };
 
-type AppAuthExternalSigningStrategyOptions = {
-  externalSignJwt: (
+type AppAuthJwtSigningStrategyOptions = {
+  signJwt: (
     clientIdOrAppId: string | number,
+    timeDifference: number | undefined,
   ) => Promise<{ jwt: string; expiresAt: string }>;
 };
 
@@ -32,12 +33,12 @@ type CommonStrategyOptions = {
 
 export type StrategyOptions = OAuthStrategyOptions &
   CommonStrategyOptions &
-  (AppAuthStrategyOptions | AppAuthExternalSigningStrategyOptions) &
+  (AppAuthStrategyOptions | AppAuthJwtSigningStrategyOptions) &
   Record<string, unknown>;
 
 // AUTH OPTIONS
 
-export type AppAuthOptions = Partial<AppAuthExternalSigningStrategyOptions> & {
+export type AppAuthOptions = Partial<AppAuthJwtSigningStrategyOptions> & {
   type: "app";
 };
 
@@ -98,7 +99,7 @@ export interface FactoryInstallation<T> {
 export interface AuthInterface {
   // app auth
   (
-    options: AppAuthOptions | AppAuthExternalSigningStrategyOptions,
+    options: AppAuthOptions | AppAuthJwtSigningStrategyOptions,
   ): Promise<AppAuthentication>;
   (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
 
@@ -210,7 +211,7 @@ export type WithInstallationId = {
 
 export type State = Required<Omit<CommonStrategyOptions, "installationId">> &
   Pick<Partial<AppAuthStrategyOptions>, "privateKey"> &
-  Pick<Partial<AppAuthExternalSigningStrategyOptions>, "externalSignJwt"> & {
+  Pick<Partial<AppAuthJwtSigningStrategyOptions>, "signJwt"> & {
     installationId?: number;
   } & OAuthStrategyOptions & {
     oauthApp: OAuthAppAuth.GitHubAuthInterface;

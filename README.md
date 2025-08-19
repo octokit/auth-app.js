@@ -109,15 +109,17 @@ resolves with
 
 ### Authenticate as GitHub App (remotely-signed JSON Web Token)
 
-If your app's private key is stored in a key management service, hardware security
-module, or similar, you can use the `externalSignJwt` option to sign the JWT remotely,
-where you provide an async callback to perform the token signing.
+If your app's private key is stored in a key management service or hardware security
+module, you can use the `signJwt` option instead of a private key to remotely sign a
+JWT. You provide an async callback to perform the token signing.
 
 ```js
 const auth = createAppAuth({
   appId: 1,
-  externalSignJwt: async (clientId) => {
+  signJwt: async (clientId, timeDifference) => {
     // ... sign the JWT remotely
+    // universal-github-app-jwt accounts for clock skew by issuing at -30s from now
+    // if a timeDifference is present, add that to the seconds
     return { jwt, expiresAt };
   }
   clientId: "lv1.1234567890abcdef",

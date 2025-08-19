@@ -31,11 +31,11 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
-  if (!options.privateKey && !options.externalSignJwt) {
+  if (!options.privateKey && !options.signJwt) {
     throw new Error("[@octokit/auth-app] privateKey option is required");
-  } else if (options.privateKey && options.externalSignJwt) {
+  } else if (options.privateKey && options.signJwt) {
     throw new Error(
-      "[@octokit/auth-app] privateKey and externalSignJwt options are mutually exclusive",
+      "[@octokit/auth-app] privateKey and signJwt options are mutually exclusive",
     );
   }
   if ("installationId" in options && !options.installationId) {
