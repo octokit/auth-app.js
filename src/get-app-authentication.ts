@@ -6,13 +6,13 @@ export async function getAppAuthentication({
   appId,
   privateKey,
   timeDifference,
-  signJwt,
+  createJwt,
 }: State & {
   timeDifference?: number | undefined;
 }): Promise<AppAuthentication> {
   try {
-    if (signJwt) {
-      const { jwt, expiresAt } = await signJwt(appId, timeDifference);
+    if (createJwt) {
+      const { jwt, expiresAt } = await createJwt(appId, timeDifference);
       return {
         type: "app",
         token: jwt,

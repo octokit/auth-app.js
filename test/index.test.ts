@@ -66,7 +66,7 @@ test("README example for app auth", async () => {
 test("README example for app auth via external JWT signing", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
-    signJwt: SIGN_JWT_CALLBACK,
+    createJwt: SIGN_JWT_CALLBACK,
   });
 
   const authentication = await auth({ type: "app" });
@@ -2453,25 +2453,25 @@ test("throws helpful error if `privateKey` is not set properly (#184)", async ()
   }).toThrowError("[@octokit/auth-app] privateKey option is required");
 });
 
-test("throws helpful error if `privateKey` and `signJwt` are both set", async () => {
+test("throws helpful error if `privateKey` and `createJwt` are both set", async () => {
   expect(() => {
     createAppAuth({
       appId: APP_ID,
       // @ts-ignore
       privateKey: PRIVATE_KEY,
       // @ts-ignore
-      signJwt: SIGN_JWT_CALLBACK,
+      createJwt: SIGN_JWT_CALLBACK,
     });
   }).toThrowError(
-    "[@octokit/auth-app] privateKey and signJwt options are mutually exclusive",
+    "[@octokit/auth-app] privateKey and createJwt options are mutually exclusive",
   );
 });
 
-test("does not throw an error if an `signJwt` callback is provided in lieu of a `privateKey`", async () => {
+test("does not throw an error if an `createJwt` callback is provided in lieu of a `privateKey`", async () => {
   expect(() => {
     createAppAuth({
       appId: APP_ID,
-      signJwt: SIGN_JWT_CALLBACK,
+      createJwt: SIGN_JWT_CALLBACK,
       // // @ts-ignore
       // privateKey: undefined,
     });

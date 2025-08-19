@@ -14,7 +14,7 @@ type AppAuthStrategyOptions = {
 };
 
 type AppAuthJwtSigningStrategyOptions = {
-  signJwt: (
+  createJwt: (
     clientIdOrAppId: string | number,
     timeDifference: number | undefined,
   ) => Promise<{ jwt: string; expiresAt: string }>;
@@ -211,7 +211,7 @@ export type WithInstallationId = {
 
 export type State = Required<Omit<CommonStrategyOptions, "installationId">> &
   Pick<Partial<AppAuthStrategyOptions>, "privateKey"> &
-  Pick<Partial<AppAuthJwtSigningStrategyOptions>, "signJwt"> & {
+  Pick<Partial<AppAuthJwtSigningStrategyOptions>, "createJwt"> & {
     installationId?: number;
   } & OAuthStrategyOptions & {
     oauthApp: OAuthAppAuth.GitHubAuthInterface;

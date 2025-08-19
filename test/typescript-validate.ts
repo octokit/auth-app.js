@@ -25,7 +25,7 @@ export async function readmeExample() {
 export async function readmeJwtSigningExample() {
   const auth = createAppAuth({
     appId: 1,
-    signJwt: async (
+    createJwt: async (
       clientId: string | number,
       timeDifference: number | undefined,
     ) => {

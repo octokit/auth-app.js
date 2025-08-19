@@ -110,13 +110,13 @@ resolves with
 ### Authenticate as GitHub App (remotely-signed JSON Web Token)
 
 If your app's private key is stored in a key management service or hardware security
-module, you can use the `signJwt` option instead of a private key to remotely sign a
+module, you can use the `createJwt` option instead of a private key to remotely sign a
 JWT. You provide an async callback to perform the token signing.
 
 ```js
 const auth = createAppAuth({
   appId: 1,
-  signJwt: async (clientId, timeDifference) => {
+  createJwt: async (clientId, timeDifference) => {
     // ... sign the JWT remotely
     // universal-github-app-jwt accounts for clock skew by issuing at -30s from now
     // if a timeDifference is present, add that to the seconds
