@@ -16,7 +16,7 @@ type AppAuthStrategyOptions = {
 type AppAuthJwtSigningStrategyOptions = {
   createJwt: (
     clientIdOrAppId: string | number,
-    timeDifference: number | undefined,
+    timeDifference?: number | undefined,
   ) => Promise<{ jwt: string; expiresAt: string }>;
 };
 
