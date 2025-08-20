@@ -39,6 +39,9 @@ x//0u+zd/R/QRUzLOw4N72/Hu+UG6MNt5iDZFCtapRaKt6OvSBwy8w==
 // see https://runkit.com/gr2m/reproducable-jwt
 const BEARER =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOi0zMCwiZXhwIjo1NzAsImlzcyI6MX0.q3foRa78U3WegM5PrWLEh5N0bH1SD62OqW66ZYzArp95JBNiCbo8KAlGtiRENCIfBZT9ibDUWy82cI4g3F09mdTq3bD1xLavIfmTksIQCz5EymTWR5v6gL14LSmQdWY9lSqkgUG0XCFljWUglEP39H4yeHbFgdjvAYg3ifDS12z9oQz2ACdSpvxPiTuCC804HkPVw8Qoy0OSXvCkFU70l7VXCVUxnuhHnk8-oCGcKUspmeP6UdDnXk-Aus-eGwDfJbU2WritxxaXw6B4a3flTPojkYLSkPBr6Pi0H2-mBsW_Nvs0aLPVLKobQd4gqTkosX3967DoAG8luUMhrnxe8Q";
+const SIGN_JWT_CALLBACK = async (/* unused: clientId */) => {
+  return { jwt: BEARER, expiresAt: "1970-01-01T00:09:30.000Z" };
+};
 
 beforeEach(() => {
   vi.useFakeTimers().setSystemTime(0);
@@ -48,6 +51,22 @@ test("README example for app auth", async () => {
   const auth = createAppAuth({
     appId: APP_ID,
     privateKey: PRIVATE_KEY,
+  });
+
+  const authentication = await auth({ type: "app" });
+
+  expect(authentication).toEqual({
+    type: "app",
+    token: BEARER,
+    appId: 1,
+    expiresAt: "1970-01-01T00:09:30.000Z",
+  });
+});
+
+test("README example for app auth via external JWT signing", async () => {
+  const auth = createAppAuth({
+    appId: APP_ID,
+    createJwt: SIGN_JWT_CALLBACK,
   });
 
   const authentication = await auth({ type: "app" });
@@ -2429,9 +2448,34 @@ test("throws helpful error if `privateKey` is not set properly (#184)", async ()
     createAppAuth({
       appId: APP_ID,
       // @ts-ignore
-      privateKey: undefined,
+      privateKey: undefined as string,
     });
   }).toThrowError("[@octokit/auth-app] privateKey option is required");
+});
+
+test("throws helpful error if `privateKey` and `createJwt` are both set", async () => {
+  expect(() => {
+    createAppAuth({
+      appId: APP_ID,
+      // @ts-ignore
+      privateKey: PRIVATE_KEY,
+      // @ts-ignore
+      createJwt: SIGN_JWT_CALLBACK,
+    });
+  }).toThrowError(
+    "[@octokit/auth-app] privateKey and createJwt options are mutually exclusive",
+  );
+});
+
+test("does not throw an error if an `createJwt` callback is provided in lieu of a `privateKey`", async () => {
+  expect(() => {
+    createAppAuth({
+      appId: APP_ID,
+      createJwt: SIGN_JWT_CALLBACK,
+      // // @ts-ignore
+      // privateKey: undefined,
+    });
+  }).not.toThrow();
 });
 
 test("throws helpful error if `installationId` is set to a falsy value in createAppAuth() (#184)", async () => {
