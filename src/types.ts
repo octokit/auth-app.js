@@ -9,9 +9,19 @@ type OAuthStrategyOptions = {
   clientSecret?: string;
 };
 
+type AppAuthStrategyOptions = {
+  privateKey: string;
+};
+
+type AppAuthJwtSigningStrategyOptions = {
+  createJwt: (
+    clientIdOrAppId: string | number,
+    timeDifference?: number | undefined,
+  ) => Promise<{ jwt: string; expiresAt: string }>;
+};
+
 type CommonStrategyOptions = {
   appId: number | string;
-  privateKey: string;
   installationId?: number | string;
   request?: OctokitTypes.RequestInterface;
   cache?: Cache;
@@ -23,11 +33,12 @@ type CommonStrategyOptions = {
 
 export type StrategyOptions = OAuthStrategyOptions &
   CommonStrategyOptions &
+  (AppAuthStrategyOptions | AppAuthJwtSigningStrategyOptions) &
   Record<string, unknown>;
 
 // AUTH OPTIONS
 
-export type AppAuthOptions = {
+export type AppAuthOptions = Partial<AppAuthJwtSigningStrategyOptions> & {
   type: "app";
 };
 
@@ -87,7 +98,9 @@ export interface FactoryInstallation<T> {
 
 export interface AuthInterface {
   // app auth
-  (options: AppAuthOptions): Promise<AppAuthentication>;
+  (
+    options: AppAuthOptions | AppAuthJwtSigningStrategyOptions,
+  ): Promise<AppAuthentication>;
   (options: OAuthAppAuthOptions): Promise<OAuthAppAuthentication>;
 
   // installation auth without `factory` option
@@ -196,8 +209,10 @@ export type WithInstallationId = {
   installationId: number;
 };
 
-export type State = Required<Omit<CommonStrategyOptions, "installationId">> & {
-  installationId?: number;
-} & OAuthStrategyOptions & {
+export type State = Required<Omit<CommonStrategyOptions, "installationId">> &
+  Pick<Partial<AppAuthStrategyOptions>, "privateKey"> &
+  Pick<Partial<AppAuthJwtSigningStrategyOptions>, "createJwt"> & {
+    installationId?: number;
+  } & OAuthStrategyOptions & {
     oauthApp: OAuthAppAuth.GitHubAuthInterface;
   };
