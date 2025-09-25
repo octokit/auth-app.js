@@ -30,7 +30,7 @@
     "@octokit/auth-oauth-user": "^6.0.0",
     "@octokit/request": "^10.0.2",
     "@octokit/request-error": "^7.0.0",
-    "@octokit/types": "^14.0.0",
+    "@octokit/types": "^15.0.0",
     "toad-cache": "^3.7.0",
     "universal-github-app-jwt": "^2.2.0",
     "universal-user-agent": "^7.0.0"
