@@ -20,6 +20,7 @@ const PATHS = [
   "/orgs/{org}/installation",
   "/repos/{owner}/{repo}/installation",
   "/users/{username}/installation",
+  "/enterprises/{enterprise}/installation",
 ];
 
 // CREDIT: Simon Grondin (https://github.com/SGrondin)
