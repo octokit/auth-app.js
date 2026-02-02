@@ -107,6 +107,40 @@ resolves with
 }
 ```
 
+### Authenticate as GitHub App (remotely-signed JSON Web Token)
+
+If your app's private key is stored in a key management service or hardware security
+module, you can use the `createJwt` option instead of a private key to remotely sign a
+JWT. You provide an async callback to perform the token signing.
+
+```js
+const auth = createAppAuth({
+  appId: 1,
+  createJwt: async (clientId, timeDifference) => {
+    // ... sign the JWT remotely
+    // universal-github-app-jwt accounts for clock skew by issuing at -30s from now
+    // if a timeDifference is present, add that to the seconds
+    return { jwt, expiresAt };
+  }
+  clientId: "lv1.1234567890abcdef",
+  clientSecret: "1234567890abcdef12341234567890abcdef1234",
+});
+
+// Retrieve JSON Web Token (JWT) to authenticate as app
+const appAuthentication = await auth({ type: "app" });
+```
+
+resolves with
+
+```json
+{
+  "type": "app",
+  "token": "jsonwebtoken123",
+  "appId": 123,
+  "expiresAt": "2018-07-07T00:09:30.000Z"
+}
+```
+
 ### Authenticate as OAuth App (client ID/client secret)
 
 The [OAuth Application APIs](https://docs.github.com/en/rest/reference/apps#oauth-applications-api) require the app to authenticate using clientID/client as Basic Authentication
@@ -337,7 +371,7 @@ await installationOctokit.request("POST /repos/{owner}/{repo}/issues", {
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed. If your private key contains escaped newlines (`\\n`), they will be automatically replaced with actual newlines.
+        <strong>Typically required</strong>. Content of the <code>*.pem</code> file you downloaded from the app’s about page. You can generate a new private key if needed. If your private key contains escaped newlines (`\\n`), they will be automatically replaced with actual newlines. Not required when using an external JWT signing service.
       </td>
     </tr>
     <tr>
@@ -406,7 +440,7 @@ createAppAuth({
         <code>object</code>
       </th>
       <td>
-        Installation tokens expire after an hour. By default, <code>@octokit/auth-app</code> is caching up to 15000 tokens simultaneously using <a href="https://github.com/isaacs/node-lru-cache">lru-cache</a>. You can pass your own cache implementation by passing <code>options.cache.{get,set}</code> to the constructor. Example:
+        Installation tokens expire after an hour. By default, <code>@octokit/auth-app</code> is caching up to 15000 tokens simultaneously using <a href="https://github.com/kibertoad/toad-cache">toad-cache</a>. You can pass your own cache implementation by passing <code>options.cache.{get,set}</code> to the constructor. Example:
 
 ```js
 const CACHE = {};
@@ -479,7 +513,7 @@ Authenticate as the GitHub app to list installations, repositories, and create i
         <code>string</code>
       </th>
       <td>
-        <strong>Required</strong>. Must be either <code>"app"</code>.
+        <strong>Required</strong>. Must be <code>"app"</code>.
       </td>
     </tr>
   </tbody>

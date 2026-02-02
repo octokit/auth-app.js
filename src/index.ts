@@ -31,9 +31,12 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
   if (!options.appId) {
     throw new Error("[@octokit/auth-app] appId option is required");
   }
-
-  if (!options.privateKey) {
+  if (!options.privateKey && !options.createJwt) {
     throw new Error("[@octokit/auth-app] privateKey option is required");
+  } else if (options.privateKey && options.createJwt) {
+    throw new Error(
+      "[@octokit/auth-app] privateKey and createJwt options are mutually exclusive",
+    );
   }
   if ("installationId" in options && !options.installationId) {
     throw new Error(
@@ -41,12 +44,17 @@ export function createAppAuth(options: StrategyOptions): AuthInterface {
     );
   }
 
-  const log = Object.assign(
-    {
-      warn: console.warn.bind(console),
-    },
-    options.log,
-  );
+  /**
+   * Mutate the logger to ensure it has a `warn` method.
+   *
+   * Some Loggers like pino need that the `this` reference points
+   * to the original object, so we cannot use `Object.assign` here.
+   */
+  const log = options.log || ({} as NonNullable<StrategyOptions["log"]>);
+  if (typeof log.warn !== "function") {
+    log.warn = console.warn.bind(console);
+  }
+
   const request =
     options.request ||
     defaultRequest.defaults({
