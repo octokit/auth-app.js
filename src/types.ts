@@ -154,7 +154,7 @@ export type RequestInterface = OctokitTypes.RequestInterface;
 export type Cache =
   | Lru<string>
   | {
-      get: (key: string) => string | Promise<string>;
+      get: (key: string) => string | Promise<string | null | undefined>;
       set: (key: string, value: string) => any;
     };
 
