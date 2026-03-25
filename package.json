@@ -14,7 +14,7 @@
     "pretest": "npm run -s lint",
     "test": "vitest run --coverage",
     "test:ui": "vitest --ui --coverage",
-    "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2022 --module node16 --moduleResolution node16 --exactOptionalPropertyTypes test/typescript-validate.ts"
+    "test:typescript": "npx tsc --ignoreConfig --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2022 --module node18 --moduleResolution node18 --exactOptionalPropertyTypes test/typescript-validate.ts"
   },
   "repository": "github:octokit/auth-app.js",
   "keywords": [
