@@ -14,7 +14,7 @@
     "pretest": "npm run -s lint",
     "test": "vitest run --coverage",
     "test:ui": "vitest --ui --coverage",
-    "test:typescript": "npx tsc --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2022 --module node16 --moduleResolution node16 --exactOptionalPropertyTypes test/typescript-validate.ts"
+    "test:typescript": "npx tsc --ignoreConfig --noEmit --declaration --noUnusedLocals --esModuleInterop --strict --target es2022 --module node18 --moduleResolution node16 --exactOptionalPropertyTypes test/typescript-validate.ts"
   },
   "repository": "github:octokit/auth-app.js",
   "keywords": [
@@ -45,7 +45,7 @@
     "prettier": "3.6.2",
     "semantic-release-plugin-update-version-in-files": "^2.0.0",
     "tinyglobby": "^0.2.13",
-    "typescript": "^5.0.0",
+    "typescript": "^6.0.0",
     "vitest": "^4.0.18"
   },
   "release": {
