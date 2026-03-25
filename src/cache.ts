@@ -1,6 +1,5 @@
 import { Lru } from "toad-cache";
 
-/* v8 ignore next */
 import type {
   CacheableInstallationAuthOptions,
   Cache,
