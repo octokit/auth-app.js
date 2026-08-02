@@ -137,13 +137,13 @@ async function getInstallationAuthenticationImpl(
     payload,
   );
 
-  /* v8 ignore next - permissions are optional per OpenAPI spec, but we think that is incorrect */
+  /* v8 ignore next - permissions are optional per OpenAPI spec, but we think that is incorrect -- @preserve */
   const permissions = permissionsOptional || {};
-  /* v8 ignore next - repositorySelection are optional per OpenAPI spec, but we think that is incorrect */
+  /* v8 ignore next - repositorySelection are optional per OpenAPI spec, but we think that is incorrect -- @preserve */
   const repositorySelection = repositorySelectionOptional || "all";
 
   const repositoryIds = repositories
-    ? repositories.map((r: { id: number }) => r.id)
+    ? repositories.map((r: { id: number | bigint }) => r.id)
     : void 0;
 
   const repositoryNames = repositories

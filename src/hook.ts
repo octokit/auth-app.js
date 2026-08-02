@@ -18,6 +18,9 @@ const FIVE_SECONDS_IN_MS = 5 * 1000;
 function isNotTimeSkewError(error: RequestError) {
   return !(
     error.message.match(
+      /'Expiration time' claim \('exp'\) is too far in the future/,
+    ) ||
+    error.message.match(
       /'Expiration time' claim \('exp'\) must be a numeric value representing the future time at which the assertion expires/,
     ) ||
     error.message.match(
@@ -121,7 +124,7 @@ async function sendRequestWithRetries(
 ): Promise<AnyResponse> {
   const timeSinceTokenCreationInMs = +new Date() - +new Date(createdAt);
 
-  /* v8 ignore start - due to skipped tests, see https://github.com/octokit/auth-app.js/pull/580 */
+  /* v8 ignore start - due to skipped tests, see https://github.com/octokit/auth-app.js/pull/580 -- @preserve */
   try {
     return await request(options);
   } catch (error: any) {
@@ -150,5 +153,5 @@ async function sendRequestWithRetries(
 
     return sendRequestWithRetries(state, request, options, createdAt, retries);
   }
-  /* v8 ignore end */
+  /* v8 ignore end -- @preserve */
 }

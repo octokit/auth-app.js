@@ -51,7 +51,7 @@ response back to the client making the request.
 export type InstallationAuthOptions = {
   type: "installation";
   installationId?: number | string;
-  repositoryIds?: number[];
+  repositoryIds?: (number | bigint)[];
   repositoryNames?: string[];
   permissions?: Permissions;
   refresh?: boolean;
@@ -61,7 +61,7 @@ export type InstallationAuthOptions = {
 export type InstallationAuthOptionsWithFactory<T> = {
   type: "installation";
   installationId?: number | string;
-  repositoryIds?: number[];
+  repositoryIds?: (number | bigint)[];
   repositoryNames?: string[];
   permissions?: Permissions;
   refresh?: boolean;
@@ -180,7 +180,7 @@ export type InstallationAccessTokenData = {
   expiresAt: UTC_TIMESTAMP;
   permissions: Permissions;
   repositorySelection: REPOSITORY_SELECTION;
-  repositoryIds?: number[] | undefined;
+  repositoryIds?: (number | bigint)[] | undefined;
   repositoryNames?: string[] | undefined;
   singleFileName?: string | undefined;
 };

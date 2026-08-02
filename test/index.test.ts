@@ -1,12 +1,10 @@
-import fetchMock from "fetch-mock";
+import fetchMock, { type RouteMatcher } from "fetch-mock";
 
 import { request } from "@octokit/request";
 import { vi, beforeEach, test, expect } from "vitest";
 
 import { createAppAuth, createOAuthUserAuth } from "../src/index.ts";
 import type { FactoryInstallation } from "../src/types.ts";
-
-type MockMatcherFunction = fetchMock.MockMatcherFunction;
 
 const APP_ID = 1;
 const PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
@@ -137,10 +135,10 @@ test("throws if incomplete Private Key is provided", async () => {
 });
 
 test("README example for installation auth", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
+  const matchCreateInstallationAccessToken: RouteMatcher = ({
     url,
-    { body, headers },
-  ) => {
+    options: { headers, body },
+  }) => {
     expect(url).toEqual(
       "https://api.github.com/app/installations/123/access_tokens",
     );
@@ -174,11 +172,11 @@ test("README example for installation auth", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -203,10 +201,10 @@ test("README example for installation auth", async () => {
 });
 
 test("README example for oauth", async () => {
-  const matchCreateOAuthAccessToken: MockMatcherFunction = (
+  const matchCreateOAuthAccessToken: RouteMatcher = ({
     url,
-    { body, headers },
-  ) => {
+    options: { body, headers },
+  }) => {
     expect(url).toEqual("https://github.com/login/oauth/access_token");
     expect(headers).toStrictEqual({
       accept: "application/json",
@@ -238,11 +236,11 @@ test("README example for oauth", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateOAuthAccessToken,
             createOAuthAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -271,7 +269,7 @@ test("installationId strategy option", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce(
           "https://api.github.com/app/installations/123/access_tokens",
           {
@@ -282,7 +280,7 @@ test("installationId strategy option", async () => {
             },
             repository_selection: "all",
           },
-        ),
+        ).fetchHandler,
     },
   });
 
@@ -318,7 +316,7 @@ test("installationId strategy option fails with no installationId", async () => 
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce(
           "https://api.github.com/app/installations/123/access_tokens",
           {
@@ -329,7 +327,7 @@ test("installationId strategy option fails with no installationId", async () => 
             },
             repository_selection: "all",
           },
-        ),
+        ).fetchHandler,
     },
   });
 
@@ -354,10 +352,9 @@ test("installationId strategy option fails with no installationId", async () => 
 });
 
 test("repositoryIds auth option", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    _url,
-    { body },
-  ) => {
+  const matchCreateInstallationAccessToken: RouteMatcher = ({
+    options: { body },
+  }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repositories: ["repoOne", "repoTwo", "repoThree"],
     });
@@ -387,11 +384,11 @@ test("repositoryIds auth option", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -420,7 +417,7 @@ test("repositoryIds auth option", async () => {
 
 test("installationId strategy option coalesces concurrent calls with the same options", async () => {
   const sandbox = fetchMock
-    .sandbox()
+    .createInstance()
     .post("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -442,7 +439,7 @@ test("installationId strategy option coalesces concurrent calls with the same op
       "user-agent": "test",
     },
     request: {
-      fetch: sandbox,
+      fetch: sandbox.fetchHandler,
     },
   });
 
@@ -480,8 +477,9 @@ test("installationId strategy option coalesces concurrent calls with the same op
   expect(authentications[1]).toBe(authentications[0]);
   // and only request was made
   expect(
-    sandbox.calls("https://api.github.com/app/installations/123/access_tokens")
-      .length,
+    sandbox.callHistory.calls(
+      "https://api.github.com/app/installations/123/access_tokens",
+    ).length,
   ).toBe(1);
 
   // whereas the auth for the unrelated installation got a different token
@@ -518,16 +516,16 @@ test("installationId strategy option coalesces concurrent calls with the same op
 
   // a fresh request was made
   expect(
-    sandbox.calls("https://api.github.com/app/installations/123/access_tokens")
-      .length,
+    sandbox.callHistory.calls(
+      "https://api.github.com/app/installations/123/access_tokens",
+    ).length,
   ).toBe(2);
 });
 
 test("repositoryNames auth option", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    _url,
-    { body },
-  ) => {
+  const matchCreateInstallationAccessToken: RouteMatcher = ({
+    options: { body },
+  }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repository_ids: [1, 2, 3],
     });
@@ -557,11 +555,11 @@ test("repositoryNames auth option", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -589,10 +587,9 @@ test("repositoryNames auth option", async () => {
 });
 
 test("Consistenly handling reposID & reposName", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    _url,
-    { body },
-  ) => {
+  const matchCreateInstallationAccessToken: RouteMatcher = ({
+    options: { body },
+  }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       repository_ids: [1, 2, 3],
       repositories: ["repoOne", "repoTwo", "repoThree"],
@@ -623,11 +620,11 @@ test("Consistenly handling reposID & reposName", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -654,10 +651,9 @@ test("Consistenly handling reposID & reposName", async () => {
 });
 
 test("permissions auth option", async () => {
-  const matchCreateInstallationAccessToken: MockMatcherFunction = (
-    _url,
-    { body },
-  ) => {
+  const matchCreateInstallationAccessToken: RouteMatcher = ({
+    options: { body },
+  }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
         single_file: "write",
@@ -685,11 +681,11 @@ test("permissions auth option", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateInstallationAccessToken,
             createInstallationAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -724,7 +720,7 @@ test("installation auth from cache", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
@@ -733,7 +729,7 @@ test("installation auth from cache", async () => {
             issues: "write",
           },
           repository_selection: "all",
-        }),
+        }).fetchHandler,
     },
   });
 
@@ -777,7 +773,7 @@ test("installation auth with selected repositories from cache", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
@@ -790,7 +786,7 @@ test("installation auth with selected repositories from cache", async () => {
             { id: 2, name: "repoTwo" },
             { id: 3, name: "repoThree" },
           ],
-        }),
+        }).fetchHandler,
     },
   });
 
@@ -839,7 +835,7 @@ test("installation auth with selected permissions from cache", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
@@ -847,7 +843,7 @@ test("installation auth with selected permissions from cache", async () => {
             issues: "write",
           },
           repository_selection: "all",
-        }),
+        }).fetchHandler,
     },
   });
 
@@ -890,11 +886,11 @@ test("installation auth with selected permissions from cache", async () => {
 });
 
 test("installation cache with different options", async () => {
-  const matchCreateAccessToken1: MockMatcherFunction = (_url, { body }) => {
+  const matchCreateAccessToken1: RouteMatcher = ({ options: { body } }) => {
     expect(body).toBeUndefined();
     return true;
   };
-  const matchCreateAccessToken2: MockMatcherFunction = (_url, { body }) => {
+  const matchCreateAccessToken2: RouteMatcher = ({ options: { body } }) => {
     expect(JSON.parse(String(body))).toStrictEqual({
       permissions: {
         metadata: "read",
@@ -913,7 +909,7 @@ test("installation cache with different options", async () => {
   };
 
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce(
       matchCreateAccessToken1,
       createInstallationAccessTokenResponseData,
@@ -928,7 +924,7 @@ test("installation cache with different options", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
 
@@ -965,7 +961,7 @@ test("installation cache with different options", async () => {
 
   expect(authentication1).toEqual(EXPECTED);
   expect(authentication2).toEqual(EXPECTED);
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 });
 
 test("refresh option", async () => {
@@ -974,7 +970,7 @@ test("refresh option", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: fetchMock.sandbox().post(
+      fetch: fetchMock.createInstance().post(
         "path:/app/installations/123/access_tokens",
         {
           token: "secret123",
@@ -987,7 +983,7 @@ test("refresh option", async () => {
         {
           repeat: 2,
         },
-      ),
+      ).fetchHandler,
     },
   });
 
@@ -1026,10 +1022,10 @@ test("refresh option", async () => {
 });
 
 test("oauth-user web flow", async () => {
-  const matchCreateOAuthAccessToken: MockMatcherFunction = (
+  const matchCreateOAuthAccessToken: RouteMatcher = ({
     url,
-    { body, headers },
-  ) => {
+    options: { body, headers },
+  }) => {
     expect(url).toEqual("https://github.com/login/oauth/access_token");
     expect(headers).toStrictEqual({
       accept: "application/json",
@@ -1063,11 +1059,11 @@ test("oauth-user web flow", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             matchCreateOAuthAccessToken,
             createOAuthAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -1093,7 +1089,7 @@ test("oauth-user web flow", async () => {
 
 test("oauth-user device flow", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
 
     .postOnce(
       "https://github.com/login/device/code",
@@ -1133,7 +1129,6 @@ test("oauth-user device flow", async () => {
           device_code: "devicecode123",
           grant_type: "urn:ietf:params:oauth:grant-type:device_code",
         },
-        overwriteRoutes: false,
       },
     );
 
@@ -1147,7 +1142,7 @@ test("oauth-user device flow", async () => {
         "user-agent": "test",
       },
       request: {
-        fetch: mock,
+        fetch: mock.fetchHandler,
       },
     }),
   });
@@ -1179,7 +1174,7 @@ test("oauth-user device flow", async () => {
 });
 
 test("oauth-user witth `factory` option", async () => {
-  const mock = fetchMock.sandbox().postOnce(
+  const mock = fetchMock.createInstance().postOnce(
     "https://github.com/login/oauth/access_token",
     {
       access_token: "secret123",
@@ -1210,7 +1205,7 @@ test("oauth-user witth `factory` option", async () => {
         "user-agent": "test",
       },
       request: {
-        fetch: mock,
+        fetch: mock.fetchHandler,
       },
     }),
   });
@@ -1249,7 +1244,7 @@ test("caches based on installation id", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce(
           "path:/app/installations/123/access_tokens",
           createInstallationAccessTokenResponseData,
@@ -1259,7 +1254,7 @@ test("caches based on installation id", async () => {
           Object.assign({}, createInstallationAccessTokenResponseData, {
             token: "secret456",
           }),
-        ),
+        ).fetchHandler,
     },
   });
 
@@ -1317,7 +1312,7 @@ test("supports custom cache", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .post("path:/app/installations/123/access_tokens", {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
@@ -1334,7 +1329,7 @@ test("supports custom cache", async () => {
             metadata: "read",
           },
           repository_selection: "all",
-        }),
+        }).fetchHandler,
     },
   });
 
@@ -1405,7 +1400,7 @@ test("supports custom cache with async get/set", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .postOnce("path:/app/installations/123/access_tokens", {
           token: "secret123",
           expires_at: "1970-01-01T01:00:00.000Z",
@@ -1413,7 +1408,7 @@ test("supports custom cache with async get/set", async () => {
             metadata: "read",
           },
           repository_selection: "all",
-        }),
+        }).fetchHandler,
     },
   });
 
@@ -1448,7 +1443,7 @@ test("supports custom cache with async get/set", async () => {
 
 test("auth.hook() creates token and uses it for succeeding requests", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -1490,7 +1485,7 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1507,12 +1502,12 @@ test("auth.hook() creates token and uses it for succeeding requests", async () =
 
   await requestWithAuth("GET /app");
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 });
 
 test("auth.hook() uses app auth for full URLs", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .getOnce("https://api.github.com/app/installations?per_page=100", [], {
       headers: {
         authorization: `bearer ${BEARER}`,
@@ -1529,7 +1524,7 @@ test("auth.hook() uses app auth for full URLs", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1542,11 +1537,11 @@ test("auth.hook() uses app auth for full URLs", async () => {
     per_page: 100,
   });
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 });
 
 test("auth.hook() uses app auth for marketplace URL", async () => {
-  const mock = fetchMock.sandbox().getOnce(
+  const mock = fetchMock.createInstance().getOnce(
     "path:/marketplace_listing/accounts/1",
     {},
     {
@@ -1566,7 +1561,7 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1579,12 +1574,12 @@ test("auth.hook() uses app auth for marketplace URL", async () => {
     account_id: 1,
   });
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 });
 
 test("auth.hook() uses client ID/client secret Basic Authentication for /applications/* requests", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce("https://github.com/login/oauth/access_token", {
       access_token: "secret123",
       scope: "",
@@ -1610,7 +1605,7 @@ test("auth.hook() uses client ID/client secret Basic Authentication for /applica
 
   const requestWithAuth = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
       hook: auth.hook,
     },
   });
@@ -1628,8 +1623,8 @@ test("auth.hook() uses client ID/client secret Basic Authentication for /applica
 
 test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => {
   const mock = fetchMock
-    .sandbox()
-    .get("https://api.github.com/app", (_url, options) => {
+    .createInstance()
+    .get("https://api.github.com/app", ({ options }) => {
       const auth = (options.headers as { [key: string]: string | undefined })[
         "authorization"
       ];
@@ -1673,7 +1668,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
 
   const requestWithMock = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1687,7 +1682,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past", async () => 
 
   // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 
   // @ts-ignore
   expect(global.console.warn.mock.calls.length).toEqual(2);
@@ -1708,8 +1703,8 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
   vi.setSystemTime(fakeTimeMs);
 
   const mock = fetchMock
-    .sandbox()
-    .get("https://api.github.com/app", (_url, options) => {
+    .createInstance()
+    .get("https://api.github.com/app", ({ options }) => {
       const auth = (options.headers as { [key: string]: string | undefined })[
         "authorization"
       ];
@@ -1750,7 +1745,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
 
   const requestWithMock = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1764,7 +1759,7 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
 
   // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 
   // @ts-ignore
   expect(global.console.warn.mock.calls.length).toEqual(2);
@@ -1780,8 +1775,8 @@ test("auth.hook(): handle 401 due to an exp timestamp in the past with 800 secon
 
 test("auth.hook(): handle 401 due to an iat timestamp in the future", async () => {
   const mock = fetchMock
-    .sandbox()
-    .get("https://api.github.com/app", (_url, options) => {
+    .createInstance()
+    .get("https://api.github.com/app", ({ options }) => {
       const auth = (options.headers as { [key: string]: string | undefined })[
         "authorization"
       ];
@@ -1823,7 +1818,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
 
   const requestWithMock = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1837,7 +1832,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
 
   // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 
   // @ts-ignore
   expect(global.console.warn.mock.calls.length).toEqual(2);
@@ -1853,7 +1848,7 @@ test("auth.hook(): handle 401 due to an iat timestamp in the future", async () =
 
 test("auth.hook(): throw 401 error in app auth flow without timing errors", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .get("https://api.github.com/app", {
       status: 401,
       body: {
@@ -1880,7 +1875,7 @@ test("auth.hook(): throw 401 error in app auth flow without timing errors", asyn
 
   const requestWithMock = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1909,7 +1904,7 @@ test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   const FIVE_SECONDS_IN_MS = 1000 * 5;
 
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -1964,7 +1959,7 @@ test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -1992,7 +1987,7 @@ test.skip("auth.hook(): handle 401 in first 5 seconds (#65)", async () => {
   }
 
   expect(data).toEqual({ id: 123 });
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 
   // @ts-ignore
   expect(global.console.warn.mock.calls.length).toEqual(3);
@@ -2004,7 +1999,7 @@ test.skip("auth.hook(): throw error with custom message after unsuccessful retri
   global.console.warn = vi.fn();
 
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -2034,7 +2029,7 @@ test.skip("auth.hook(): throw error with custom message after unsuccessful retri
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -2064,7 +2059,7 @@ test.skip("auth.hook(): throw error with custom message after unsuccessful retri
 
 test("auth.hook(): throws on 500 error without retries", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -2086,7 +2081,7 @@ test("auth.hook(): throws on 500 error without retries", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -2104,7 +2099,7 @@ test("auth.hook(): throws on 500 error without retries", async () => {
     expect(error.status).toEqual(500);
   }
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 
   // @ts-ignore
   expect(global.console.warn.mock.calls.length).toEqual(0);
@@ -2117,7 +2112,7 @@ test("oauth endpoint error", async () => {
     },
     request: {
       fetch: fetchMock
-        .sandbox()
+        .createInstance()
         .post("https://github.com/login/oauth/access_token", {
           status: 200,
           body: JSON.stringify({
@@ -2128,7 +2123,7 @@ test("oauth endpoint error", async () => {
           headers: {
             "Content-Type": "application/json; charset=utf-8",
           },
-        }),
+        }).fetchHandler,
     },
   });
 
@@ -2161,7 +2156,7 @@ test("auth.hook() and custom cache", async () => {
     });
 
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .post("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -2217,7 +2212,7 @@ test("auth.hook() and custom cache", async () => {
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth1 = requestWithMock.defaults({
@@ -2234,7 +2229,7 @@ test("auth.hook() and custom cache", async () => {
   await requestWithAuth1("GET /repos/octocat/hello-world");
   await requestWithAuth2("GET /repos/octocat/hello-world2");
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
   expect(CACHE).toStrictEqual({
     "123":
       "secret123|1970-01-01T00:00:00.000Z|1970-01-01T01:00:00.000Z|all|metadata|",
@@ -2262,11 +2257,11 @@ test("id and installationId can be passed as options", async () => {
       },
       request: {
         fetch: fetchMock
-          .sandbox()
+          .createInstance()
           .postOnce(
             "https://api.github.com/app/installations/123/access_tokens",
             createInstallationAccessTokenResponseData,
-          ),
+          ).fetchHandler,
       },
     }),
   });
@@ -2283,8 +2278,8 @@ test("createAppAuth passed with log option", async () => {
   const calls: String[] = [];
 
   const mock = fetchMock
-    .sandbox()
-    .get("https://api.github.com/app", (_url, options) => {
+    .createInstance()
+    .get("https://api.github.com/app", ({ options }) => {
       const auth = (options.headers as { [key: string]: string | undefined })[
         "authorization"
       ];
@@ -2322,7 +2317,7 @@ test("createAppAuth passed with log option", async () => {
 
   const requestWithMock = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -2336,7 +2331,7 @@ test("createAppAuth passed with log option", async () => {
 
   // @ts-ignore - jest complains about data being possible null
   expect(data.id).toStrictEqual(1);
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 
   expect(calls).toStrictEqual(["warn", "warn"]);
 });
@@ -2387,7 +2382,7 @@ test("factory auth option", async () => {
 
 test("Do not intercept auth.hook(request, 'POST https://github.com/login/oauth/access_token') requests (#49)", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce("https://github.com/login/oauth/access_token", {
       access_token: "secret123",
       scope: "",
@@ -2402,7 +2397,7 @@ test("Do not intercept auth.hook(request, 'POST https://github.com/login/oauth/a
 
   const requestWithAuth = request.defaults({
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
       hook: auth.hook,
     },
   });
@@ -2490,7 +2485,7 @@ test("throws helpful error if `installationId` is set to a falsy value in create
 
 test("auth.hook() uses installation auth for /orgs/{org}/installations requests (#374)", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .post("https://api.github.com/app/installations/123/access_tokens", {
       token: "secret123",
       expires_at: "1970-01-01T01:00:00.000Z",
@@ -2517,7 +2512,7 @@ test("auth.hook() uses installation auth for /orgs/{org}/installations requests 
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -2530,12 +2525,12 @@ test("auth.hook() uses installation auth for /orgs/{org}/installations requests 
     org: "octocat",
   });
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 });
 
 test("auth.hook() uses app auth even for requests with query strings. (#374)", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .getOnce("https://api.github.com/orgs/octocat/installation?per_page=100", {
       headers: {
         authorization: `bearer ${BEARER}`,
@@ -2552,7 +2547,7 @@ test("auth.hook() uses app auth even for requests with query strings. (#374)", a
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({
@@ -2565,12 +2560,12 @@ test("auth.hook() uses app auth even for requests with query strings. (#374)", a
     org: "octocat",
   });
 
-  expect(mock.done()).toBe(true);
+  expect(mock.callHistory.done()).toBe(true);
 });
 
 test("auth.hook() respects `baseUrl` passed as part of request parameters #640", async () => {
   const mock = fetchMock
-    .sandbox()
+    .createInstance()
     .postOnce(
       "https://not-api.github.com/app/installations/123/access_tokens",
       {
@@ -2604,7 +2599,7 @@ test("auth.hook() respects `baseUrl` passed as part of request parameters #640",
       "user-agent": "test",
     },
     request: {
-      fetch: mock,
+      fetch: mock.fetchHandler,
     },
   });
   const requestWithAuth = requestWithMock.defaults({

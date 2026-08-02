@@ -357,10 +357,10 @@ await installationOctokit.request("POST /repos/{owner}/{repo}/issues", {
         <code>appId</code>
       </th>
       <th>
-        <code>number</code>
+        <code>number | string</code>
       </th>
       <td>
-        <strong>Required</strong>. Find <strong>App ID</strong> on the app’s about page in settings.
+        <strong>Required</strong>. Find <strong>App ID</strong> on the app’s about page in settings. A <strong>Client ID</strong> string may also be used and is recommended.
       </td>
     </tr>
     <tr>
@@ -923,10 +923,10 @@ Depending on on the `auth()` call, the resulting authentication object can be on
         <code>appId</code>
       </th>
       <th>
-        <code>number</code>
+        <code>number | string</code>
       </th>
       <td>
-        GitHub App database ID.
+        GitHub App database ID or Client ID.
       </td>
     </tr>
     <tr>
