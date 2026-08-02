@@ -143,7 +143,7 @@ async function getInstallationAuthenticationImpl(
   const repositorySelection = repositorySelectionOptional || "all";
 
   const repositoryIds = repositories
-    ? repositories.map((r: { id: number }) => r.id)
+    ? repositories.map((r: { id: number | bigint }) => r.id)
     : void 0;
 
   const repositoryNames = repositories
